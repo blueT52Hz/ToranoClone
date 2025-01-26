@@ -1,11 +1,18 @@
 {
-  "name": "toranoclone",
   "version": 2,
-  "scripts": {
-    "build": "tsc && vite build"
-  },
-  "dependencies": {
-    "vite": "^2.0.0",
-    "typescript": "^4.0.0"
-  }
+  "builds": [
+    {
+      "src": "src/index.html",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
