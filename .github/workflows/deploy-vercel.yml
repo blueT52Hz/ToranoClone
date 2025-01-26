@@ -6,28 +6,31 @@ on:
       - develop
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
+      # Bước kiểm tra mã nguồn
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Cập nhật phiên bản mới nhất (v4)
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      # Bước thiết lập môi trường Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3 # Sử dụng phiên bản mới nhất (v3)
         with:
-          node-version: 20
+          node-version: "20" # Dùng phiên bản Node.js mới nhất
+          cache: "npm" # Bật cache để tăng tốc cài đặt dependencies
 
+      # Cài đặt dependencies
       - name: Install dependencies
-        run: npm install
+        run: npm ci # `npm ci` nhanh hơn `npm install` và được khuyến nghị cho CI/CD
 
+      # Build dự án
       - name: Build project
         run: npm run build
 
+      # Triển khai lên Vercel
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          zeit-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: "--prod"
-          working-directory: .
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} # Dùng biến môi trường bảo mật
+        run: npx vercel deploy --prod --yes
