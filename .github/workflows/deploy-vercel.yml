@@ -10,27 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Bước kiểm tra mã nguồn
       - name: Checkout code
-        uses: actions/checkout@v4 # Cập nhật phiên bản mới nhất (v4)
+        uses: actions/checkout@v2
 
-      # Bước thiết lập môi trường Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v3 # Sử dụng phiên bản mới nhất (v3)
+        uses: actions/setup-node@v2
         with:
-          node-version: "20" # Dùng phiên bản Node.js mới nhất
-          cache: "npm" # Bật cache để tăng tốc cài đặt dependencies
+          node-version: "16"
 
-      # Cài đặt dependencies
       - name: Install dependencies
-        run: npm ci # `npm ci` nhanh hơn `npm install` và được khuyến nghị cho CI/CD
+        run: npm install
 
-      # Build dự án
       - name: Build project
         run: npm run build
 
-      # Triển khai lên Vercel
       - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} # Dùng biến môi trường bảo mật
-        run: npx vercel deploy --prod --yes
+        run: npx vercel deploy --prod --token ${{ secrets.VERCEL_TOKEN }}
