@@ -1,8 +1,26 @@
-import Login from "@/pages/Login";
-import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomeLayout from "@/layouts/Home/HomeLayout";
+import Home from "@/pages/Home";
+import Collections from "@/pages/Collections";
+import Pages from "@/pages/Pages";
+import Products from "@/pages/Products";
+import Cart from "@/pages/Cart";
 
 const App = () => {
-  return <Login />;
+  return (
+    <div>App</div>
+    // <Router>
+    //   <Routes>
+    //     <Route element={<Home />}>
+    //       <Route path="/" element={<Home />}></Route>
+    //       <Route path="/collections/:slug" element={<Collections />}></Route>
+    //       <Route path="/pages/:slug" element={<Pages />}></Route>
+    //       <Route path="/products/:slug" element={<Products />}></Route>
+    //       <Route path="/cart" element={<Cart />}></Route>
+    //     </Route>
+    //   </Routes>
+    // </Router>
+  );
 };
 
 export default App;
