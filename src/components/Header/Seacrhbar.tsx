@@ -64,7 +64,7 @@ const Searchbar = () => {
           placement="bottom"
           title={null}
           content={
-            <div className="w-[95vw] min850:w-[25vw] px-3 h-[90vh] flex-col">
+            <div className="w-[95vw] min850:w-[25vw] px-3 flex-col">
               <div className="font-bold text-xl text-center">TÌM KIẾM</div>
               <Divider className="my-2"></Divider>
               <Input.Search

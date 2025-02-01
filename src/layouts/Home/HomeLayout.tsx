@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer/Footer";
 import { Header } from "@/components/Header";
 import TopBar from "@/components/TopBar/TopBar";
 import React from "react";
@@ -11,7 +12,7 @@ const HomeLayout = () => {
       <main>
         <Outlet />
       </main>
-      <footer></footer>
+      <Footer />
     </div>
   );
 };
