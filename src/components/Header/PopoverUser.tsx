@@ -20,7 +20,7 @@ const PopoverUser = () => {
         placement={window.innerWidth > 850 ? "bottomLeft" : "bottom"}
         open={open}
         content={
-          <div className="w-[95vw] min850:w-[25vw] px-3 h-[80vh] min850:h-auto">
+          <div className="w-[95vw] min850:w-[25vw] px-3 min850:h-auto">
             <Input className="mb-6 h-10" placeholder="Email" allowClear></Input>
             <Input.Password
               allowClear
