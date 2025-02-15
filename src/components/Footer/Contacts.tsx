@@ -24,7 +24,7 @@ const Contacts = () => {
   ];
   return (
     <Flex
-      className="w-full px-3 min850:w-1/4 min-[850px]:pt-[75px] min-[850px]:pr-[15px] min-[850px]:pb-[52px] min-[850px]:pl-[35px] min850:border-r min850:border-b min850:border-[#dedede]"
+      className="w-full px-3 min1200:pt-[75px] min1200:pr-[15px] min1200:pb-[52px] min1200:pl-[35px] min1200:border-r min1200:border-b min1200:border-[#dedede]"
       vertical
     >
       {mobileWidth && <Divider className="m-0"></Divider>}

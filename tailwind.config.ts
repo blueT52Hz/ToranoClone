@@ -8,6 +8,7 @@ export default {
       },
       screens: {
         min850: "850px",
+        min1200: "1200px",
       },
       colors: {
         "shop-color-bg": "#ffffff",
