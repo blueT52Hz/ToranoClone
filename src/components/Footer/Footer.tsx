@@ -4,17 +4,22 @@ import Fashion from "@/components/Footer/Fashion";
 import GroupLinks from "@/components/Footer/GroupLinks";
 import Subcribe from "@/components/Footer/Subcribe";
 import { Flex } from "antd";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const Footer = () => {
-  const mobileWidth = window.innerWidth < 850;
+  const [mobileWidth, setMobileWidth] = useState(window.innerWidth < 850);
+  useEffect(() => {
+    const handleResize = () => {
+      setMobileWidth(window.innerWidth <= 850);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   return (
     <footer>
-      <Flex
-        className="absolute bottom-0 bg-[#f5f5f5] w-full min850:px-12 flex"
-        vertical
-      >
-        <Flex vertical={mobileWidth}>
+      <Flex className=" bottom-0 bg-[#f5f5f5] w-full min850:px-8 flex" vertical>
+        <Flex vertical={mobileWidth} wrap>
           {mobileWidth && <Subcribe></Subcribe>}
           <Fashion></Fashion>
           <Contacts></Contacts>

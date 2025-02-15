@@ -30,22 +30,20 @@ const PopoverCollection = (props: Props) => {
           <Flex justify="space-evenly">
             {collections.map((item, index) => {
               return (
-                <>
-                  <Flex vertical key={index}>
-                    <Link to={"/"} className="font-bold text-base">
-                      {item.name}
+                <Flex vertical key={index}>
+                  <Link to={"/"} className="font-bold text-base">
+                    {item.name}
+                  </Link>
+                  {item.sub_items.map((sub_item, i) => (
+                    <Link
+                      to={`/collections/${sub_item.slug}`}
+                      key={i}
+                      className="my-2"
+                    >
+                      {sub_item.name}
                     </Link>
-                    {item.sub_items.map((sub_item, index) => (
-                      <Link
-                        to={`/collections/${sub_item.slug}`}
-                        key={index}
-                        className="my-2"
-                      >
-                        {sub_item.name}
-                      </Link>
-                    ))}
-                  </Flex>
-                </>
+                  ))}
+                </Flex>
               );
             })}
             <Link to={"/"}>

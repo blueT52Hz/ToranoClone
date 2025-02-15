@@ -7,9 +7,14 @@ import React, { useEffect, useState } from "react";
 const Fashion = () => {
   const [mobileWidth, setMobileWidth] = useState(window.innerWidth < 850);
   useEffect(() => {
-    setMobileWidth(window.innerWidth < 850);
-    setOpen(!mobileWidth);
-  }, [window.innerWidth]);
+    const handleResize = () => {
+      setMobileWidth(window.innerWidth < 850);
+      setOpen(false);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [open, setOpen] = useState(!mobileWidth);
   const imgageUrls = [
     "https://theme.hstatic.net/200000690725/1001078549/14/payment_1_img.png?v=647",
@@ -49,7 +54,7 @@ const Fashion = () => {
         ></ChevronDown>
       </Flex>
       <AnimatePresence>
-        {open && (
+        {((open && mobileWidth) || !mobileWidth) && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -182,9 +187,12 @@ const Fashion = () => {
                 Phương thức thanh toán
               </div>
               <Flex wrap className="mt-3" gap={"0.5rem"}>
-                {imgageUrls.map((item) => {
+                {imgageUrls.map((item, i) => {
                   return (
-                    <div className="border border-slate-300 overflow-hidden rounded-md w-14 h-12">
+                    <div
+                      className="border border-slate-300 overflow-hidden rounded-md w-14 h-12"
+                      key={i}
+                    >
                       <img src={item} alt="" className="w-auto h-auto" />
                     </div>
                   );

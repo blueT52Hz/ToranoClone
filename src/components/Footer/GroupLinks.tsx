@@ -13,9 +13,14 @@ interface Contact {
 const GroupLinks = () => {
   const [mobileWidth, setMobileWidth] = useState(window.innerWidth < 850);
   useEffect(() => {
-    setMobileWidth(window.innerWidth < 850);
-    setOpen(!mobileWidth);
-  }, [window.innerWidth]);
+    const handleResize = () => {
+      setMobileWidth(window.innerWidth < 850);
+      setOpen(false);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [open, setOpen] = useState(!mobileWidth);
   const contacts: Contact[] = [
     { name: "Tìm kiếm", slug: "/search" },
@@ -55,7 +60,7 @@ const GroupLinks = () => {
         ></ChevronDown>
       </Flex>
       <AnimatePresence>
-        {open && (
+        {((open && mobileWidth) || !mobileWidth) && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -64,8 +69,8 @@ const GroupLinks = () => {
             className="overflow-hidden"
           >
             <Flex vertical className="pt-2 pb-5 text-[#000000]">
-              {contacts.map((item) => (
-                <li className="text-sm mb-2">
+              {contacts.map((item, index) => (
+                <li className="text-sm mb-2" key={index}>
                   <Link to={item.slug}>{item.name}</Link>
                 </li>
               ))}

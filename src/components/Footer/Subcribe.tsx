@@ -50,7 +50,7 @@ const Subcribe = () => {
         Đăng ký nhận tin
       </h2>
       <div className="mt-3 w-full">
-        <p className="mb-4 text-sm text-center">
+        <p className="mb-4 text-sm text-center min850:text-left">
           Để cập nhật những sản phẩm mới, nhận thông tin ưu đãi đặc biệt và
           thông tin giảm giá khác.
         </p>
