@@ -7,9 +7,14 @@ import React, { useEffect, useState } from "react";
 const Fashion = () => {
   const [mobileWidth, setMobileWidth] = useState(window.innerWidth < 850);
   useEffect(() => {
-    setMobileWidth(window.innerWidth < 850);
-    setOpen(!mobileWidth);
-  }, [window.innerWidth]);
+    const handleResize = () => {
+      setMobileWidth(window.innerWidth < 850);
+      setOpen(false);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [open, setOpen] = useState(!mobileWidth);
   const imgageUrls = [
     "https://theme.hstatic.net/200000690725/1001078549/14/payment_1_img.png?v=647",
@@ -21,7 +26,7 @@ const Fashion = () => {
   ];
   return (
     <Flex
-      className="w-full px-3 min850:w-1/4 min-[850px]:pt-[75px] min-[850px]:pr-[15px] min-[850px]:pb-[52px] min-[850px]:pl-[35px] min850:border-r min850:border-b min850:border-[#dedede]"
+      className="w-full px-3 min1200:pt-[75px] min1200:pr-[15px] min1200:pb-[52px] min1200:pl-[35px] min1200:border-r min1200:border-b min1200:border-[#dedede]"
       vertical
     >
       {mobileWidth && <Divider className="m-0"></Divider>}
@@ -49,7 +54,7 @@ const Fashion = () => {
         ></ChevronDown>
       </Flex>
       <AnimatePresence>
-        {open && (
+        {((open && mobileWidth) || !mobileWidth) && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -182,9 +187,12 @@ const Fashion = () => {
                 Phương thức thanh toán
               </div>
               <Flex wrap className="mt-3" gap={"0.5rem"}>
-                {imgageUrls.map((item) => {
+                {imgageUrls.map((item, i) => {
                   return (
-                    <div className="border border-slate-300 overflow-hidden rounded-md w-14 h-12">
+                    <div
+                      className="border border-slate-300 overflow-hidden rounded-md w-14 h-12"
+                      key={i}
+                    >
                       <img src={item} alt="" className="w-auto h-auto" />
                     </div>
                   );

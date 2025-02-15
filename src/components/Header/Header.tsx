@@ -138,7 +138,7 @@ const Header = () => {
   };
 
   return (
-    <header className="shadow-md">
+    <header className="shadow-md sticky top-0 z-50 bg-white">
       <Flex
         align="center"
         className="px-6 min850:px-12 min-h-16"
