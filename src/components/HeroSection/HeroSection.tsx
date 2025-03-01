@@ -99,17 +99,19 @@ const HeroSection = () => {
               setIsDragging(false);
             }}
           >
-            <div className="flex">
+            <div className="flex flex-nowrap">
               {items.map((item, i) => (
-                <img
-                  src={item.image_url}
-                  key={i}
-                  className="w-full h-full object-cover cursor-pointer select-none"
-                  onClick={() => {
-                    if (!isDragging) navigate(item.slug);
-                  }}
-                  draggable={false}
-                ></img>
+                <div className="basis-full flex-shrink-0">
+                  <img
+                    src={item.image_url}
+                    key={i}
+                    className="w-full h-full object-cover cursor-pointer select-none"
+                    onClick={() => {
+                      if (!isDragging) navigate(item.slug);
+                    }}
+                    draggable={false}
+                  ></img>
+                </div>
               ))}
             </div>
           </motion.div>
