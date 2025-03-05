@@ -99,13 +99,13 @@ const CategorySection = () => {
   };
 
   return (
-    <section className="section-home-category">
-      <div className="container mx-auto px-3">
+    <section className="section-home-category mb-20">
+      <div className="container min-w-full px-12">
         <div className="title flex flex-col mb-4">
           <div className="flex justify-between">
             <Link
               to={`/collections/`}
-              className="hover:text-shop-color-hover text-xl xs:text-3xl font-bold"
+              className="hover:text-shop-color-hover text-xl sm:text-4xl font-bold"
               style={{ transition: "all .3s easeInOut" }}
             >
               <h2>DANH MỤC SẢN PHẨM</h2>
