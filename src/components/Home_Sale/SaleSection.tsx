@@ -241,6 +241,7 @@ const SaleSection = () => {
                     isDragging={isDragging}
                     item={item}
                     perPage={perPage}
+                    className="pr-4"
                   ></ProductCard>
                 );
               })}

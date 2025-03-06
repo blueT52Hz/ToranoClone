@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, ShoppingBag } from "lucide-react";
+import { relative } from "path";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -9,6 +10,7 @@ interface ProductCardProps {
   currentSlide: number;
   item: Product;
   isDragging: boolean;
+  className?: string;
 }
 
 interface Product {
@@ -24,12 +26,12 @@ interface Product {
 }
 
 const ProductCard = (props: ProductCardProps) => {
-  const { perPage, currentSlide, item, isDragging } = props;
+  const { perPage, currentSlide, item, isDragging, className } = props;
   const [isHoverd, setIsHovered] = useState(false);
   const navigate = useNavigate();
   return (
     <motion.div
-      className={clsx("overflow-hidden pr-4 flex-shrink-0")}
+      className={clsx("overflow-hidden flex-shrink-0", className)}
       style={{
         flexBasis: `calc(${100 / perPage}%)`, // Trừ đi 24px để giữ khoảng cách
       }}
@@ -55,7 +57,8 @@ const ProductCard = (props: ProductCardProps) => {
               )}
               draggable={false}
               onClick={() => {
-                if (!isDragging) navigate(`${item.slug}`);
+                if (!isDragging)
+                  navigate(`/${item.slug}`, { relative: "path" });
               }}
             />
             <img
@@ -68,7 +71,8 @@ const ProductCard = (props: ProductCardProps) => {
               )}
               draggable={false}
               onClick={() => {
-                if (!isDragging) navigate(`${item.slug}`);
+                if (!isDragging)
+                  navigate(`/${item.slug}`, { relative: "path" });
               }}
             />
           </motion.div>
