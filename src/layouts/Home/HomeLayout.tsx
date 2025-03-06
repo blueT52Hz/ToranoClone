@@ -1,3 +1,4 @@
+import AppBreadcrumb from "@/components/Breadcrumb/AppBreadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { Header } from "@/components/Header";
 import TopBar from "@/components/TopBar/TopBar";
@@ -9,6 +10,7 @@ const HomeLayout = () => {
     <div className="flex-col w-full">
       <TopBar />
       <Header />
+      <AppBreadcrumb />
       <main>
         <Outlet />
       </main>
