@@ -38,7 +38,6 @@ const categories: Item[] = [
     name: "Quần nam",
     slug: "quan-nam",
     sub_items: [
-      { slug: "quan-", name: "Quần" },
       { slug: "quan-au", name: "Quần Âu" },
       { slug: "quan-jeans", name: "Quần Jeans" },
       { slug: "quan-dai-kaki", name: "Quần Dài Kaki" },
