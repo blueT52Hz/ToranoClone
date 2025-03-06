@@ -58,7 +58,7 @@ const PopoverUser = () => {
             </Button>
             <Flex className="text-xs text-[#9e9e9e] mb-2" gap={"0.25rem"}>
               <div>Khách hàng mới?</div>
-              <Link to="/" className="text-red-600 hover:text-red-600">
+              <Link to="/login" className="text-red-600 hover:text-red-600">
                 Tạo tài khoản
               </Link>
             </Flex>

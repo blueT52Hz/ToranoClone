@@ -5,6 +5,7 @@ import Collections from "@/pages/Collections";
 import Pages from "@/pages/Pages";
 import Products from "@/pages/Products";
 import Cart from "@/pages/Cart";
+import Login from "@/pages/Login";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <Route path="/pages/:slug" element={<Pages />}></Route>
           <Route path="/products/:slug" element={<Products />}></Route>
           <Route path="/cart" element={<Cart />}></Route>
+          <Route path="/login" element={<Login />}></Route>
         </Route>
       </Routes>
     </Router>

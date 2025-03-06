@@ -185,13 +185,14 @@ const FeaturedSection = () => {
           <div className="grid grid-cols-5 grid-rows-2 gap-4">
             {products.map((item, index) => {
               return (
-                <ProductCard
-                  key={index}
-                  perPage={0}
-                  currentSlide={0}
-                  item={item}
-                  isDragging={false}
-                />
+                <div key={index} className="pr-4">
+                  <ProductCard
+                    perPage={0}
+                    currentSlide={0}
+                    item={item}
+                    isDragging={false}
+                  />
+                </div>
               );
             })}
           </div>
