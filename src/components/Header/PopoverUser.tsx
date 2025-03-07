@@ -8,6 +8,7 @@ const PopoverUser = () => {
   return (
     <>
       <Popover
+        trigger="click"
         title={
           <Flex vertical justify="center" className="w-full" align="center">
             <div className="font-medium text-base">ĐĂNG NHẬP TÀI KHOẢN</div>
@@ -19,6 +20,7 @@ const PopoverUser = () => {
         }
         placement={window.innerWidth > 850 ? "bottomLeft" : "bottom"}
         open={open}
+        onOpenChange={setOpen}
         content={
           <div className="w-[95vw] min850:w-[25vw] px-3 min850:h-auto">
             <Input className="mb-6 h-10" placeholder="Email" allowClear></Input>

@@ -9,6 +9,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import StoreLocator from "@/pages/StoreLocator ";
 import PromotionPage from "@/pages/Promotion";
+import Search from "@/pages/Search";
 
 const App = () => {
   return (
@@ -25,10 +26,11 @@ const App = () => {
             path="/pages/tang-voucher-20-30"
             element={<PromotionPage />}
           ></Route>
+          <Route path="/search" element={<Search />}></Route>
           <Route path="/products/:slug" element={<Products />}></Route>
           <Route path="/cart" element={<Cart />}></Route>
-          <Route path="/login" element={<Login />}></Route>
-          <Route path="/register" element={<Register />}></Route>
+          <Route path="accounts/login/:slug" element={<Login />}></Route>
+          <Route path="accounts/register" element={<Register />}></Route>
         </Route>
       </Routes>
     </Router>

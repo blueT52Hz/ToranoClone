@@ -7,10 +7,14 @@ interface PaginationProps {
 }
 
 const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const goToPage = (page: number) => {
-    navigate(`?page=${page}`);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", page.toString());
+
+    navigate(`?${newParams.toString()}`);
   };
 
   const getPaginationItems = () => {

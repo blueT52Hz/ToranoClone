@@ -1,15 +1,40 @@
 import { Button, Divider, Drawer, Flex, Input, Modal, Popover } from "antd";
 import { Search, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "@components/Header/style.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const Searchbar = () => {
   const [open, setOpen] = useState(false);
   const [mobileWidth, setMobileWidth] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100); // Delay 100ms để chờ modal mở hoàn toàn
+    }
+  }, [open]);
+
   useEffect(() => {
     setMobileWidth(window.innerWidth < 850);
   }, [window.innerWidth]);
+
+  const handleSearch = (value: string) => {
+    if (!value.trim()) return;
+
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("type", "product");
+    newParams.set("q", value);
+
+    navigate(`/search?${newParams.toString()}`);
+    setOpen(false);
+    setSearchValue("");
+  };
+
   return (
     <>
       {!mobileWidth && (
@@ -41,10 +66,15 @@ const Searchbar = () => {
               </div>
               <Flex vertical justify="center" align="center">
                 <Input.Search
+                  autoFocus={true}
+                  ref={inputRef}
                   placeholder="Tìm kiếm ..."
                   size="large"
                   className="w-[40rem]"
                   allowClear
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onSearch={handleSearch}
                 ></Input.Search>
                 <div className="mt-2 text-base">
                   Polo, Short Đũi, TShirt, . . .
@@ -68,11 +98,16 @@ const Searchbar = () => {
               <div className="font-bold text-xl text-center">TÌM KIẾM</div>
               <Divider className="my-2"></Divider>
               <Input.Search
+                autoFocus={true}
+                ref={inputRef}
                 placeholder="Tìm kiếm sản phẩm ..."
                 allowClear
                 size="large"
                 className="mt-4"
-              ></Input.Search>
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onSearch={handleSearch}
+              />
               <div className="text-base mt-2 text-center">
                 Polo, Short Đũi, TShirt, . . .
               </div>
