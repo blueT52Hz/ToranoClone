@@ -5,6 +5,7 @@ import GroupLinks from "@/components/Footer/GroupLinks";
 import Subcribe from "@/components/Footer/Subcribe";
 import { Flex } from "antd";
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 interface ItemPolicy {
   title: string;
@@ -40,6 +41,7 @@ const itemsPolicy: ItemPolicy[] = [
 ];
 
 const Footer = () => {
+  const location = useLocation();
   const [mobileWidth, setMobileWidth] = useState(window.innerWidth < 850);
   useEffect(() => {
     const handleResize = () => {
@@ -51,25 +53,27 @@ const Footer = () => {
   }, []);
   return (
     <footer className="flex flex-col">
-      <section className="policy py-12 border-t border-[#eee]">
-        <div className="grid grid-cols-1 min850:grid-cols-2 min1200:grid-cols-4 px-3 mx-14 min850:mx-4 gap-10 min850:gap-6 min1200:gap-0">
-          {itemsPolicy.map((item, index) => (
-            <div key={index} className="flex justify-start">
-              <img
-                src={item.img_url}
-                alt={item.title}
-                className="w-12 h-12 mb-2"
-              />
-              <div className="flex flex-col pl-4 gap-2">
-                <div className="text-base text-shop-color-title font-medium">
-                  {item.title}
+      {location.pathname === "/" && (
+        <section className="policy py-12 border-t border-[#eee]">
+          <div className="grid grid-cols-1 min850:grid-cols-2 min1200:grid-cols-4 px-3 mx-14 min850:mx-4 gap-10 min850:gap-6 min1200:gap-0">
+            {itemsPolicy.map((item, index) => (
+              <div key={index} className="flex justify-start">
+                <img
+                  src={item.img_url}
+                  alt={item.title}
+                  className="w-12 h-12 mb-2"
+                />
+                <div className="flex flex-col pl-4 gap-2">
+                  <div className="text-base text-shop-color-title font-medium">
+                    {item.title}
+                  </div>
+                  <div className="text-sm text-gray-500">{item.content}</div>
                 </div>
-                <div className="text-sm text-gray-500">{item.content}</div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
       <Flex
         className=" bottom-0 bg-[#f5f5f5] w-full min1200:px-8 flex"
         vertical

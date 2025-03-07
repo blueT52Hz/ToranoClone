@@ -69,7 +69,7 @@ const Subcribe = () => {
             >
               <Form.Item
                 name="email"
-                validateTrigger={["onChange"]}
+                validateTrigger={["onSubmit", "onBlur"]}
                 rules={[
                   {
                     required: true,
