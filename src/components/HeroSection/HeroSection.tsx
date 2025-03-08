@@ -61,7 +61,7 @@ const HeroSection = () => {
 
   const [isHovered, setIsHovered] = useState(false);
   const handleDecrease = () => {
-    if (currentSlide === 0) setDuration(0.2);
+    if (currentSlide === 0) setDuration(-1000);
     else setDuration(0.5);
     setCurrentSlide((currentSlide - 1 + slideSize) % slideSize);
   };
@@ -101,7 +101,7 @@ const HeroSection = () => {
           >
             <div className="flex flex-nowrap">
               {items.map((item, i) => (
-                <div className="basis-full flex-shrink-0">
+                <div className="basis-full flex-shrink-0" key={i}>
                   <img
                     src={item.image_url}
                     key={i}

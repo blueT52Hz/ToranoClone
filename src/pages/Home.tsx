@@ -4,7 +4,6 @@ import CollectionSection from "@/components/Home_Collection/CollectionSection";
 import FeaturedSection from "@/components/Home_Collection/FeaturedSection";
 import OutFitSection from "@/components/Home_OutfitOfTheDay/OutFitSection";
 import SaleSection from "@/components/Home_Sale/SaleSection";
-import { Flex } from "antd";
 import React, { useEffect } from "react";
 
 const Home = () => {

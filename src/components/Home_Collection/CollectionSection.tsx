@@ -1,155 +1,11 @@
 import ProductCard from "@/components/Product/ProductCard";
+import { Product, ProductPreview, mockProductPreviews } from "@/types/product";
 import clsx from "clsx";
 import { div } from "framer-motion/client";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const headerTitle = ["Áo Khoác", "Bộ Nỉ", "Sơ Mi - Quần Dài", "Áo Polo"];
-
-interface Product {
-  name: string;
-  slug: string;
-  first_img: string;
-  second_img: string;
-  color: string[];
-  size: ("S" | "M" | "L" | "XL")[];
-  original_price: number;
-  sale_price: number;
-  discount: number;
-}
-
-const products: Product[] = [
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-  {
-    name: "Áo khoác da lộn basic cổ cao FWCL002",
-    first_img:
-      "https://product.hstatic.net/200000690725/product/thiet_ke_chua_co_ten__6__036a37f6aca94d57beaa829d4cc501d4_master.png",
-    second_img:
-      "https://product.hstatic.net/200000690725/product/54163586200_1acc1fd069_k_7d13c155b90548bb937b919b9eb893c8_master.jpg",
-    slug: "products/ao-khoac-da-lon-basic-co-cao-6-fwcl002",
-    size: ["S", "M", "L", "XL"],
-    original_price: 750000,
-    sale_price: 549000,
-    discount: 27,
-    color: ["Đỏ"],
-  },
-];
 
 const CollectionSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -177,8 +33,8 @@ const CollectionSection = () => {
           })}
         </div>
         <div className="collection py-8">
-          <div className="grid grid-cols-5 grid-rows-2 gap-4">
-            {products.map((item, index) => {
+          <div className="grid grid-cols-5 gap-4">
+            {mockProductPreviews.map((item, index) => {
               return (
                 <div key={index} className="pr-4">
                   <ProductCard
