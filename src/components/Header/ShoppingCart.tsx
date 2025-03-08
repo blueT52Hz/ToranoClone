@@ -1,16 +1,20 @@
+import { useApp } from "@/contexts/AppContext";
 import { Badge, Divider, Drawer, Empty, Flex, Modal } from "antd";
 import { ShoppingCart as CartIcon, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const ShoppingCart = () => {
+  const { cart } = useApp();
+  console.log(cart);
+
   const [openCart, setOpenCart] = useState(false);
   const [openSaleModal, setOpenSaleModal] = useState(false);
   return (
     <>
       <Badge
         showZero
-        count={0}
+        count={cart?.cartItems.length}
         size="default"
         onClick={() => setOpenCart(true)}
         className="cursor-pointer"

@@ -10,30 +10,33 @@ import Register from "@/pages/Register";
 import StoreLocator from "@/pages/StoreLocator ";
 import PromotionPage from "@/pages/Promotion";
 import Search from "@/pages/Search";
+import { AppProvider } from "@/contexts/AppContext";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route element={<HomeLayout />}>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/collections/:slug" element={<Collections />}></Route>
-          <Route
-            path="/pages/he-thong-cua-hang"
-            element={<StoreLocator />}
-          ></Route>
-          <Route
-            path="/pages/tang-voucher-20-30"
-            element={<PromotionPage />}
-          ></Route>
-          <Route path="/search" element={<Search />}></Route>
-          <Route path="/products/:slug" element={<Products />}></Route>
-          <Route path="/cart" element={<Cart />}></Route>
-          <Route path="accounts/login/:slug" element={<Login />}></Route>
-          <Route path="accounts/register" element={<Register />}></Route>
-        </Route>
-      </Routes>
-    </Router>
+    <AppProvider>
+      <Router>
+        <Routes>
+          <Route element={<HomeLayout />}>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/collections/:slug" element={<Collections />}></Route>
+            <Route
+              path="/pages/he-thong-cua-hang"
+              element={<StoreLocator />}
+            ></Route>
+            <Route
+              path="/pages/tang-voucher-20-30"
+              element={<PromotionPage />}
+            ></Route>
+            <Route path="/search" element={<Search />}></Route>
+            <Route path="/products/:slug" element={<Products />}></Route>
+            <Route path="/cart" element={<Cart />}></Route>
+            <Route path="accounts/login/:slug" element={<Login />}></Route>
+            <Route path="accounts/register" element={<Register />}></Route>
+          </Route>
+        </Routes>
+      </Router>
+    </AppProvider>
   );
 };
 

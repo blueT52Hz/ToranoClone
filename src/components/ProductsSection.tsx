@@ -1,21 +1,10 @@
 import ProductCard from "@/components/Product/ProductCard";
+import { Product, ProductPreview } from "@/types/product";
 import React from "react";
-
-interface Product {
-  name: string;
-  slug: string;
-  first_img: string;
-  second_img: string;
-  color: string[];
-  size: ("S" | "M" | "L" | "XL")[];
-  original_price: number;
-  sale_price: number;
-  discount: number;
-}
 
 interface ProductsSectionProp {
   columns: number;
-  products: Product[];
+  products: ProductPreview[];
 }
 
 const ProductsSection = (props: ProductsSectionProp) => {
