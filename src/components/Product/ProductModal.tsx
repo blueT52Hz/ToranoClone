@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import {
   Color,
   Product,
@@ -23,14 +24,22 @@ import "@/components/Product/style.css";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { cn } from "@/utils/cn";
+import { CartItem } from "@/types/cart";
+import { useCart } from "@/context/UserContext";
 
 interface ProductModalProps {
+  product_id: string;
   isOpenModal: boolean;
   setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProductModal = (props: ProductModalProps) => {
-  const product = mockProducts[0];
+  const { product_id } = props;
+  const product = mockProducts.filter(
+    (product) => product.product_id === product_id
+  )[0];
+  console.log(product);
+
   const [activeImageId, setActiveImageId] = useState(
     product.variants[0].image.image_id
   );
@@ -55,6 +64,7 @@ const ProductModal = (props: ProductModalProps) => {
   const [idSelectedSize, setIdSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [form] = Form.useForm();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     setIdSelectedSize("");
@@ -62,6 +72,19 @@ const ProductModal = (props: ProductModalProps) => {
 
   const handleAddToCart = () => {
     form.submit();
+    const item: CartItem = {
+      cartItem_id: uuidv4(),
+      variant: product.variants.filter(
+        (variant) =>
+          variant.image.image_id === activeImageId &&
+          variant.size.size_id === idSelectedSize
+      )[0],
+      quantity,
+      created_at: new Date(),
+      product: product,
+    };
+    addToCart(item);
+    setIsOpenModal(false);
   };
 
   return (
@@ -107,12 +130,12 @@ const ProductModal = (props: ProductModalProps) => {
           <div className="p-4 mb-5 bg-[#fafafa] w-full flex items-center">
             <span className="min-w-16 block">Giá: </span>
             <span className="text-xl text-[#ff2c26] font-bold">
-              {product.sale_price
+              {product.sale_price && product.discount
                 ? product.sale_price.toLocaleString()
                 : product.base_price.toLocaleString()}
               ₫
             </span>
-            {product.sale_price && (
+            {product.discount && (
               <>
                 <span className="text-[#9e9e9e] text-sm line-through ml-4">
                   {product.base_price.toLocaleString()}₫
@@ -151,98 +174,71 @@ const ProductModal = (props: ProductModalProps) => {
             </div>
           </div>
 
-          <Form>
-            <div className="mt-4">
-              <h3 className="font-medium">Kích thước:</h3>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {sizesArray.map((size) => {
-                  const isVariantInStock = product.variants.some(
-                    (variant) =>
-                      variant.quantity > 0 &&
-                      variant.image.image_id === activeImageId &&
-                      variant.size.size_id === size.size_id
-                  );
+          <div className="mt-4">
+            <h3 className="font-medium">Kích thước:</h3>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {sizesArray.map((size) => {
+                const isVariantInStock = product.variants.some(
+                  (variant) =>
+                    variant.quantity > 0 &&
+                    variant.image.image_id === activeImageId &&
+                    variant.size.size_id === size.size_id
+                );
 
-                  return (
-                    <button
-                      key={size.size_id}
-                      className={`relative border px-4 py-2 rounded transition ${
-                        idSelectedSize === size.size_id
-                          ? "border-red-500 border-2"
-                          : "border-gray-300"
-                      } ${!isVariantInStock ? "opacity-50 cursor-not-allowed" : ""}`}
-                      onClick={() =>
-                        isVariantInStock && setIdSelectedSize(size.size_id)
-                      }
-                      disabled={!isVariantInStock}
-                    >
-                      {size.size_code}
-                      {!isVariantInStock && (
-                        <X className="absolute inset-0 m-auto opacity-30 w-full h-full" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <Form.Item
-              label="Số lượng"
-              name="quantity"
-              initialValue={1}
-              rules={[
-                {
-                  required: true,
-                  min: 0,
-                  max: 20,
-                  message: "Số lượng không hợp lệ!",
-                },
-              ]}
-            >
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                >
-                  -
-                </Button>
-                <InputNumber
-                  min={1}
-                  max={20}
-                  value={quantity}
-                  controls={false} // Tắt control mặc định
-                  onChange={(value) => {
-                    if (
-                      typeof value === "number" &&
-                      value >= 1 &&
-                      value <= 20
-                    ) {
-                      setQuantity(value);
+                return (
+                  <button
+                    key={size.size_id}
+                    className={`relative border px-4 py-2 rounded transition ${
+                      idSelectedSize === size.size_id
+                        ? "border-red-500 border-2"
+                        : "border-gray-300"
+                    } ${!isVariantInStock ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() =>
+                      isVariantInStock && setIdSelectedSize(size.size_id)
                     }
-                  }}
-                />
-                <Button
-                  onClick={() => setQuantity(Math.min(20, quantity + 1))}
-                  disabled={quantity >= 20}
-                >
-                  +
-                </Button>
-              </div>
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Thêm vào giỏ hàng
-              </Button>
-            </Form.Item>
-
-            <div
-              className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
-              onClick={handleAddToCart}
-            >
-              THÊM VÀO GIỎ
+                    disabled={!isVariantInStock}
+                  >
+                    {size.size_code}
+                    {!isVariantInStock && (
+                      <X className="absolute inset-0 m-auto opacity-30 w-full h-full" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          </Form>
+          </div>
+
+          <div className="mt-4 flex items-center">
+            <h3 className="font-medium mr-4">Số lượng:</h3>
+            <button
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="px-3 py-1 border"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              className="w-16 text-center border border-white rounded-md focus:outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              value={quantity}
+              onChange={(e) =>
+                setQuantity(parseInt(e.target.value) || quantity)
+              }
+            />
+
+            <button
+              onClick={() => setQuantity(quantity + 1)}
+              className="px-3 py-1 border"
+            >
+              +
+            </button>
+          </div>
+
+          <div
+            className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
+            onClick={handleAddToCart}
+          >
+            THÊM VÀO GIỎ
+          </div>
 
           <div className="mt-4 flex gap-4 justify-end">
             <FaFacebookF className="text-xl cursor-pointer" />

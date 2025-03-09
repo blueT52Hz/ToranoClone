@@ -6,7 +6,7 @@ import Sidebar from "@/components/Header/Sidebar";
 import PopoverCustom from "@/components/Header/PopoverCustom";
 import PopoverCollection from "@/components/Header/PopoverCollection";
 import Searchbar from "@/components/Header/Seacrhbar";
-import ShoppingCart from "@/components/Header/ShoppingCart";
+import ShoppingCart from "@/components/Cart/ShoppingCart";
 import PopoverUser from "@/components/Header/PopoverUser";
 
 interface Sub_Item {

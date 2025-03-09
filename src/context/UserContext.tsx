@@ -12,10 +12,12 @@ interface UserContextType {
   user: User | null;
   cart: Cart;
   setUser: (user: User | null) => void;
-  addToCart: (item: CartItem) => void;
-  clearCart: () => void;
   handleLogOut: () => void;
   handleLogin: (username: string, password: string) => User;
+  addToCart: (item: CartItem) => void;
+  removeItemFromCart: (variant_id: string) => void;
+  updateItemQuantity: (variant_id: string, quantity: number) => void;
+  clearCart: () => void;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -29,6 +31,12 @@ const UserContext = createContext<UserContextType>({
     throw new Error("Function not implemented.");
   },
   addToCart: function (item: CartItem): void {
+    throw new Error("Function not implemented.");
+  },
+  removeItemFromCart: function (variant_id: string): void {
+    throw new Error("Function not implemented.");
+  },
+  updateItemQuantity: function (variant_id: string, quantity: number): void {
     throw new Error("Function not implemented.");
   },
   clearCart: function (): void {
@@ -57,7 +65,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
       const existingItemIndex = prev.cartItems.findIndex(
-        (cartItem) => cartItem.variant_id === item.variant_id
+        (cartItem) => cartItem.variant.variant_id === item.variant.variant_id
       );
 
       const updatedItems =
@@ -69,7 +77,45 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             )
           : [...prev.cartItems, item];
 
-      const newCart = { ...prev, items: updatedItems };
+      const newTotalPrice = updatedItems.reduce((acc, cartItem) => {
+        const price =
+          cartItem.product.sale_price || cartItem.product.base_price;
+        return acc + price * cartItem.quantity;
+      }, 0);
+
+      const newCart = {
+        ...prev,
+        cartItems: updatedItems,
+        cart_total_price: newTotalPrice,
+      };
+
+      if (!user) {
+        setLocalCart(newCart);
+      }
+
+      console.log(newCart);
+
+      return newCart;
+    });
+  };
+
+  const removeItemFromCart = (variant_id: string) => {
+    setCart((prev) => {
+      const newCartItems = prev.cartItems.filter(
+        (cartItem) => cartItem.variant.variant_id !== variant_id
+      );
+
+      const newTotalPrice = newCartItems.reduce((acc, cartItem) => {
+        const price =
+          cartItem.product.sale_price || cartItem.product.base_price;
+        return acc + price * cartItem.quantity;
+      }, 0);
+
+      const newCart = {
+        ...prev,
+        cartItems: newCartItems,
+        cart_total_price: newTotalPrice,
+      };
 
       if (!user) {
         setLocalCart(newCart);
@@ -86,6 +132,32 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       cart_total_price: 0,
     });
     if (!user) clearLocalCart();
+  };
+
+  const updateItemQuantity = (variant_id: string, quantity: number) => {
+    setCart((prev) => {
+      const newTotalPrice = prev.cartItems.reduce((acc, cartItem) => {
+        const price =
+          cartItem.product.sale_price || cartItem.product.base_price;
+        return acc + price * cartItem.quantity;
+      }, 0);
+
+      const newCart = {
+        ...prev,
+        cart_total_price: newTotalPrice,
+        cartItems: prev.cartItems.map((cartItem) =>
+          cartItem.variant.variant_id === variant_id
+            ? { ...cartItem, quantity }
+            : cartItem
+        ),
+      };
+
+      if (!user) {
+        setLocalCart(newCart);
+      }
+
+      return newCart;
+    });
   };
 
   const handleLogOut = () => {
@@ -110,7 +182,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         cart,
         setUser,
         addToCart,
+        removeItemFromCart,
         clearCart,
+        updateItemQuantity,
         handleLogOut,
         handleLogin,
       }}
@@ -125,7 +199,12 @@ export const useUser = () => {
   if (!context) {
     throw new Error("useUser must be used within a UserProvider");
   }
-  return context;
+  return {
+    user: context.user,
+    setUser: context.setUser,
+    handleLogOut: context.handleLogOut,
+    handleLogin: context.handleLogin,
+  };
 };
 
 export const useCart = () => {
@@ -133,5 +212,11 @@ export const useCart = () => {
   if (!context) {
     throw new Error("useUser must be used within a UserProvider");
   }
-  return context.cart;
+  return {
+    cart: context.cart,
+    addToCart: context.addToCart,
+    removeItemFromCart: context.removeItemFromCart,
+    clearCart: context.clearCart,
+    updateItemQuantity: context.updateItemQuantity,
+  };
 };
