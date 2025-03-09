@@ -1,35 +1,55 @@
 import React, { useState } from "react";
-import { Input, Button, Typography, Divider, Form } from "antd";
-import { Link } from "react-router-dom";
+import { Input, Button, Typography, Divider, Form, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
+import { useUser } from "@/context/UserContext";
+import { mockUsers } from "@/types/user";
 
 const { Text } = Typography;
 
 type FieldType = {
-  email?: string;
-  password?: string;
+  email: string;
+  password: string;
 };
 
 const Login = () => {
   const [isLoginTab, setIsLoginTab] = useState(true);
   const [form] = Form.useForm();
+  const { user, setUser, handleLogin } = useUser();
+  const navigate = useNavigate();
+  if (user) navigate("/");
+
+  const handleLoginButtonClicked = (values: FieldType) => {
+    const { email, password } = values;
+    const foundUser = handleLogin(email, password);
+
+    if (foundUser) {
+      setUser(foundUser);
+      message.success("Đăng nhập thành công!");
+      navigate("/");
+    } else {
+      message.error("Sai tài khoản hoặc mật khẩu!");
+    }
+  };
 
   return (
     <section className="login-section flex items-center justify-center my-24">
       <div className=" rounded-lg p-8 ">
         <div className="flex justify-center mb-8">
-          <button
+          <div
             className={cn(
               "text-2xl font-bold px-4 transition-all duration-300",
-              isLoginTab ? "text-black" : "text-gray-400 hover:text-[#000]"
+              isLoginTab
+                ? "text-black"
+                : "text-gray-400 hover:text-[#000] cursor-pointer"
             )}
             onClick={() => setIsLoginTab(true)}
           >
             Đăng nhập
-          </button>
+          </div>
           <span className="px-2 text-gray-300">|</span>
           <Link
-            to={"/register"}
+            to={"/accounts/register"}
             className={cn(
               "text-2xl font-bold px-4 transition-all duration-300",
               "text-gray-400 hover:text-[#000]"
@@ -41,7 +61,11 @@ const Login = () => {
         </div>
 
         <div className="">
-          <Form form={form} autoComplete="off">
+          <Form
+            form={form}
+            autoComplete="off"
+            onFinish={handleLoginButtonClicked}
+          >
             <Form.Item<FieldType>
               name="email"
               validateTrigger={["onSubmit", "onBlur"]}

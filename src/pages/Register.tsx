@@ -1,22 +1,9 @@
 import React, { useState } from "react";
-import {
-  Input,
-  Button,
-  Typography,
-  Divider,
-  Form,
-  Radio,
-  DatePicker,
-} from "antd";
+import { Input, Typography, Form, Radio, DatePicker } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 
 const { Text } = Typography;
-
-type FieldType = {
-  email?: string;
-  password?: string;
-};
 
 const Register = () => {
   const navigate = useNavigate();
@@ -31,20 +18,19 @@ const Register = () => {
               "text-2xl font-bold px-4 transition-all duration-300",
               "text-gray-400 hover:text-[#000]"
             )}
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/accounts/login")}
           >
             Đăng nhập
           </button>
           <span className="px-2 text-gray-300">|</span>
-          <Link
-            to={"/register"}
+          <div
             className={cn(
               "text-2xl font-bold px-4 transition-all duration-300",
               "text-[#000]"
             )}
           >
             Đăng ký
-          </Link>
+          </div>
         </div>
 
         <div className="">
@@ -78,6 +64,7 @@ const Register = () => {
               <Radio.Group>
                 <Radio value="female">Nữ</Radio>
                 <Radio value="male">Nam</Radio>
+                <Radio value="other">Khác</Radio>
               </Radio.Group>
             </Form.Item>
 

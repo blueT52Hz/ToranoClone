@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import {
   Color,
   Product,
@@ -6,7 +7,16 @@ import {
   Size,
   mockProducts,
 } from "@/types/product";
-import { Button, Image, Input, InputNumber, Modal } from "antd";
+import {
+  Alert,
+  Button,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  Modal,
+  Tooltip,
+} from "antd";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
@@ -14,14 +24,22 @@ import "@/components/Product/style.css";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { cn } from "@/utils/cn";
+import { CartItem } from "@/types/cart";
+import { useCart } from "@/context/UserContext";
 
 interface ProductModalProps {
+  product_id: string;
   isOpenModal: boolean;
   setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProductModal = (props: ProductModalProps) => {
-  const product = mockProducts[0];
+  const { product_id } = props;
+  const product = mockProducts.filter(
+    (product) => product.product_id === product_id
+  )[0];
+  console.log(product);
+
   const [activeImageId, setActiveImageId] = useState(
     product.variants[0].image.image_id
   );
@@ -42,16 +60,32 @@ const ProductModal = (props: ProductModalProps) => {
     (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
   );
 
-  console.log(colorsArray);
-  console.log(sizesArray);
-
   const { isOpenModal, setIsOpenModal } = props;
   const [idSelectedSize, setIdSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [form] = Form.useForm();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     setIdSelectedSize("");
   }, [activeImageId]);
+
+  const handleAddToCart = () => {
+    form.submit();
+    const item: CartItem = {
+      cartItem_id: uuidv4(),
+      variant: product.variants.filter(
+        (variant) =>
+          variant.image.image_id === activeImageId &&
+          variant.size.size_id === idSelectedSize
+      )[0],
+      quantity,
+      created_at: new Date(),
+      product: product,
+    };
+    addToCart(item);
+    setIsOpenModal(false);
+  };
 
   return (
     <Modal
@@ -96,12 +130,12 @@ const ProductModal = (props: ProductModalProps) => {
           <div className="p-4 mb-5 bg-[#fafafa] w-full flex items-center">
             <span className="min-w-16 block">Giá: </span>
             <span className="text-xl text-[#ff2c26] font-bold">
-              {product.sale_price
+              {product.sale_price && product.discount
                 ? product.sale_price.toLocaleString()
                 : product.base_price.toLocaleString()}
               ₫
             </span>
-            {product.sale_price && (
+            {product.discount && (
               <>
                 <span className="text-[#9e9e9e] text-sm line-through ml-4">
                   {product.base_price.toLocaleString()}₫
@@ -182,17 +216,15 @@ const ProductModal = (props: ProductModalProps) => {
             >
               -
             </button>
-            {/* <span className="px-4 py-1 border">{quantity}</span> */}
-            <InputNumber
-              controls={false}
+            <input
+              type="number"
+              className="w-16 text-center border border-white rounded-md focus:outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               value={quantity}
-              min={0}
-              onChange={(value) => {
-                if (typeof value === "number" && !isNaN(value)) {
-                  setQuantity(value);
-                } else setQuantity(quantity);
-              }}
+              onChange={(e) =>
+                setQuantity(parseInt(e.target.value) || quantity)
+              }
             />
+
             <button
               onClick={() => setQuantity(quantity + 1)}
               className="px-3 py-1 border"
@@ -201,7 +233,10 @@ const ProductModal = (props: ProductModalProps) => {
             </button>
           </div>
 
-          <div className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full">
+          <div
+            className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
+            onClick={handleAddToCart}
+          >
             THÊM VÀO GIỎ
           </div>
 
@@ -229,7 +264,6 @@ const GallerySlider = (props: GallerySliderProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { product_images, activeImageId, setActiveImageId } = props;
   const perPage = 5;
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [constraints, setConstraints] = useState({ left: 0, right: 0 });
 
   useEffect(() => {
@@ -238,15 +272,6 @@ const GallerySlider = (props: GallerySliderProps) => {
       setConstraints({ left: -containerWidth, right: 0 });
     }
   }, []);
-  const handleDecrease = (steps = 1) => {
-    setCurrentSlide((prev) => Math.max(0, prev - steps));
-  };
-
-  const handleIncrease = (steps = 1) => {
-    setCurrentSlide((prev) =>
-      Math.min(product_images.length - perPage, prev + steps)
-    );
-  };
 
   return (
     <div className="flex flex-col mt-4">

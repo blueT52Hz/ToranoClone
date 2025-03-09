@@ -7,7 +7,7 @@ export interface Product {
   description: string;
   base_price: number;
   sale_price: number | null;
-  discount: number | null;
+  discount: number;
   created_at: Date;
   published_at: Date | null;
   updated_at: Date;
@@ -200,7 +200,7 @@ export const mockProducts: Product[] = Array.from(
       description: `Description for product ${index + 1}`,
       base_price: 100000 * (index + 1),
       sale_price: Math.random() > 0.5 ? 90000 * (index + 1) : null,
-      discount: Math.random() > 0.5 ? 10 * (index + 1) : null,
+      discount: Math.random() > 0.5 ? 10 * (index + 1) : 1 * (index + 1),
       created_at: new Date(),
       published_at: Math.random() > 0.5 ? new Date() : null,
       updated_at: new Date(),

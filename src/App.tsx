@@ -10,7 +10,7 @@ import Register from "@/pages/Register";
 import StoreLocator from "@/pages/StoreLocator ";
 import PromotionPage from "@/pages/Promotion";
 import Search from "@/pages/Search";
-import { AppProvider } from "@/contexts/AppContext";
+import AppProvider from "@/context/AppContext";
 
 const App = () => {
   return (
@@ -31,7 +31,7 @@ const App = () => {
             <Route path="/search" element={<Search />}></Route>
             <Route path="/products/:slug" element={<Products />}></Route>
             <Route path="/cart" element={<Cart />}></Route>
-            <Route path="accounts/login/:slug" element={<Login />}></Route>
+            <Route path="accounts/login" element={<Login />}></Route>
             <Route path="accounts/register" element={<Register />}></Route>
           </Route>
         </Routes>
