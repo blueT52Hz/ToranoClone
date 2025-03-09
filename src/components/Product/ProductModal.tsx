@@ -6,7 +6,16 @@ import {
   Size,
   mockProducts,
 } from "@/types/product";
-import { Button, Image, Input, InputNumber, Modal } from "antd";
+import {
+  Alert,
+  Button,
+  Form,
+  Image,
+  Input,
+  InputNumber,
+  Modal,
+  Tooltip,
+} from "antd";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
@@ -42,16 +51,18 @@ const ProductModal = (props: ProductModalProps) => {
     (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
   );
 
-  console.log(colorsArray);
-  console.log(sizesArray);
-
   const { isOpenModal, setIsOpenModal } = props;
   const [idSelectedSize, setIdSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     setIdSelectedSize("");
   }, [activeImageId]);
+
+  const handleAddToCart = () => {
+    form.submit();
+  };
 
   return (
     <Modal
@@ -140,70 +151,98 @@ const ProductModal = (props: ProductModalProps) => {
             </div>
           </div>
 
-          <div className="mt-4">
-            <h3 className="font-medium">Kích thước:</h3>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {sizesArray.map((size) => {
-                const isVariantInStock = product.variants.some(
-                  (variant) =>
-                    variant.quantity > 0 &&
-                    variant.image.image_id === activeImageId &&
-                    variant.size.size_id === size.size_id
-                );
+          <Form>
+            <div className="mt-4">
+              <h3 className="font-medium">Kích thước:</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {sizesArray.map((size) => {
+                  const isVariantInStock = product.variants.some(
+                    (variant) =>
+                      variant.quantity > 0 &&
+                      variant.image.image_id === activeImageId &&
+                      variant.size.size_id === size.size_id
+                  );
 
-                return (
-                  <button
-                    key={size.size_id}
-                    className={`relative border px-4 py-2 rounded transition ${
-                      idSelectedSize === size.size_id
-                        ? "border-red-500 border-2"
-                        : "border-gray-300"
-                    } ${!isVariantInStock ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={() =>
-                      isVariantInStock && setIdSelectedSize(size.size_id)
-                    }
-                    disabled={!isVariantInStock}
-                  >
-                    {size.size_code}
-                    {!isVariantInStock && (
-                      <X className="absolute inset-0 m-auto opacity-30 w-full h-full" />
-                    )}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={size.size_id}
+                      className={`relative border px-4 py-2 rounded transition ${
+                        idSelectedSize === size.size_id
+                          ? "border-red-500 border-2"
+                          : "border-gray-300"
+                      } ${!isVariantInStock ? "opacity-50 cursor-not-allowed" : ""}`}
+                      onClick={() =>
+                        isVariantInStock && setIdSelectedSize(size.size_id)
+                      }
+                      disabled={!isVariantInStock}
+                    >
+                      {size.size_code}
+                      {!isVariantInStock && (
+                        <X className="absolute inset-0 m-auto opacity-30 w-full h-full" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          <div className="mt-4 flex items-center">
-            <h3 className="font-medium mr-4">Số lượng:</h3>
-            <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-1 border"
+            <Form.Item
+              label="Số lượng"
+              name="quantity"
+              initialValue={1}
+              rules={[
+                {
+                  required: true,
+                  min: 0,
+                  max: 20,
+                  message: "Số lượng không hợp lệ!",
+                },
+              ]}
             >
-              -
-            </button>
-            {/* <span className="px-4 py-1 border">{quantity}</span> */}
-            <InputNumber
-              controls={false}
-              value={quantity}
-              min={0}
-              onChange={(value) => {
-                if (typeof value === "number" && !isNaN(value)) {
-                  setQuantity(value);
-                } else setQuantity(quantity);
-              }}
-            />
-            <button
-              onClick={() => setQuantity(quantity + 1)}
-              className="px-3 py-1 border"
-            >
-              +
-            </button>
-          </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                >
+                  -
+                </Button>
+                <InputNumber
+                  min={1}
+                  max={20}
+                  value={quantity}
+                  controls={false} // Tắt control mặc định
+                  onChange={(value) => {
+                    if (
+                      typeof value === "number" &&
+                      value >= 1 &&
+                      value <= 20
+                    ) {
+                      setQuantity(value);
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => setQuantity(Math.min(20, quantity + 1))}
+                  disabled={quantity >= 20}
+                >
+                  +
+                </Button>
+              </div>
+            </Form.Item>
 
-          <div className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full">
-            THÊM VÀO GIỎ
-          </div>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Thêm vào giỏ hàng
+              </Button>
+            </Form.Item>
+
+            <div
+              className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
+              onClick={handleAddToCart}
+            >
+              THÊM VÀO GIỎ
+            </div>
+          </Form>
 
           <div className="mt-4 flex gap-4 justify-end">
             <FaFacebookF className="text-xl cursor-pointer" />
@@ -229,7 +268,6 @@ const GallerySlider = (props: GallerySliderProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { product_images, activeImageId, setActiveImageId } = props;
   const perPage = 5;
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [constraints, setConstraints] = useState({ left: 0, right: 0 });
 
   useEffect(() => {
@@ -238,15 +276,6 @@ const GallerySlider = (props: GallerySliderProps) => {
       setConstraints({ left: -containerWidth, right: 0 });
     }
   }, []);
-  const handleDecrease = (steps = 1) => {
-    setCurrentSlide((prev) => Math.max(0, prev - steps));
-  };
-
-  const handleIncrease = (steps = 1) => {
-    setCurrentSlide((prev) =>
-      Math.min(product_images.length - perPage, prev + steps)
-    );
-  };
 
   return (
     <div className="flex flex-col mt-4">

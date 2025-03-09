@@ -1,12 +1,13 @@
-import { useApp } from "@/contexts/AppContext";
+import { useCart, useUser } from "@/context/UserContext";
 import { Badge, Divider, Drawer, Empty, Flex, Modal } from "antd";
 import { ShoppingCart as CartIcon, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const ShoppingCart = () => {
-  const { cart } = useApp();
+  const cart = useCart();
   console.log(cart);
+  console.log(cart.cartItems);
 
   const [openCart, setOpenCart] = useState(false);
   const [openSaleModal, setOpenSaleModal] = useState(false);
@@ -14,7 +15,7 @@ const ShoppingCart = () => {
     <>
       <Badge
         showZero
-        count={cart?.cartItems.length}
+        count={cart.cartItems.length}
         size="default"
         onClick={() => setOpenCart(true)}
         className="cursor-pointer"
@@ -40,23 +41,11 @@ const ShoppingCart = () => {
             />
           </Flex>
         }
-      >
-        <Flex vertical justify="center" align="center">
-          <div className="px-4">
-            <img
-              src="https://theme.hstatic.net/200000690725/1001078549/14/cart_banner_image.jpg?v=647"
-              alt="Đơn hàng trống"
-              className="w-auto h-auto max-h-[370px]"
-            />
-          </div>
-          <div className="text-sm min850:text-lg text-[#9e9e9e]">
-            Chưa có sản phẩm trong giỏ hàng...
-          </div>
-
+        footer={
           <Flex
             justify={window.innerWidth > 850 ? "space-between" : "center"}
             align="center"
-            className="mt-10 text-base w-full"
+            className="mb-6 text-base w-full"
             vertical={window.innerWidth < 850}
           >
             <Link to={"/collections/all"} className="text-sm min850:text-base">
@@ -85,7 +74,24 @@ const ShoppingCart = () => {
               <div className="min-h-20"></div>
             </Modal>
           </Flex>
-        </Flex>
+        }
+      >
+        <div className="flex flex-col justify-center items-center">
+          {cart.cartItems.length === 0 && (
+            <>
+              <div className="px-4">
+                <img
+                  src="https://theme.hstatic.net/200000690725/1001078549/14/cart_banner_image.jpg?v=647"
+                  alt="Đơn hàng trống"
+                  className="w-auto h-auto max-h-[370px]"
+                />
+              </div>
+              <div className="text-sm min850:text-lg text-[#9e9e9e]">
+                Chưa có sản phẩm trong giỏ hàng...
+              </div>
+            </>
+          )}
+        </div>
       </Drawer>
     </>
   );
