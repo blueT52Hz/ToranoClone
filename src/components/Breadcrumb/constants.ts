@@ -9,6 +9,10 @@ export const routeItems: RouteItem[] = [
     slug: "/",
   },
   {
+    title: "Giỏ hàng",
+    slug: "/cart",
+  },
+  {
     title: "Sản phẩm mới",
     slug: "/collections/new-1",
   },

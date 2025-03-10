@@ -11,7 +11,6 @@ type FieldType = {
 
 const PopoverUser = () => {
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
   const [form] = Form.useForm();
   const [password, setPassword] = useState("");
   const { user, setUser, handleLogOut, handleLogin } = useUser();
@@ -24,7 +23,6 @@ const PopoverUser = () => {
       setUser(foundUser);
       message.success("Đăng nhập thành công!");
       setOpen(false);
-      navigate("/");
     } else {
       message.error("Sai tài khoản hoặc mật khẩu!");
     }
@@ -64,7 +62,6 @@ const PopoverUser = () => {
                   setOpen(false);
                   message.success("Đăng xuất thành công!");
                   handleLogOut();
-                  navigate("/");
                 }}
               >
                 ĐĂNG XUẤT

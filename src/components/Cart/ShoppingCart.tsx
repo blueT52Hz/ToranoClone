@@ -68,10 +68,12 @@ const ShoppingCart = () => {
               vertical={window.innerWidth < 850}
             >
               <Link
-                to={"/collections/all"}
+                to={cart.cartItems.length === 0 ? "/collections/all" : "/cart"}
                 className="text-sm min850:text-base"
               >
-                Trở về trang sản phẩm
+                {cart.cartItems.length === 0
+                  ? "Trở về trang sản phẩm"
+                  : "Xem giỏ hàng"}
               </Link>
               <div
                 onClick={() => setOpenSaleModal(true)}

@@ -3,7 +3,13 @@ import { Breadcrumb } from "antd";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const cancelBreadcrumb = ["/", "/login", "/register", "/search"];
+const cancelBreadcrumb = [
+  "/",
+  "/login",
+  "/register",
+  "/search",
+  "/bo-suu-tap-outfit",
+];
 
 const AppBreadcrumb = () => {
   const location = useLocation();

@@ -1,6 +1,5 @@
 import ProductModal from "@/components/Product/ProductModal";
-import { ProductPreview } from "@/types/product";
-import { Modal } from "antd";
+import { Product } from "@/types/product";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, ShoppingBag } from "lucide-react";
@@ -10,7 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 interface ProductCardProps {
   perPage: number;
   currentSlide: number;
-  item: ProductPreview;
+  item: Product;
   isDragging: boolean;
   className?: string;
 }
@@ -23,6 +22,15 @@ const ProductCard = (props: ProductCardProps) => {
   useEffect(() => {
     if (!isOpenModal) setIsHovered(false);
   }, [isOpenModal]);
+  const colorCount = item.variants.reduce(
+    (acc, variant) => (acc += variant.color.color_id ? 1 : 0),
+    0
+  );
+  const sizeCount = item.variants.reduce(
+    (acc, variant) => (acc += variant.size.size_id ? 1 : 0),
+    0
+  );
+  console.log(colorCount, sizeCount);
   return (
     <motion.div
       className={clsx("overflow-hidden flex-shrink-0", className)}
@@ -110,8 +118,8 @@ const ProductCard = (props: ProductCardProps) => {
         </div>
         <div className="detail flex flex-col px-2 text-sm gap-2.5">
           <div className="options flex justify-between text-shop-color-text leading-relaxed font-light">
-            <span>+{item.colorCount} màu sắc</span>
-            <span>+{item.sizeCount} kích cỡ</span>
+            <span>+{colorCount} màu sắc</span>
+            <span>+{sizeCount} kích cỡ</span>
           </div>
           <Link
             to={item.slug}

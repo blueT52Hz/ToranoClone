@@ -1,21 +1,21 @@
 import ProductCard from "@/components/Product/ProductCard";
-import { Product, ProductPreview } from "@/types/product";
-import React from "react";
+import { Product } from "@/types/product";
 
 interface ProductsSectionProp {
   columns: number;
-  products: ProductPreview[];
+  products: Product[];
+  gap?: number;
 }
 
 const ProductsSection = (props: ProductsSectionProp) => {
-  const { columns, products } = props;
+  const { gap, columns, products } = props;
   return (
-    <section className="ProductsSection">
+    <section className="ProductsSection w-full">
       <div
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${columns}, 1fr)`,
-          gap: "16px",
+          gap: `${gap || 15}px`,
         }}
       >
         {products.map((product, index) => {

@@ -1,5 +1,5 @@
 import ProductCard from "@/components/Product/ProductCard";
-import { Product, ProductPreview, mockProductPreviews } from "@/types/product";
+import { mockProducts, Product } from "@/types/product";
 import clsx from "clsx";
 import { div } from "framer-motion/client";
 import React, { useState } from "react";
@@ -34,7 +34,7 @@ const CollectionSection = () => {
         </div>
         <div className="collection py-8">
           <div className="grid grid-cols-5 gap-4">
-            {mockProductPreviews.map((item, index) => {
+            {mockProducts.map((item, index) => {
               return (
                 <div key={index} className="pr-4">
                   <ProductCard

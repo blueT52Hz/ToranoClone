@@ -17,17 +17,17 @@ export interface Product {
   variant_images: ProductImage[];
 }
 
-export interface ProductPreview {
-  product_id: string;
-  name: string;
-  slug: string;
-  colorCount: number;
-  sizeCount: number;
-  base_price: number;
-  sale_price: number | null;
-  discount: number | null;
-  variant_images: ProductImage[];
-}
+// export interface ProductPreview {
+//   product_id: string;
+//   name: string;
+//   slug: string;
+//   colorCount: number;
+//   sizeCount: number;
+//   base_price: number;
+//   sale_price: number | null;
+//   discount: number | null;
+//   variant_images: ProductImage[];
+// }
 
 export interface ProductVariant {
   variant_id: string;
@@ -78,6 +78,7 @@ export interface Collection {
   published_at: Date | null;
   updated_at: Date;
 }
+
 export const mockColors: Color[] = [
   { color_id: "1", color_name: "Đen", color_code: "#000000" },
   { color_id: "2", color_name: "Trắng", color_code: "#FFFFFF" },
@@ -212,19 +213,19 @@ export const mockProducts: Product[] = Array.from(
   }
 );
 
-export const mockProductPreviews: ProductPreview[] = mockProducts.map(
-  (product) => ({
-    product_id: product.product_id,
-    name: product.name,
-    slug: product.slug,
-    colorCount: new Set(product.variants.map((v) => v.color.color_id)).size,
-    sizeCount: new Set(product.variants.map((v) => v.size.size_id)).size,
-    base_price: product.base_price,
-    sale_price: product.sale_price,
-    discount: product.discount,
-    variant_images: shuffleArray(product.variant_images).slice(0, 3),
-  })
-);
+// export const mockProductPreviews: ProductPreview[] = mockProducts.map(
+//   (product) => ({
+//     product_id: product.product_id,
+//     name: product.name,
+//     slug: product.slug,
+//     colorCount: new Set(product.variants.map((v) => v.color.color_id)).size,
+//     sizeCount: new Set(product.variants.map((v) => v.size.size_id)).size,
+//     base_price: product.base_price,
+//     sale_price: product.sale_price,
+//     discount: product.discount,
+//     variant_images: shuffleArray(product.variant_images).slice(0, 3),
+//   })
+// );
 
 // Hàm hoán đổi vị trí ngẫu nhiên
 function shuffleArray<T>(array: T[]): T[] {
