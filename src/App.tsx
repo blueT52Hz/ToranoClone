@@ -11,6 +11,7 @@ import StoreLocator from "@/pages/StoreLocator ";
 import PromotionPage from "@/pages/Promotion";
 import Search from "@/pages/Search";
 import AppProvider from "@/context/AppContext";
+import OutFit from "@/pages/OutFit";
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
               element={<PromotionPage />}
             ></Route>
             <Route path="/search" element={<Search />}></Route>
+            <Route path="/bo-suu-tap-outfit" element={<OutFit />}></Route>
             <Route path="/products/:slug" element={<Products />}></Route>
             <Route path="/cart" element={<Cart />}></Route>
             <Route path="accounts/login" element={<Login />}></Route>

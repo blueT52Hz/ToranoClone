@@ -1,5 +1,5 @@
 import ProductCard from "@/components/Product/ProductCard";
-import { ProductPreview, mockProductPreviews } from "@/types/product";
+import { mockProducts } from "@/types/product";
 import Item from "antd/es/list/Item";
 import clsx from "clsx";
 import React, { useState } from "react";
@@ -39,7 +39,7 @@ const FeaturedSection = () => {
         </div>
         <div className="collection py-8">
           <div className="grid grid-cols-5 gap-4">
-            {mockProductPreviews.map((item, index) => {
+            {mockProducts.map((item, index) => {
               return (
                 <div key={index} className="pr-4">
                   <ProductCard

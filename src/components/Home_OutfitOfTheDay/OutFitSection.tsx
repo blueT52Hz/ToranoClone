@@ -33,7 +33,7 @@ const OutFitSection = () => {
             })}
           </div>
           <div className="text-xl min-w-[400px] group px-7 py-3 border-2 rounded-md flex justify-center items-center gap-4 bg-white cursor-pointer border-slate-400 hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500">
-            <span>XEM THÊM</span>
+            <Link to={"/bo-suu-tap-outfit"}>XEM THÊM</Link>
             <ArrowRight className="group-hover:translate-x-2 transition-transform" />
           </div>
         </div>

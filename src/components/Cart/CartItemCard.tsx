@@ -14,6 +14,9 @@ const CartItemComponent = ({ item }: CartItemProps) => {
   useEffect(() => {
     updateItemQuantity(item.variant.variant_id, quantity);
   }, [quantity]);
+  useEffect(() => {
+    setQuantity(item.quantity);
+  }, [item]);
 
   return (
     <div className="flex items-center py-3 w-full overflow-y-auto">

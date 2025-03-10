@@ -1,11 +1,7 @@
 import Pagination from "@/components/Pagination";
 import ProductsSection from "@/components/ProductsSection";
 import Sidebar from "@/components/SidebarFilter";
-import {
-  ProductPreview,
-  mockProductPreviews,
-  mockCollections,
-} from "@/types/product";
+import { mockProducts, mockCollections } from "@/types/product";
 import { cn } from "@/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -18,10 +14,7 @@ const Collections = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 850);
   const [searchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage, slug]);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 
   useEffect(() => {
     const handleResize = () => {
@@ -45,9 +38,7 @@ const Collections = () => {
                   {mockCollection.name}
                 </div>
                 <div className="product-count text-sm">
-                  <span className="font-bold">
-                    {mockProductPreviews.length}
-                  </span>
+                  <span className="font-bold">{mockProducts.length}</span>
                   <span className="font-light"> sản phẩm</span>
                 </div>
               </div>
@@ -55,14 +46,13 @@ const Collections = () => {
                 {isMobile && <div>Bộ lọc</div>}
                 <div className="flex gap-4 items-center">
                   <div>Sắp xếp theo</div>
-                  {/* <div>Tồn kho giảm dần</div> */}
                   <DropdownMenu />
                 </div>
               </div>
             </div>
             <ProductsSection
               columns={4}
-              products={mockProductPreviews}
+              products={mockProducts}
             ></ProductsSection>
             <Pagination totalPages={10} currentPage={currentPage} />
           </div>

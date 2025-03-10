@@ -1,5 +1,5 @@
 import ProductCard from "@/components/Product/ProductCard";
-import { Product, ProductPreview, mockProductPreviews } from "@/types/product";
+import { Product, mockProducts } from "@/types/product";
 import clsx from "clsx";
 import { AnimatePresence, easeInOut, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Eye, ShoppingBag } from "lucide-react";
@@ -22,8 +22,8 @@ const SaleSection = () => {
     };
 
     const handleResize = () => {
-      if (currentSlide + perPage > mockProductPreviews.length)
-        setCurrentSlide(mockProductPreviews.length - perPage);
+      if (currentSlide + perPage > mockProducts.length)
+        setCurrentSlide(mockProducts.length - perPage);
     };
 
     updatePerPage();
@@ -44,7 +44,7 @@ const SaleSection = () => {
 
   const handleIncrease = (steps = 1) => {
     setCurrentSlide((prev) =>
-      Math.min(mockProductPreviews.length - perPage, prev + steps)
+      Math.min(mockProducts.length - perPage, prev + steps)
     );
   };
   return (
@@ -73,7 +73,7 @@ const SaleSection = () => {
               <ArrowRight
                 size={"1.5em"}
                 className={clsx(
-                  currentSlide !== mockProductPreviews.length - perPage
+                  currentSlide !== mockProducts.length - perPage
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
                     : "text-[#959595]"
                 )}
@@ -102,7 +102,7 @@ const SaleSection = () => {
                 setIsDragging(false);
               }}
             >
-              {mockProductPreviews.map((item, index) => {
+              {mockProducts.map((item, index) => {
                 return (
                   <ProductCard
                     key={index}
