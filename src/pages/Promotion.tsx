@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function PromotionPage() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
   return (
     <section className="he-thong-cua-hang">
       <div className="max-w-4xl mx-auto p-6">

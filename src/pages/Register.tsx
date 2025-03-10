@@ -6,6 +6,7 @@ import { cn } from "@/utils/cn";
 const { Text } = Typography;
 
 const Register = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
   const navigate = useNavigate();
   const [form] = Form.useForm();
 

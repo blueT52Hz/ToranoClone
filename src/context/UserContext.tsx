@@ -8,6 +8,10 @@ import {
 import { mockUsers, User } from "@/types/user";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
 import { Cart, CartItem } from "@/types/cart";
+import { notification } from "antd";
+import { Image } from "antd";
+import { CheckCircle, X } from "lucide-react";
+import "./style.css";
 interface UserContextType {
   user: User | null;
   cart: Cart;
@@ -91,6 +95,57 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!user) {
         setLocalCart(newCart);
+        const openNotificationWithIcon = (item: CartItem) => {
+          notification.open({
+            message: (
+              <div className="flex items-center">
+                <CheckCircle className="text-green-500 w-5 h-5 mr-2" />
+                <div>{"Thêm vào giỏ hàng thành công"}</div>
+              </div>
+            ),
+            style: { marginInlineStart: "0px !important" },
+            description: (
+              <div className="flex py-3 min-w-full overflow-y-auto h-full">
+                <div className="mr-4">
+                  <Image
+                    src={item.variant.image.image_url}
+                    className="object-cover rounded-md"
+                    width={"4.5rem"}
+                    height={"4.5rem"}
+                  />
+                </div>
+                <div className="flex flex-col w-full gap-1">
+                  <div className="font-semibold text-sm">
+                    {item.product.name}
+                  </div>
+                  <div className="flex justify-start">
+                    <p className="text-sm text-gray-500 ">
+                      {item.variant.color.color_name} /{" "}
+                      {item.variant.size.size_code}
+                    </p>
+                    <p className="text-sm text-gray-500 mx-2">|</p>
+                    <p className="text-sm text-gray-500 ">
+                      Số lượng: {item.quantity}
+                    </p>
+                  </div>
+                  <div className="flex justify-start gap-2 items-center">
+                    <p className="text-sm text-gray-500">Tổng tiền:</p>
+                    <p className="font-semibold text-black">
+                      {(item.product.sale_price
+                        ? item.product.sale_price * item.quantity
+                        : item.product.base_price * item.quantity
+                      ).toLocaleString()}
+                      ₫
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ),
+            placement: "topRight",
+            duration: 2,
+          });
+        };
+        openNotificationWithIcon(item);
       }
 
       console.log(newCart);

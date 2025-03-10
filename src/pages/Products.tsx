@@ -1,3 +1,4 @@
+import AppBreadcrumb from "@/components/Breadcrumb/AppBreadcrumb";
 import ProductsSection from "@/components/ProductsSection";
 import { useCart } from "@/context/UserContext";
 import { CartItem } from "@/types/cart";
@@ -9,14 +10,15 @@ import {
   Size,
 } from "@/types/product";
 import { cn } from "@/utils/cn";
-import { Form, Image } from "antd";
+import { Breadcrumb, Form, Image } from "antd";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { image } from "framer-motion/client";
 import { X } from "lucide-react";
+import { title } from "process";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 const policyItem = [
@@ -53,52 +55,78 @@ const policyItem = [
 ];
 
 const Products = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
   const { slug } = useParams();
   const [expanded, setExpanded] = useState(false);
   const product = mockProducts.filter((product) => product.slug === slug)[0];
   return (
-    <section className="product-detail">
-      <div className="container min-w-full">
-        <ProductOptions product={product} />
-        <div className="flex flex-col justify-center items-center px-8 my-12 w-full">
-          <h2 className="text-2xl font-bold mb-4">Mô tả sản phẩm</h2>
-          <div className="relative w-full px-10">
-            <div
-              className={`relative overflow-hidden transition-all ${
-                expanded ? "max-h-full" : "max-h-40"
-              }`}
-            >
-              <p className="text-gray-700">{product.description}</p>
+    <>
+      <AppBreadcrumb
+        items={[
+          {
+            title: <Link to="/">Trang chủ</Link>,
+          },
+          {
+            title: <span className="cursor-pointer">{"Colelctions"}</span>,
+            menu: {
+              items: product.collections.map((collection) => ({
+                key: collection.collection_id,
+                label: (
+                  <Link to={`/collections/${collection.slug}`}>
+                    {collection.name}
+                  </Link>
+                ),
+              })),
+            },
+          },
+          {
+            title: <span className="cursor-pointer">{product.name}</span>,
+          },
+        ]}
+      ></AppBreadcrumb>
+      <section className="product-detail">
+        <div className="container min-w-full">
+          <ProductOptions product={product} />
+          <div className="flex flex-col justify-center items-center px-20 my-12 w-full">
+            <h2 className="text-2xl font-bold mb-4">Mô tả sản phẩm</h2>
+            <div className="relative w-full px-10">
+              <div
+                className={`relative overflow-hidden transition-all ${
+                  expanded ? "max-h-full" : "max-h-40"
+                }`}
+              >
+                <p className="text-gray-700">{product.description}</p>
 
-              {!expanded && (
-                <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent"></div>
-              )}
+                {!expanded && (
+                  <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white to-transparent"></div>
+                )}
+              </div>
+
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="mt-4 text-shop-color-main hover:underline font-medium uppercase"
+              >
+                {expanded ? "Thu gọn" : "Xem thêm"}
+              </button>
             </div>
-
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="mt-4 text-blue-500 hover:underline font-medium"
-            >
-              {expanded ? "Thu gọn" : "Xem thêm"}
-            </button>
+          </div>
+          <div className="flex flex-col justify-center items-center px-32 my-20">
+            <h2 className="text-2xl font-bold mb-4">Sản phẩm liên quan</h2>
+            <ProductsSection
+              products={mockProducts
+                .filter((item) => {
+                  return item.collections.some((collection) => {
+                    return product.collections.includes(collection);
+                  });
+                })
+                .slice(0, 5)}
+              columns={5}
+              gap={30}
+            ></ProductsSection>
           </div>
         </div>
-        <div className="flex flex-col justify-center items-center px-32 my-20">
-          <h2 className="text-2xl font-bold mb-4">Sản phẩm liên quan</h2>
-          <ProductsSection
-            products={mockProducts
-              .filter((item) => {
-                return item.collections.some((collection) => {
-                  return product.collections.includes(collection);
-                });
-              })
-              .slice(0, 5)}
-            columns={5}
-            gap={30}
-          ></ProductsSection>
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
