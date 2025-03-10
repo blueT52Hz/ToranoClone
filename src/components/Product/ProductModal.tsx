@@ -3,21 +3,11 @@ import {
   Color,
   Product,
   ProductImage,
-  ProductVariant,
   Size,
   mockProducts,
 } from "@/types/product";
-import {
-  Alert,
-  Button,
-  Form,
-  Image,
-  Input,
-  InputNumber,
-  Modal,
-  Tooltip,
-} from "antd";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { Form, Image, Modal } from "antd";
+import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
 import "@/components/Product/style.css";
@@ -28,36 +18,18 @@ import { CartItem } from "@/types/cart";
 import { useCart } from "@/context/UserContext";
 
 interface ProductModalProps {
-  product_id: string;
+  product: Product;
   isOpenModal: boolean;
   setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProductModal = (props: ProductModalProps) => {
-  const { product_id } = props;
-  const product = mockProducts.filter(
-    (product) => product.product_id === product_id
-  )[0];
-  console.log(product);
+  const { product } = props;
+
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [activeImageId, setActiveImageId] = useState(
     product.variants[0].image.image_id
-  );
-  const uniqueColorsMap = new Map<string, Color>();
-  const uniqueSizesMap = new Map<string, Size>();
-
-  product.variants.forEach((variant) => {
-    uniqueColorsMap.set(variant.color.color_id, variant.color);
-    uniqueSizesMap.set(variant.size.size_id, variant.size);
-  });
-
-  const colorsArray = Array.from(uniqueColorsMap.values());
-  const sizesArray = Array.from(uniqueSizesMap.values());
-
-  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
-
-  sizesArray.sort(
-    (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
   );
 
   const { isOpenModal, setIsOpenModal } = props;
@@ -72,6 +44,23 @@ const ProductModal = (props: ProductModalProps) => {
 
   const handleAddToCart = () => {
     form.submit();
+
+    if (!idSelectedSize) {
+      setErrorMessage("Vui lòng chọn kích thước!");
+      return;
+    }
+
+    const maxQuantity = product.variants.filter(
+      (variant) =>
+        variant.image.image_id === activeImageId &&
+        variant.size.size_id === idSelectedSize
+    )[0].quantity;
+
+    if (quantity > maxQuantity) {
+      setErrorMessage("Số lượng sản phẩm không đủ");
+      return;
+    }
+
     const item: CartItem = {
       cartItem_id: uuidv4(),
       variant: product.variants.filter(
@@ -86,6 +75,23 @@ const ProductModal = (props: ProductModalProps) => {
     addToCart(item);
     setIsOpenModal(false);
   };
+
+  useEffect(() => {
+    setErrorMessage("");
+  }, [activeImageId, idSelectedSize, quantity]);
+
+  const uniqueColorsMap = new Map<string, Color>();
+  const uniqueSizesMap = new Map<string, Size>();
+  product.variants.forEach((variant) => {
+    uniqueColorsMap.set(variant.color.color_id, variant.color);
+    uniqueSizesMap.set(variant.size.size_id, variant.size);
+  });
+  const colorsArray = Array.from(uniqueColorsMap.values());
+  const sizesArray = Array.from(uniqueSizesMap.values());
+  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
+  sizesArray.sort(
+    (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
+  );
 
   return (
     <Modal
@@ -220,9 +226,10 @@ const ProductModal = (props: ProductModalProps) => {
               type="number"
               className="w-16 text-center border border-white rounded-md focus:outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               value={quantity}
-              onChange={(e) =>
-                setQuantity(parseInt(e.target.value) || quantity)
-              }
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                setQuantity(parseInt(e.target.value) || quantity);
+              }}
             />
 
             <button
@@ -233,14 +240,21 @@ const ProductModal = (props: ProductModalProps) => {
             </button>
           </div>
 
+          <div className="relative">
+            <div className="absolute top-2 flex text-base items-center text-shop-color-main font-bold">
+              {errorMessage}
+            </div>
+          </div>
+
           <div
-            className="mt-6 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
+            className="mt-10 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
             onClick={handleAddToCart}
           >
             THÊM VÀO GIỎ
           </div>
 
           <div className="mt-4 flex gap-4 justify-end">
+            <div className="text-base">Chia sẻ: </div>
             <FaFacebookF className="text-xl cursor-pointer" />
             <FaTwitter className="text-xl cursor-pointer" />
             <FaPinterest className="text-xl cursor-pointer" />

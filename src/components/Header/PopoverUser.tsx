@@ -94,7 +94,14 @@ const PopoverUser = () => {
                     },
                   ]}
                 >
-                  <Input className="h-10" placeholder="Email" allowClear />
+                  <Input
+                    className="h-10"
+                    placeholder="Email"
+                    allowClear
+                    onPressEnter={() => {
+                      form.submit();
+                    }}
+                  />
                 </Form.Item>
                 <Form.Item<FieldType>
                   name="password"
@@ -114,6 +121,7 @@ const PopoverUser = () => {
                     placeholder="Mật khẩu"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onPressEnter={() => form.submit()}
                   ></Input.Password>
                 </Form.Item>
                 <div className="text-sm text-[#9e9e9e] mb-6">

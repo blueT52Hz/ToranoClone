@@ -17,18 +17,6 @@ export interface Product {
   variant_images: ProductImage[];
 }
 
-// export interface ProductPreview {
-//   product_id: string;
-//   name: string;
-//   slug: string;
-//   colorCount: number;
-//   sizeCount: number;
-//   base_price: number;
-//   sale_price: number | null;
-//   discount: number | null;
-//   variant_images: ProductImage[];
-// }
-
 export interface ProductVariant {
   variant_id: string;
   variant_code: string;
@@ -57,6 +45,7 @@ export interface Outfit {
   created_at: Date;
   published_at: Date | null;
   updated_at: Date;
+  vartiants: ProductVariant[];
 }
 
 export interface Color {
@@ -131,6 +120,7 @@ export const mockOutfits: Outfit[] = [
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
+    vartiants: [],
   },
   {
     outfit_id: "2",
@@ -139,6 +129,7 @@ export const mockOutfits: Outfit[] = [
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
+    vartiants: [],
   },
   {
     outfit_id: "3",
@@ -147,6 +138,7 @@ export const mockOutfits: Outfit[] = [
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
+    vartiants: [],
   },
   {
     outfit_id: "4",
@@ -155,6 +147,7 @@ export const mockOutfits: Outfit[] = [
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
+    vartiants: [],
   },
   {
     outfit_id: "5",
@@ -163,6 +156,7 @@ export const mockOutfits: Outfit[] = [
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
+    vartiants: [],
   },
 ];
 
@@ -211,21 +205,7 @@ export const mockProducts: Product[] = Array.from(
       variant_images: productVariants.map((variant) => variant.image),
     };
   }
-);
-
-// export const mockProductPreviews: ProductPreview[] = mockProducts.map(
-//   (product) => ({
-//     product_id: product.product_id,
-//     name: product.name,
-//     slug: product.slug,
-//     colorCount: new Set(product.variants.map((v) => v.color.color_id)).size,
-//     sizeCount: new Set(product.variants.map((v) => v.size.size_id)).size,
-//     base_price: product.base_price,
-//     sale_price: product.sale_price,
-//     discount: product.discount,
-//     variant_images: shuffleArray(product.variant_images).slice(0, 3),
-//   })
-// );
+)
 
 // Hàm hoán đổi vị trí ngẫu nhiên
 function shuffleArray<T>(array: T[]): T[] {

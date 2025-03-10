@@ -8,9 +8,60 @@ import { Link, useParams } from "react-router-dom";
 const Sidebar = () => {
   const { slug } = useParams();
   const [tagFilter, setTagFilter] = useState(slug || "");
+  const sizeOrder = [
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+  ];
   const [priceFilter, setPriceFilter] = useState<[number, number]>([
     0, 3000000,
   ]);
+  const sortSizes = (
+    sizes: (
+      | "S"
+      | "M"
+      | "L"
+      | "XL"
+      | "XXL"
+      | "31"
+      | "32"
+      | "33"
+      | "34"
+      | "35"
+      | "36"
+      | "37"
+      | "38"
+      | "39"
+      | "40"
+    )[]
+  ) => {
+    return sizes.sort((a, b) => {
+      const indexA = sizeOrder.indexOf(a);
+      const indexB = sizeOrder.indexOf(b);
+
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      } else if (indexA !== -1) {
+        return -1;
+      } else if (indexB !== -1) {
+        return 1;
+      } else {
+        return parseInt(a) - parseInt(b);
+      }
+    });
+  };
   const [sizeFilter, setSizeFilter] = useState<
     (
       | "S"
@@ -66,7 +117,10 @@ const Sidebar = () => {
   ) => {
     if (sizeFilter.includes(value)) {
       setSizeFilter(sizeFilter.filter((item) => item != value));
-    } else setSizeFilter([...sizeFilter, value]);
+    } else {
+      const updatedSizes = [...sizeFilter, value];
+      setSizeFilter(sortSizes(updatedSizes));
+    }
   };
 
   return (
@@ -95,11 +149,15 @@ const Sidebar = () => {
                 />
                 <div className="shrink-0">Size: </div>
                 <div className="font-bold text-sm ml-1 line-clamp-1">
-                  {sizeFilter.map((item, index) => {
-                    const tmp =
-                      index === sizeFilter.length - 1 ? item : item + ", ";
-                    return <span key={index}>{tmp}</span>;
-                  })}
+                  {sizeFilter.length === 0 ? (
+                    <span>Tất cả</span>
+                  ) : (
+                    sizeFilter.map((item, index) => {
+                      const tmp =
+                        index === sizeFilter.length - 1 ? item : item + ", ";
+                      return <span key={index}>{tmp}</span>;
+                    })
+                  )}
                 </div>
               </div>
 

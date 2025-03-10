@@ -10,7 +10,8 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 const Collections = () => {
   const { slug } = useParams();
-  const mockCollection = mockCollections[0];
+  const mockCollection =
+    mockCollections.find((c) => c.slug === slug) || mockCollections[0];
   const [isMobile, setIsMobile] = useState(window.innerWidth < 850);
   const [searchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;

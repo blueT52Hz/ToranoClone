@@ -79,12 +79,11 @@ const CartItemComponent = ({ item }: CartItemProps) => {
                 ).toLocaleString()}
                 ₫
               </p>
-              {item.product.sale_price &&
-                item.product.sale_price !== item.product.base_price && (
-                  <p className="text-gray-400 text-sm line-through">
-                    {item.product.base_price.toLocaleString()}₫
-                  </p>
-                )}
+              {item.product.sale_price && (
+                <p className="text-gray-400 text-sm line-through">
+                  {(quantity * item.product.base_price).toLocaleString()}₫
+                </p>
+              )}
             </div>
           </div>
         </div>

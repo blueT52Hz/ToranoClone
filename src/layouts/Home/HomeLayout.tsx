@@ -10,7 +10,6 @@ const HomeLayout = () => {
     <div className="flex-col w-full">
       <TopBar />
       <Header />
-      <AppBreadcrumb />
       <main>
         <Outlet />
       </main>
