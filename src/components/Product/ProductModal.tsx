@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
-import { Color, ProductImage, Size, mockProducts } from "@/types/product";
+import {
+  Color,
+  Product,
+  ProductImage,
+  Size,
+  mockProducts,
+} from "@/types/product";
 import { Form, Image, Modal } from "antd";
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -12,37 +18,18 @@ import { CartItem } from "@/types/cart";
 import { useCart } from "@/context/UserContext";
 
 interface ProductModalProps {
-  product_id: string;
+  product: Product;
   isOpenModal: boolean;
   setIsOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ProductModal = (props: ProductModalProps) => {
-  const { product_id } = props;
-  const product = mockProducts.filter(
-    (product) => product.product_id === product_id
-  )[0];
+  const { product } = props;
 
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [activeImageId, setActiveImageId] = useState(
     product.variants[0].image.image_id
-  );
-  const uniqueColorsMap = new Map<string, Color>();
-  const uniqueSizesMap = new Map<string, Size>();
-
-  product.variants.forEach((variant) => {
-    uniqueColorsMap.set(variant.color.color_id, variant.color);
-    uniqueSizesMap.set(variant.size.size_id, variant.size);
-  });
-
-  const colorsArray = Array.from(uniqueColorsMap.values());
-  const sizesArray = Array.from(uniqueSizesMap.values());
-
-  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
-
-  sizesArray.sort(
-    (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
   );
 
   const { isOpenModal, setIsOpenModal } = props;
@@ -92,6 +79,19 @@ const ProductModal = (props: ProductModalProps) => {
   useEffect(() => {
     setErrorMessage("");
   }, [activeImageId, idSelectedSize, quantity]);
+
+  const uniqueColorsMap = new Map<string, Color>();
+  const uniqueSizesMap = new Map<string, Size>();
+  product.variants.forEach((variant) => {
+    uniqueColorsMap.set(variant.color.color_id, variant.color);
+    uniqueSizesMap.set(variant.size.size_id, variant.size);
+  });
+  const colorsArray = Array.from(uniqueColorsMap.values());
+  const sizesArray = Array.from(uniqueSizesMap.values());
+  const sizeOrder = ["S", "M", "L", "XL", "XXL"];
+  sizesArray.sort(
+    (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
+  );
 
   return (
     <Modal

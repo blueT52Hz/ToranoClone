@@ -108,7 +108,7 @@ const ProductCard = (props: ProductCardProps) => {
                   <Eye className="w-5 h-5"></Eye>
                 </div>
                 <ProductModal
-                  product_id={item.product_id}
+                  product={item}
                   isOpenModal={isOpenModal}
                   setIsOpenModal={setIsOpenModal}
                 />

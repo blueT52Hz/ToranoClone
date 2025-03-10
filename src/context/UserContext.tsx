@@ -105,7 +105,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             ),
             style: { marginInlineStart: "0px !important" },
             description: (
-              <div className="flex py-3 min-w-full overflow-y-auto h-full">
+              <div className="flex pt-3 min-w-full overflow-y-auto h-full">
                 <div className="mr-4">
                   <Image
                     src={item.variant.image.image_url}
@@ -142,7 +142,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               </div>
             ),
             placement: "topRight",
-            duration: 2,
+            duration: 200,
           });
         };
         openNotificationWithIcon(item);
