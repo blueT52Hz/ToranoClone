@@ -1,4 +1,4 @@
-import ProductModal from "@/components/Product/ProductModal";
+import ProductModal from "@/components/user/Product/ProductModal";
 import { Product } from "@/types/product";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";

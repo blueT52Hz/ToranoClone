@@ -10,7 +10,7 @@ import { Form, Image, Modal } from "antd";
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
-import "@/components/Product/style.css";
+import "@/components/user/Product/style.css";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { cn } from "@/utils/cn";

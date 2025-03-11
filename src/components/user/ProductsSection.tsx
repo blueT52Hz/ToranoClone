@@ -1,4 +1,4 @@
-import ProductCard from "@/components/Product/ProductCard";
+import ProductCard from "@/components/user/Product/ProductCard";
 import { Product } from "@/types/product";
 
 interface ProductsSectionProp {

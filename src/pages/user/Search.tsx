@@ -1,5 +1,5 @@
-import Pagination from "@/components/Pagination";
-import ProductsSection from "@/components/ProductsSection";
+import Pagination from "@/components/user/Pagination";
+import ProductsSection from "@/components/user/ProductsSection";
 import { mockProducts } from "@/types/product";
 import { Divider } from "antd";
 import React, { useEffect, useState } from "react";

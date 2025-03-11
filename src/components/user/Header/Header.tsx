@@ -2,12 +2,12 @@ import { Badge, Button, Drawer, Flex, Popover } from "antd";
 import { ChevronDown, Menu, Search, User, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "@/components/Header/Sidebar";
-import PopoverCustom from "@/components/Header/PopoverCustom";
-import PopoverCollection from "@/components/Header/PopoverCollection";
-import Searchbar from "@/components/Header/Seacrhbar";
-import ShoppingCart from "@/components/Cart/ShoppingCart";
-import PopoverUser from "@/components/Header/PopoverUser";
+import Sidebar from "@/components/user/Header/Sidebar";
+import PopoverCustom from "@/components/user/Header/PopoverCustom";
+import PopoverCollection from "@/components/user/Header/PopoverCollection";
+import Searchbar from "@/components/user/Header/Seacrhbar";
+import ShoppingCart from "@/components/user/Cart/ShoppingCart";
+import PopoverUser from "@/components/user/Header/PopoverUser";
 
 interface Sub_Item {
   slug: string;

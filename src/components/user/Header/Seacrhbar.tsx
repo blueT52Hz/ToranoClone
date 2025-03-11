@@ -1,9 +1,8 @@
 import { Button, Divider, Drawer, Flex, Input, Modal, Popover } from "antd";
 import { Search, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import "@components/Header/style.css";
+import "@/components/user/Header/style.css";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-
 const Searchbar = () => {
   const [open, setOpen] = useState(false);
   const [mobileWidth, setMobileWidth] = useState(false);

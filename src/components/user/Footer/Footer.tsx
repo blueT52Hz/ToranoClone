@@ -1,8 +1,8 @@
-import Contacts from "@/components/Footer/Contacts";
-import Copyright from "@/components/Footer/Copyright";
-import Fashion from "@/components/Footer/Fashion";
-import GroupLinks from "@/components/Footer/GroupLinks";
-import Subcribe from "@/components/Footer/Subcribe";
+import Contacts from "@/components/user/Footer/Contacts";
+import Copyright from "@/components/user/Footer/Copyright";
+import Fashion from "@/components/user/Footer/Fashion";
+import GroupLinks from "@/components/user/Footer/GroupLinks";
+import Subcribe from "@/components/user/Footer/Subcribe";
 import { Flex } from "antd";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";

@@ -3,8 +3,8 @@ import { Badge, Divider, Drawer, Empty, Flex, Modal } from "antd";
 import { ShoppingCart as CartIcon, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import CartItemComponent from "@components/Cart/CartItemCard";
-import "@components/Cart/style.css";
+import CartItemComponent from "@/components/user/Cart/CartItemCard";
+import "@components/user/Cart/style.css";
 
 const ShoppingCart = () => {
   const { cart } = useCart();

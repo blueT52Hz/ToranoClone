@@ -1,4 +1,4 @@
-import AppBreadcrumb from "@/components/Breadcrumb/AppBreadcrumb";
+import AppBreadcrumb from "@/components/user/Breadcrumb/AppBreadcrumb";
 import { useCart } from "@/context/UserContext";
 import React from "react";
 import { Link } from "react-router-dom";

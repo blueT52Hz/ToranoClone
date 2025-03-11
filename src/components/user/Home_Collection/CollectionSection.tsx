@@ -1,4 +1,4 @@
-import ProductCard from "@/components/Product/ProductCard";
+import ProductCard from "@/components/user/Product/ProductCard";
 import { mockProducts, Product } from "@/types/product";
 import clsx from "clsx";
 import { div } from "framer-motion/client";

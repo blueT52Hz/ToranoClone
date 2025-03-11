@@ -1,4 +1,4 @@
-import ProductCard from "@/components/Product/ProductCard";
+import ProductCard from "@/components/user/Product/ProductCard";
 import { mockProducts } from "@/types/product";
 import Item from "antd/es/list/Item";
 import clsx from "clsx";

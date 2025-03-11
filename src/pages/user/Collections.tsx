@@ -1,6 +1,6 @@
-import Pagination from "@/components/Pagination";
-import ProductsSection from "@/components/ProductsSection";
-import Sidebar from "@/components/SidebarFilter";
+import Pagination from "@/components/user/Pagination";
+import ProductsSection from "@/components/user/ProductsSection";
+import Sidebar from "@/components/user/SidebarFilter";
 import { mockProducts, mockCollections } from "@/types/product";
 import { cn } from "@/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";

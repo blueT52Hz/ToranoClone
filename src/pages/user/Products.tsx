@@ -1,5 +1,5 @@
-import AppBreadcrumb from "@/components/Breadcrumb/AppBreadcrumb";
-import ProductsSection from "@/components/ProductsSection";
+import AppBreadcrumb from "@/components/user/Breadcrumb/AppBreadcrumb";
+import ProductsSection from "@/components/user/ProductsSection";
 import { useCart } from "@/context/UserContext";
 import { CartItem } from "@/types/cart";
 import {

@@ -2,7 +2,7 @@ import { Flex } from "antd";
 import { Mail, Minus, PhoneCall, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "@components/Header/style.css";
+import "@/components/user/Header/style.css";
 
 interface Sub_Item {
   slug: string;
