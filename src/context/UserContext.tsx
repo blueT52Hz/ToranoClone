@@ -8,16 +8,17 @@ import {
 import { mockUsers, User } from "@/types/user";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
 import { Cart, CartItem } from "@/types/cart";
-import { notification } from "antd";
+import { message, notification } from "antd";
 import { Image } from "antd";
 import { CheckCircle, X } from "lucide-react";
+import { login as loginService } from "@/services/auth-controller";
 import "./style.css";
 interface UserContextType {
   user: User | null;
   cart: Cart;
   setUser: (user: User | null) => void;
   handleLogOut: () => void;
-  handleLogin: (username: string, password: string) => User;
+  handleLogin: (email: string, password: string) => Promise<void>;
   addToCart: (item: CartItem) => void;
   removeItemFromCart: (variant_id: string) => void;
   updateItemQuantity: (variant_id: string, quantity: number) => void;
@@ -49,7 +50,7 @@ const UserContext = createContext<UserContextType>({
   handleLogOut: function (): void {
     throw new Error("Function not implemented.");
   },
-  handleLogin: function (): User {
+  async handleLogin(email: string, password: string): Promise<void> {
     throw new Error("Function not implemented.");
   },
 });
@@ -59,11 +60,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<Cart>(getLocalCart());
 
   useEffect(() => {
-    if (user) {
-      setCart(user.cart);
-    } else {
-      setCart(getLocalCart());
-    }
+    setCart(getLocalCart());
+
+    // if (user) {
+    //   setCart(user.cart);
+    // } else {
+    //   setCart(getLocalCart());
+    // }
   }, [user]);
 
   const addToCart = (item: CartItem) => {
@@ -220,14 +223,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setCart(getLocalCart());
   };
 
-  const handleLogin = (email: string, password: string): User => {
-    const foundUser = mockUsers.find(
-      (user) => user.email === email && user.password === password
-    );
-    if (!foundUser) {
-      throw new Error("Invalid email or password");
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const data = await loginService({ email, password });
+      setUser(data.user);
+    } catch (error) {
+      console.error("Login failed", error);
     }
-    return foundUser;
   };
 
   return (

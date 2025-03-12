@@ -3,7 +3,9 @@ import { Input, Button, Typography, Divider, Form, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { useUser } from "@/context/UserContext";
-import { mockUsers } from "@/types/user";
+import { mockUsers, User } from "@/types/user";
+import axios from "axios";
+import axiosClient from "@/api/axiosClient";
 
 const { Text } = Typography;
 
@@ -19,17 +21,9 @@ const Login = () => {
   const navigate = useNavigate();
   if (user) navigate("/");
 
-  const handleLoginButtonClicked = (values: FieldType) => {
+  const handleLoginButtonClicked = async (values: FieldType) => {
     const { email, password } = values;
-    const foundUser = handleLogin(email, password);
-
-    if (foundUser) {
-      setUser(foundUser);
-      message.success("Đăng nhập thành công!");
-      navigate("/");
-    } else {
-      message.error("Sai tài khoản hoặc mật khẩu!");
-    }
+    await handleLogin(email, password);
   };
 
   return (

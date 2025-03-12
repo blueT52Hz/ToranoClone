@@ -33,6 +33,7 @@ export interface ProductVariant {
 export interface ProductImage {
   image_id: string;
   image_url: string;
+  image_name: string;
   created_at: Date;
   published_at: Date | null;
   updated_at: Date;
@@ -41,11 +42,11 @@ export interface ProductImage {
 export interface Outfit {
   outfit_id: string;
   outfit_name: string;
-  image_url: string;
+  image: ProductImage;
   created_at: Date;
   published_at: Date | null;
   updated_at: Date;
-  vartiants: ProductVariant[];
+  variants: ProductVariant[];
 }
 
 export interface Color {
@@ -68,6 +69,16 @@ export interface Collection {
   updated_at: Date;
 }
 
+export interface FormErrors {
+  name?: string;
+  product_code?: string;
+  base_price?: string;
+  sale_price?: string;
+  variants?: {
+    [key: number]: { color?: string; size?: string; quantity?: string };
+  };
+}
+
 export const mockColors: Color[] = [
   { color_id: "1", color_name: "Đen", color_code: "#000000" },
   { color_id: "2", color_name: "Trắng", color_code: "#FFFFFF" },
@@ -86,6 +97,7 @@ export const mockProductImages: ProductImage[] = Array.from(
   { length: 20 },
   (_, index) => ({
     image_id: `img_${index + 1}`,
+    image_name: "image.png",
     image_url: `https://picsum.photos/seed/image${index + 1}/800/800`,
     created_at: new Date(),
     published_at: Math.random() > 0.5 ? new Date() : null,
@@ -116,47 +128,82 @@ export const mockOutfits: Outfit[] = [
   {
     outfit_id: "1",
     outfit_name: "Outfit Trẻ Trung",
-    image_url: "https://picsum.photos/seed/outfit1/600/852",
+    image: {
+      image_id: "outfit1_image",
+      image_name: "outfit1.png",
+      image_url: "https://picsum.photos/seed/outfit1/600/852",
+      created_at: new Date(),
+      published_at: new Date(),
+      updated_at: new Date(),
+    },
     created_at: new Date(),
-    published_at: new Date(),
     updated_at: new Date(),
-    vartiants: [],
+    variants: [],
+    published_at: null,
   },
   {
     outfit_id: "2",
     outfit_name: "Outfit Đi Chơi",
-    image_url: "https://picsum.photos/seed/outfit2/600/852",
+    image: {
+      image_id: "outfit2_image",
+      image_name: "outfit2.png",
+      image_url: "https://picsum.photos/seed/outfit2/600/852",
+      created_at: new Date(),
+      published_at: new Date(),
+      updated_at: new Date(),
+    },
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
-    vartiants: [],
+    variants: [],
   },
   {
     outfit_id: "3",
     outfit_name: "Outfit Đi Chơi",
-    image_url: "https://picsum.photos/seed/outfit2/600/852",
+    image: {
+      image_id: "outfit3_image",
+      image_name: "outfit3.png",
+      image_url: "https://picsum.photos/seed/outfit3/600/852",
+      created_at: new Date(),
+      published_at: new Date(),
+      updated_at: new Date(),
+    },
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
-    vartiants: [],
+    variants: [],
   },
   {
     outfit_id: "4",
     outfit_name: "Outfit Đi Chơi",
-    image_url: "https://picsum.photos/seed/outfit2/600/852",
+    image: {
+      image_id: "outfit4_image",
+      image_name: "outfit4.png",
+      image_url: "https://picsum.photos/seed/outfit4/600/852",
+      created_at: new Date(),
+      published_at: new Date(),
+      updated_at: new Date(),
+    },
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
-    vartiants: [],
+    variants: [],
   },
   {
     outfit_id: "5",
     outfit_name: "Outfit Đi Chơi",
-    image_url: "https://picsum.photos/seed/outfit2/600/852",
+    image: {
+      image_id: "outfit5_image",
+      image_name: "outfit5.png",
+      image_url: "https://picsum.photos/seed/outfit5/600/852",
+      created_at: new Date(),
+      published_at: new Date(),
+      updated_at: new Date(),
+    },
     created_at: new Date(),
     published_at: new Date(),
     updated_at: new Date(),
-    vartiants: [],
+    variants: [],
   },
 ];
 
@@ -205,7 +252,7 @@ export const mockProducts: Product[] = Array.from(
       variant_images: productVariants.map((variant) => variant.image),
     };
   }
-)
+);
 
 // Hàm hoán đổi vị trí ngẫu nhiên
 function shuffleArray<T>(array: T[]): T[] {

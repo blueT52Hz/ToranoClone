@@ -9,7 +9,7 @@ import Products from "@/pages/user/Products";
 import PromotionPage from "@/pages/user/Promotion";
 import Register from "@/pages/user/Register";
 import Search from "@/pages/user/Search";
-import StoreLocator from "@/pages/user/StoreLocator ";
+import StoreLocator from "@/pages/user/StoreLocator";
 import { Route, Routes } from "react-router-dom";
 
 const UserRoutes = () => {
@@ -17,22 +17,16 @@ const UserRoutes = () => {
     <AppProvider>
       <Routes>
         <Route element={<HomeLayout />}>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/collections/:slug" element={<Collections />}></Route>
-          <Route
-            path="/pages/he-thong-cua-hang"
-            element={<StoreLocator />}
-          ></Route>
-          <Route
-            path="/pages/tang-voucher-20-30"
-            element={<PromotionPage />}
-          ></Route>
-          <Route path="/search" element={<Search />}></Route>
-          <Route path="/bo-suu-tap-outfit" element={<OutFit />}></Route>
-          <Route path="/products/:slug" element={<Products />}></Route>
-          <Route path="/cart" element={<Cart />}></Route>
-          <Route path="accounts/login" element={<Login />}></Route>
-          <Route path="accounts/register" element={<Register />}></Route>
+          <Route path="/" element={<Home />} />
+          <Route path="/collections/:slug" element={<Collections />} />
+          <Route path="/pages/he-thong-cua-hang" element={<StoreLocator />} />
+          <Route path="/pages/tang-voucher-20-30" element={<PromotionPage />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/bo-suu-tap-outfit" element={<OutFit />} />
+          <Route path="/products/:slug" element={<Products />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/accounts/login" element={<Login />} />
+          <Route path="/accounts/register" element={<Register />} />
         </Route>
       </Routes>
     </AppProvider>
