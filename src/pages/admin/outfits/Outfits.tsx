@@ -1,15 +1,7 @@
 import { useState } from "react";
-import {
-  Edit,
-  Plus,
-  Search,
-  Trash2,
-  Filter,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { Outfit, ProductImage } from "@/types/product";
+import { Edit, Plus, Search, Trash2, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Outfit } from "@/types/product";
 import Pagination from "@/components/common/Pagination";
 
 type StatusFilter = "all" | "published" | "draft";

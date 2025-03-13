@@ -78,7 +78,7 @@ export default function Sidebar() {
           )}
         >
           <NavLink
-            to="/dashboard"
+            to="/admin/dashboard"
             className={`flex items-center ${isCollapsed ? "justify-center" : ""}`}
           >
             <span

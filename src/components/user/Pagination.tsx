@@ -2,11 +2,12 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
-  totalPages: number;
+  total: number;
   currentPage: number;
+  perpage?: number;
 }
 
-const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
+const Pagination = ({ total, currentPage, perpage = 20 }: PaginationProps) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -16,6 +17,8 @@ const Pagination = ({ totalPages, currentPage }: PaginationProps) => {
 
     navigate(`?${newParams.toString()}`);
   };
+
+  const totalPages = Math.ceil(total / perpage);
 
   const getPaginationItems = () => {
     const pages: (number | string)[] = [];

@@ -1,9 +1,10 @@
-import { Outfit, mockOutfits } from "@/types/product";
+import { Outfit } from "@/types/product";
 import { ArrowRight } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const OutFitSection = () => {
+  const [outfits, setOutfits] = useState<Outfit[]>([]);
   return (
     <section className="outfit-of-the-day">
       <div className="container px-12 py-8 min-w-full flex flex-col bg-red-50 gap-8">
@@ -18,10 +19,13 @@ const OutFitSection = () => {
         </div>
         <div className="outfit-content flex flex-col justify-center items-center gap-8">
           <div className="grid grid-cols-3 gap-8">
-            {mockOutfits.slice(0, 3).map((item, _i) => {
+            {outfits.slice(0, 3).map((item, _i) => {
               return (
                 <div className="flex flex-col gap-4" key={_i}>
-                  <img src={item.image_url}></img>
+                  <img
+                    src={item.image.image_url}
+                    alt={item.image.image_name}
+                  ></img>
                   <div className="text-lg">{item.outfit_name}</div>
                   <div className="flex justify-start items-center">
                     <div className="text-sm px-7 py-3 border-2 rounded-md bg-white cursor-pointer border-slate-400 hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500">

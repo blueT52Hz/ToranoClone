@@ -1,14 +1,69 @@
-import React, { useState } from "react";
-import { Input, Typography, Form, Radio, DatePicker } from "antd";
+import React, { useEffect, useState } from "react";
+import { Input, Typography, Form, Radio, DatePicker, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
+import { User } from "@/types/user";
+import { format } from "date-fns";
+import { useUser } from "@/context/UserContext";
+import { registerUser } from "@/services/client/user/user";
+
+interface FormValues {
+  lastName: string;
+  firstName: string;
+  gender: "Nam" | "Nữ" | "Khác";
+  dob: Date;
+  email: string;
+  password: string;
+}
 
 const { Text } = Typography;
 
 const Register = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
   const navigate = useNavigate();
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
+  const { setUser } = useUser();
+  const [userRegister, setUserRegister] = useState<User | null>(null);
+  const onFinish = (values: FormValues) => {
+    const { lastName, firstName, gender, dob, email, password } = values;
+    setUserRegister({
+      user_id: "",
+      full_name: firstName + " " + lastName,
+      gender,
+      date_of_birth: format(dob, "yyyy-MM-dd"),
+      email,
+      password,
+      created_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+      updated_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+    });
+  };
+
+  useEffect(() => {
+    const handleRegister = async () => {
+      if (userRegister) {
+        try {
+          const result = await registerUser(userRegister);
+          if (result) {
+            setUser(result);
+            notification.success({
+              message: "Thông báo",
+              description: "Đăng ký thành công",
+              placement: "topRight",
+            });
+          }
+          navigate("/");
+        } catch (error) {
+          notification.error({
+            message: "Cảnh báo!",
+            description: String(error),
+            placement: "topRight",
+          });
+        }
+      }
+    };
+
+    handleRegister();
+  }, [userRegister]);
 
   return (
     <section className="login-section flex items-center justify-center">
@@ -35,7 +90,7 @@ const Register = () => {
         </div>
 
         <div className="">
-          <Form form={form} autoComplete="off">
+          <Form form={form} autoComplete="off" onFinish={onFinish}>
             <Form.Item
               name="lastName"
               rules={[{ required: true, message: "Vui lòng nhập họ" }]}
@@ -103,6 +158,30 @@ const Register = () => {
               <Input.Password
                 size="large"
                 placeholder="Mật khẩu"
+                className="italic bg-gray-200"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="confirmPassword"
+              dependencies={["password"]}
+              rules={[
+                { required: true, message: "Vui lòng xác nhận mật khẩu" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Mật khẩu xác nhận không khớp")
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input.Password
+                size="large"
+                placeholder="Xác nhận mật khẩu"
                 className="italic bg-gray-200"
               />
             </Form.Item>

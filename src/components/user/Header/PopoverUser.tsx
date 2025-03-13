@@ -17,15 +17,8 @@ const PopoverUser = () => {
   const navigate = useNavigate();
   const handleLoginButtonClicked = (values: FieldType) => {
     const { email, password } = values;
-    const foundUser = handleLogin(email, password);
-
-    if (foundUser) {
-      setUser(foundUser);
-      message.success("Đăng nhập thành công!");
-      setOpen(false);
-    } else {
-      message.error("Sai tài khoản hoặc mật khẩu!");
-    }
+    handleLogin(email, password);
+    setOpen(false);
   };
   return (
     <>
@@ -60,7 +53,6 @@ const PopoverUser = () => {
                 variant="solid"
                 onClick={() => {
                   setOpen(false);
-                  message.success("Đăng xuất thành công!");
                   handleLogOut();
                 }}
               >

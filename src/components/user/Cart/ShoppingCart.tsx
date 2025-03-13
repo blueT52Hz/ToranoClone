@@ -1,7 +1,7 @@
 import { useCart, useUser } from "@/context/UserContext";
 import { Badge, Divider, Drawer, Empty, Flex, Modal } from "antd";
 import { ShoppingCart as CartIcon, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import CartItemComponent from "@/components/user/Cart/CartItemCard";
 import "@components/user/Cart/style.css";
@@ -10,6 +10,17 @@ const ShoppingCart = () => {
   const { cart } = useCart();
   const [openCart, setOpenCart] = useState(false);
   const [openSaleModal, setOpenSaleModal] = useState(false);
+  const cart_total_price = useMemo(() => {
+    if (!cart || cart.cartItems.length === 0) return 0; // Nếu giỏ hàng rỗng, trả về 0
+    return cart.cartItems.reduce(
+      (total, item) =>
+        total +
+        (item.variant.product.sale_price || item.variant.product.base_price) *
+          item.quantity,
+      0
+    );
+  }, [cart]); // Chỉ tính lại khi `cart` thay đổi
+
   return (
     <>
       <Badge
@@ -47,7 +58,7 @@ const ShoppingCart = () => {
                 <div className="flex justify-between items-center">
                   <div className="text-base uppercase">Tổng cộng:</div>
                   <div className="text-lg font-semibold">
-                    {cart.cart_total_price.toLocaleString("vi-VN", {
+                    {cart_total_price.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     })}

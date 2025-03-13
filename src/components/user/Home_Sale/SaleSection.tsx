@@ -1,5 +1,6 @@
 import ProductCard from "@/components/user/Product/ProductCard";
-import { Product, mockProducts } from "@/types/product";
+import { mockProducts } from "@/types/mock";
+import { Product } from "@/types/product";
 import clsx from "clsx";
 import { AnimatePresence, easeInOut, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Eye, ShoppingBag } from "lucide-react";
@@ -11,7 +12,15 @@ const SaleSection = () => {
   const [perPage, setPerPage] = useState(6);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      setTimeout(() => {}, 1000);
+      setProducts(mockProducts);
+    };
+    getProducts();
+  }, []);
 
   useEffect(() => {
     const updatePerPage = () => {
@@ -22,8 +31,8 @@ const SaleSection = () => {
     };
 
     const handleResize = () => {
-      if (currentSlide + perPage > mockProducts.length)
-        setCurrentSlide(mockProducts.length - perPage);
+      if (currentSlide + perPage > products.length)
+        setCurrentSlide(products.length - perPage);
     };
 
     updatePerPage();
@@ -44,7 +53,7 @@ const SaleSection = () => {
 
   const handleIncrease = (steps = 1) => {
     setCurrentSlide((prev) =>
-      Math.min(mockProducts.length - perPage, prev + steps)
+      Math.min(products.length - perPage, prev + steps)
     );
   };
   return (
@@ -53,7 +62,7 @@ const SaleSection = () => {
         <div className="title flex flex-col mb-4">
           <div className="flex justify-between pt-6">
             <Link
-              to={`/collections/`}
+              to={`/collections/onsale`}
               className="hover:text-shop-color-hover text-xl sm:text-4xl font-bold"
               style={{ transition: "all .3s easeInOut" }}
             >
@@ -73,7 +82,7 @@ const SaleSection = () => {
               <ArrowRight
                 size={"1.5em"}
                 className={clsx(
-                  currentSlide !== mockProducts.length - perPage
+                  currentSlide !== products.length - perPage
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
                     : "text-[#959595]"
                 )}
@@ -102,7 +111,7 @@ const SaleSection = () => {
                 setIsDragging(false);
               }}
             >
-              {mockProducts.map((item, index) => {
+              {products.map((item, index) => {
                 return (
                   <ProductCard
                     key={index}

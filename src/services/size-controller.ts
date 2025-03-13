@@ -1,4 +1,4 @@
-import axiosClient from "@/api/axiosClient";
+import axiosClient from "@/services/axiosClient";
 import { Size } from "@/types/product";
 
 const API_BASE_URL = "/sizes";

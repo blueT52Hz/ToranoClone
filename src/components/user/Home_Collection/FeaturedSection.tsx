@@ -1,5 +1,5 @@
 import ProductCard from "@/components/user/Product/ProductCard";
-import { mockProducts } from "@/types/product";
+import { Product } from "@/types/product";
 import Item from "antd/es/list/Item";
 import clsx from "clsx";
 import React, { useState } from "react";
@@ -14,6 +14,7 @@ const headerTitle = [
 
 const FeaturedSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
   return (
     <section className="featured-section my-20">
       <div className="container min-w-full px-12 flex flex-col">
@@ -39,7 +40,7 @@ const FeaturedSection = () => {
         </div>
         <div className="collection py-8">
           <div className="grid grid-cols-5 gap-4">
-            {mockProducts.map((item, index) => {
+            {products.map((item, index) => {
               return (
                 <div key={index} className="pr-4">
                   <ProductCard

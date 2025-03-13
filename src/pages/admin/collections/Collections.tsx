@@ -16,49 +16,7 @@ type StatusFilter = "all" | "published" | "draft";
 
 export default function Collections() {
   const navigate = useNavigate();
-  const [collections, setCollections] = useState<Collection[]>([
-    {
-      collection_id: "1",
-      name: "Summer Collection",
-      slug: "summer-collection",
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      collection_id: "2",
-      name: "Winter Essentials",
-      slug: "winter-essentials",
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      collection_id: "3",
-      name: "Formal Wear",
-      slug: "formal-wear",
-      published_at: null,
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    {
-      collection_id: "4",
-      name: "Casual Basics",
-      slug: "casual-basics",
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-    },
-    // Add more mock collections for pagination
-    ...[...Array(15)].map((_, i) => ({
-      collection_id: (i + 5).toString(),
-      name: `Collection ${i + 5}`,
-      slug: `collection-${i + 5}`,
-      published_at: i % 3 === 0 ? null : new Date(),
-      created_at: new Date(Date.now() - i * 86400000),
-      updated_at: new Date(Date.now() - i * 86400000),
-    })),
-  ]);
+  const [collections, setCollections] = useState<Collection[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -152,7 +110,7 @@ export default function Collections() {
 
   const handleAddCollection = () => {
     const newCollectionId = (collections.length + 1).toString();
-    const newCollectionObj = {
+    const newCollectionObj: Collection = {
       collection_id: newCollectionId,
       name: newCollection.name,
       slug:
@@ -161,6 +119,14 @@ export default function Collections() {
       published_at: new Date(),
       created_at: new Date(),
       updated_at: new Date(),
+      image: {
+        image_url: "",
+        image_id: "",
+        created_at: new Date(),
+        image_name: "",
+        published_at: new Date(),
+        updated_at: new Date(),
+      },
     };
 
     setCollections([...collections, newCollectionObj]);

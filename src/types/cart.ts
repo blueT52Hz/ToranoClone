@@ -17,11 +17,9 @@ export interface Order {
 export interface Cart {
   cart_id: string;
   cartItems: CartItem[];
-  cart_total_price: number;
 }
 
 export interface CartItem {
-  product: Product;
   created_at: Date;
   cartItem_id: string;
   variant: ProductVariant;

@@ -1,17 +1,18 @@
 import Pagination from "@/components/user/Pagination";
 import ProductsSection from "@/components/user/ProductsSection";
 import Sidebar from "@/components/user/SidebarFilter";
-import { mockProducts, mockCollections } from "@/types/product";
+import { Product, Collection } from "@/types/product";
 import { cn } from "@/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 const Collections = () => {
   const { slug } = useParams();
-  const mockCollection =
-    mockCollections.find((c) => c.slug === slug) || mockCollections[0];
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 850);
   const [searchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
@@ -36,10 +37,10 @@ const Collections = () => {
             <div className="toolbar-main flex justify-between mb-[30px]">
               <div className="title-toolbar flex gap-4 items-center">
                 <div className="title-collection text-shop-color-title font-bold text-[22px]">
-                  {mockCollection.name}
+                  {collection && collection.name}
                 </div>
                 <div className="product-count text-sm">
-                  <span className="font-bold">{mockProducts.length}</span>
+                  <span className="font-bold">{products.length}</span>
                   <span className="font-light"> sản phẩm</span>
                 </div>
               </div>
@@ -51,11 +52,8 @@ const Collections = () => {
                 </div>
               </div>
             </div>
-            <ProductsSection
-              columns={4}
-              products={mockProducts}
-            ></ProductsSection>
-            <Pagination totalPages={10} currentPage={currentPage} />
+            <ProductsSection columns={4} products={products}></ProductsSection>
+            <Pagination total={products.length} currentPage={currentPage} />
           </div>
         </div>
       </section>

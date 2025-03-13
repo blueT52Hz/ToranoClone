@@ -4,7 +4,7 @@ import CollectionSection from "@/components/user/Home_Collection/CollectionSecti
 import FeaturedSection from "@/components/user/Home_Collection/FeaturedSection";
 import OutFitSection from "@/components/user/Home_OutfitOfTheDay/OutFitSection";
 import SaleSection from "@/components/user/Home_Sale/SaleSection";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const Home = () => {
   useEffect(() => {

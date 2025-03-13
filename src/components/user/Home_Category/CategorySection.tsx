@@ -1,67 +1,25 @@
-import { Button } from "antd";
-import { calc } from "antd/es/theme/internal";
+import { mockCollections } from "@/types/mock";
+import { Collection } from "@/types/product";
 import clsx from "clsx";
-import { AnimatePresence, easeInOut, motion, animate } from "framer-motion";
+import { AnimatePresence, easeInOut, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-interface CategorySectionItem {
-  name: string;
-  img_url: string;
-  slug: string;
-}
-
-const categorySectionItems: CategorySectionItem[] = [
-  {
-    name: "Áo khoác",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_1_img.jpg?v=663",
-    slug: "/collections/ao-khoac",
-  },
-  {
-    name: "Bộ Nỉ",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_2_img.jpg?v=663",
-    slug: "/collections/bo-ni",
-  },
-  {
-    name: "Quần Jeans",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_3_img.jpg?v=663",
-    slug: "/collections/quan-jeans",
-  },
-  {
-    name: "Quần Âu",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_4_img.jpg?v=663",
-    slug: "/collections/quan-au",
-  },
-  {
-    name: "Quần Kaki",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_5_img.jpg?v=663",
-    slug: "/collections/quan-kaki",
-  },
-  {
-    name: "Sơ Mi",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_6_img.jpg?v=663",
-    slug: "/collections/so-mi",
-  },
-  {
-    name: "Áo Polo",
-    img_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/home_category_7_img.jpg?v=663",
-    slug: "/collections/ao-polo",
-  },
-];
 
 const CategorySection = () => {
   const [perPage, setPerPage] = useState(4);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
+  const [collections, setCollections] = useState<Collection[]>([]);
+
+  useEffect(() => {
+    const getCollection = async () => {
+      setTimeout(() => {}, 1000);
+      setCollections(mockCollections);
+    };
+    getCollection();
+  }, []);
 
   useEffect(() => {
     const updatePerPage = () => {
@@ -72,8 +30,8 @@ const CategorySection = () => {
     };
 
     const handleResize = () => {
-      if (currentSlide + perPage > categorySectionItems.length)
-        setCurrentSlide(categorySectionItems.length - perPage);
+      if (currentSlide + perPage > collections.length)
+        setCurrentSlide(collections.length - perPage);
     };
 
     updatePerPage();
@@ -94,7 +52,7 @@ const CategorySection = () => {
 
   const handleIncrease = (steps = 1) => {
     setCurrentSlide((prev) =>
-      Math.min(categorySectionItems.length - perPage, prev + steps)
+      Math.min(collections.length - perPage, prev + steps)
     );
   };
 
@@ -104,7 +62,7 @@ const CategorySection = () => {
         <div className="title flex flex-col mb-4">
           <div className="flex justify-between">
             <Link
-              to={`/collections/`}
+              to={`/collections/all`}
               className="hover:text-shop-color-hover text-xl sm:text-4xl font-bold"
               style={{ transition: "all .3s easeInOut" }}
             >
@@ -124,7 +82,7 @@ const CategorySection = () => {
               <ArrowRight
                 size={"1.5em"}
                 className={clsx(
-                  currentSlide !== categorySectionItems.length - perPage
+                  currentSlide !== collections.length - perPage
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
                     : "text-[#959595]"
                 )}
@@ -153,7 +111,7 @@ const CategorySection = () => {
                 setIsDragging(false);
               }}
             >
-              {categorySectionItems.map((item, index) => {
+              {collections.map((item, index) => {
                 return (
                   <motion.div
                     className={clsx("overflow-hidden pr-4 flex-shrink-0")}
@@ -166,17 +124,18 @@ const CategorySection = () => {
                   >
                     <div className="w-full overflow-hidden relative">
                       <img
-                        src={item.img_url}
-                        alt={item.name}
+                        src={item.image.image_url}
+                        alt={item.image.image_name}
                         className="hover:scale-110 object-cover cursor-pointer"
                         draggable={false}
                         style={{ transition: "all 0.5s ease-in-out" }}
                         onClick={() => {
-                          if (!isDragging) navigate(`${item.slug}`);
+                          if (!isDragging)
+                            navigate(`/collections/${item.slug}`);
                         }}
                       />
                       <div className="absolute bottom-0 w-full bg-white/45 py-3 px-4 flex justify-between items-center">
-                        <Link to={item.slug}>
+                        <Link to={`/collections/${item.slug}`}>
                           <div
                             className="text-shop-color-title text-base hover:text-shop-color-hover font-medium"
                             style={{ transition: "all 0.3s ease-in-out" }}
@@ -184,7 +143,7 @@ const CategorySection = () => {
                             {item.name}
                           </div>
                         </Link>
-                        <Link to={item.slug}>
+                        <Link to={`/collections/${item.slug}`}>
                           <motion.div
                             className="w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center shadow-inner hover:bg-black hover:text-white cursor-pointer"
                             initial={{ opacity: 0, scale: 0.7 }}

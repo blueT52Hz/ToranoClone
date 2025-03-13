@@ -33,7 +33,7 @@ const ProductCard = (props: ProductCardProps) => {
   console.log(colorCount, sizeCount);
   return (
     <motion.div
-      className={clsx("overflow-hidden flex-shrink-0", className)}
+      className={clsx("overflow-hidden flex-shrink-0 min-h-full", className)}
       style={{
         flexBasis: `calc(${100 / perPage}%)`, // Trừ đi 24px để giữ khoảng cách
       }}
@@ -43,7 +43,7 @@ const ProductCard = (props: ProductCardProps) => {
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
       <div
-        className="product-wrap bg-white"
+        className="product-wrap bg-white h-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => !isOpenModal && setIsHovered(false)}
       >
@@ -78,9 +78,11 @@ const ProductCard = (props: ProductCardProps) => {
               }}
             />
           </motion.div>
-          <div className="absolute z-100 top-3 left-2 px-[10px] py-[5px] min-w-[52px] rounded-[11px] bg-[#ff0000] text-center text-xs text-[#fff] font-semibold leading-none">
-            -27%
-          </div>
+          {item.discount !== 0 && (
+            <div className="absolute z-100 top-3 left-2 px-[10px] py-[5px] min-w-[52px] rounded-[11px] bg-[#ff0000] text-center text-xs text-[#fff] font-semibold leading-none">
+              {item.discount}
+            </div>
+          )}
           <AnimatePresence>
             {isHoverd && (
               <motion.div

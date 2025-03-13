@@ -1,7 +1,6 @@
 import ProductCard from "@/components/user/Product/ProductCard";
-import { mockProducts, Product } from "@/types/product";
+import { Product } from "@/types/product";
 import clsx from "clsx";
-import { div } from "framer-motion/client";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,6 +8,7 @@ const headerTitle = ["Áo Khoác", "Bộ Nỉ", "Sơ Mi - Quần Dài", "Áo Pol
 
 const CollectionSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
   return (
     <section className="featured-section my-20">
       <div className="container min-w-full px-12 flex flex-col">
@@ -34,7 +34,7 @@ const CollectionSection = () => {
         </div>
         <div className="collection py-8">
           <div className="grid grid-cols-5 gap-4">
-            {mockProducts.map((item, index) => {
+            {products.map((item, index) => {
               return (
                 <div key={index} className="pr-4">
                   <ProductCard

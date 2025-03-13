@@ -1,11 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import {
-  Color,
-  Product,
-  ProductImage,
-  Size,
-  mockProducts,
-} from "@/types/product";
+import { Color, Product, Image as ImageType, Size } from "@/types/product";
 import { Form, Image, Modal } from "antd";
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -160,9 +154,7 @@ const ProductModal = (props: ProductModalProps) => {
                 <button
                   key={color.color_id}
                   className={`border px-2 py-2 rounded ${
-                    product.variants.filter(
-                      (variant) => variant.image.image_id === activeImageId
-                    )[0].color.color_id === color.color_id
+                    product.variants[0].color.color_id === color.color_id
                       ? "border-red-500 border-2"
                       : "border-gray-300"
                   }`}
@@ -271,7 +263,7 @@ export default ProductModal;
 interface GallerySliderProps {
   activeImageId: string;
   setActiveImageId: React.Dispatch<React.SetStateAction<string>>;
-  product_images: ProductImage[];
+  product_images: ImageType[];
 }
 
 const GallerySlider = (props: GallerySliderProps) => {

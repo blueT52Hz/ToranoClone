@@ -1,6 +1,6 @@
 import Pagination from "@/components/user/Pagination";
 import ProductsSection from "@/components/user/ProductsSection";
-import { mockProducts } from "@/types/product";
+import { Product } from "@/types/product";
 import { Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -10,6 +10,7 @@ const Search = () => {
   const currentPage = Number(searchParams.get("page")) || 1;
   const q = searchParams.get("q");
   const type = searchParams.get("type");
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -31,7 +32,11 @@ const Search = () => {
         <div className="mb-4 text-lg">
           Kết quả tìm kiếm cho <strong>{q}.</strong>
         </div>
-        <ProductsSection columns={5} products={mockProducts}></ProductsSection>
+        {products.length !== 0 ? (
+          <ProductsSection columns={5} products={products}></ProductsSection>
+        ) : (
+          <div>Không có sản phẩm nào </div>
+        )}
         <Pagination totalPages={10} currentPage={currentPage} />
       </section>
     </div>

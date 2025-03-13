@@ -1,42 +1,69 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Carousel, Flex } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import { div, i } from "framer-motion/client";
+import { useEffect, useState } from "react";
+import { Flex } from "antd";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
-import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
+import { HeroSection as HeroSectionType } from "@/types/product";
+import { v4 as uuidv4 } from "uuid";
+import Loading from "@/components/common/Loading";
 
-interface Item {
-  image_url: string;
-  slug: string;
-}
-
-const items: Item[] = [
+const items: HeroSectionType[] = [
   {
-    image_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/slide_1_img.jpg?v=656",
-    slug: "/collections/onsale",
+    image: {
+      image_id: uuidv4(),
+      image_url:
+        "https://theme.hstatic.net/200000690725/1001078549/14/slide_1_img.jpg?v=656",
+      image_name: "slide_1_img",
+      created_at: new Date(),
+      published_at: null,
+      updated_at: new Date(),
+    },
+    hero_name: "On Sale",
+    hero_slug: "/collections/onsale",
+    hero_id: uuidv4(),
   },
   {
-    image_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/slide_4_img.jpg?v=656",
-    slug: "/collections/do-thu-dong",
+    image: {
+      image_id: uuidv4(),
+      image_url:
+        "https://theme.hstatic.net/200000690725/1001078549/14/slide_4_img.jpg?v=656",
+      image_name: "slide_4_img",
+      created_at: new Date(),
+      published_at: null,
+      updated_at: new Date(),
+    },
+    hero_name: "Đồ Thu Đông",
+    hero_slug: "/collections/do-thu-dong",
+    hero_id: uuidv4(),
   },
   {
-    image_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/slide_2_img.jpg?v=656",
-    slug: "/collections/do-thu-dong",
+    image: {
+      image_id: uuidv4(),
+      image_url:
+        "https://theme.hstatic.net/200000690725/1001078549/14/slide_2_img.jpg?v=656",
+      image_name: "slide_2_img",
+      created_at: new Date(),
+      published_at: null,
+      updated_at: new Date(),
+    },
+    hero_name: "Đồ Thu Đông",
+    hero_slug: "/collections/do-thu-dong",
+    hero_id: uuidv4(),
   },
   {
-    image_url:
-      "https://theme.hstatic.net/200000690725/1001078549/14/slide_3_img.jpg?v=656",
-    slug: "/collections/new-1",
+    image: {
+      image_id: uuidv4(),
+      image_url:
+        "https://theme.hstatic.net/200000690725/1001078549/14/slide_3_img.jpg?v=656",
+      image_name: "slide_3_img",
+      created_at: new Date(),
+      published_at: null,
+      updated_at: new Date(),
+    },
+    hero_name: "New Collection",
+    hero_slug: "/collections/new-1",
+    hero_id: uuidv4(),
   },
 ];
 
@@ -44,9 +71,23 @@ const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [duration, setDuration] = useState(0.5);
   const [isDragging, setIsDragging] = useState(false);
+  const [heroSections, setHeroSections] = useState<HeroSectionType[]>([]);
   const navigate = useNavigate();
 
-  const slideSize = items.length;
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const getHero = async () => {
+      setIsLoading(true);
+
+      setTimeout(() => {
+        setHeroSections(items);
+        setIsLoading(false);
+      }, 100);
+    };
+
+    getHero();
+  }, []);
+  const slideSize = heroSections.length;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -71,6 +112,8 @@ const HeroSection = () => {
     else setDuration(0.5);
     setCurrentSlide((currentSlide + 1) % slideSize);
   };
+
+  if (isLoading) return <Loading></Loading>;
 
   return (
     <section className="section-home-slider mb-20">
@@ -100,14 +143,14 @@ const HeroSection = () => {
             }}
           >
             <div className="flex flex-nowrap">
-              {items.map((item, i) => (
+              {heroSections.map((item, i) => (
                 <div className="basis-full flex-shrink-0" key={i}>
                   <img
-                    src={item.image_url}
+                    src={item.image.image_url}
                     key={i}
                     className="w-full h-full object-cover cursor-pointer select-none"
                     onClick={() => {
-                      if (!isDragging) navigate(item.slug);
+                      if (!isDragging) navigate(item.hero_slug);
                     }}
                     draggable={false}
                   ></img>

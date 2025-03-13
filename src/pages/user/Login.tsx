@@ -3,10 +3,6 @@ import { Input, Button, Typography, Divider, Form, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { useUser } from "@/context/UserContext";
-import { mockUsers, User } from "@/types/user";
-import axios from "axios";
-import axiosClient from "@/api/axiosClient";
-
 const { Text } = Typography;
 
 type FieldType = {

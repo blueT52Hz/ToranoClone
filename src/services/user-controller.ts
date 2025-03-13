@@ -1,4 +1,4 @@
-import axiosClient from "@/api/axiosClient";
+import axiosClient from "@/services/axiosClient";
 import { User } from "@/types/user";
 
 const API_BASE_URL = "/users";

@@ -1,4 +1,4 @@
-import axiosClient from "@/api/axiosClient";
+import axiosClient from "@/services/axiosClient";
 
 const API_BASE_URL = "/notifications";
 

@@ -2,20 +2,12 @@ import AppBreadcrumb from "@/components/user/Breadcrumb/AppBreadcrumb";
 import ProductsSection from "@/components/user/ProductsSection";
 import { useCart } from "@/context/UserContext";
 import { CartItem } from "@/types/cart";
-import {
-  Color,
-  mockProducts,
-  Product,
-  ProductImage,
-  Size,
-} from "@/types/product";
+import { Color, Product, Image, Size, Collection } from "@/types/product";
 import { cn } from "@/utils/cn";
-import { Breadcrumb, Form, Image } from "antd";
+import { Form, Image as ImageComponent } from "antd";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { image } from "framer-motion/client";
 import { X } from "lucide-react";
-import { title } from "process";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
 import { Link, useParams } from "react-router-dom";
@@ -58,7 +50,11 @@ const Products = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
   const { slug } = useParams();
   const [expanded, setExpanded] = useState(false);
-  const product = mockProducts.filter((product) => product.slug === slug)[0];
+  const [product, setProduct] = useState<Product | null>(null);
+  const [productsRelated, setProductsRelated] = useState<Product[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  if (!product || collections.length === 0 || productsRelated.length === 0)
+    return <div>Loading...</div>;
   return (
     <>
       <AppBreadcrumb
@@ -113,13 +109,7 @@ const Products = () => {
           <div className="flex flex-col justify-center items-center px-32 my-20">
             <h2 className="text-2xl font-bold mb-4">Sản phẩm liên quan</h2>
             <ProductsSection
-              products={mockProducts
-                .filter((item) => {
-                  return item.collections.some((collection) => {
-                    return product.collections.includes(collection);
-                  });
-                })
-                .slice(0, 5)}
+              products={productsRelated}
               columns={5}
               gap={30}
             ></ProductsSection>
@@ -187,7 +177,7 @@ const ProductOptions = (props: ProductOptionsProps) => {
     <div className="container mx-auto grid md:grid-cols-3 gap-24 overflow-hidden px-20">
       <div className="product-gallery flex flex-col pb-4 mt-4 gap-4">
         <span className="flex justify-center items-center my-2">
-          <Image
+          <ImageComponent
             src={
               product.variant_images.filter(
                 (item) => item.image_id === activeImageId
@@ -355,7 +345,7 @@ const ProductOptions = (props: ProductOptionsProps) => {
 interface GallerySliderProps {
   activeImageId: string;
   setActiveImageId: React.Dispatch<React.SetStateAction<string>>;
-  product_images: ProductImage[];
+  product_images: Image[];
 }
 
 const GallerySlider = (props: GallerySliderProps) => {

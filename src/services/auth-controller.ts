@@ -1,4 +1,4 @@
-import axiosClient from "@/api/axiosClient";
+import axiosClient from "@/services/axiosClient";
 
 interface RegisterData {
   email: string;

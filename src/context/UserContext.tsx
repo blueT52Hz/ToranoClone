@@ -5,7 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { mockUsers, User } from "@/types/user";
+import { User } from "@/types/user";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
 import { Cart, CartItem } from "@/types/cart";
 import { message, notification } from "antd";
@@ -13,6 +13,8 @@ import { Image } from "antd";
 import { CheckCircle, X } from "lucide-react";
 import { login as loginService } from "@/services/auth-controller";
 import "./style.css";
+import { getLatestCartByUserId } from "@/services/client/cart/cart";
+import { login } from "@/services/client/user/user";
 interface UserContextType {
   user: User | null;
   cart: Cart;
@@ -30,7 +32,6 @@ const UserContext = createContext<UserContextType>({
   cart: {
     cart_id: "init",
     cartItems: [],
-    cart_total_price: 0,
   },
   setUser: function (user: User | null): void {
     throw new Error("Function not implemented.");
@@ -60,13 +61,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<Cart>(getLocalCart());
 
   useEffect(() => {
+    if (user) {
+      const getCart = async () => {
+        const result = await getLatestCartByUserId(user.user_id);
+        console.log(result);
+      };
+      getCart();
+    } else {
+    }
     setCart(getLocalCart());
-
-    // if (user) {
-    //   setCart(user.cart);
-    // } else {
-    //   setCart(getLocalCart());
-    // }
   }, [user]);
 
   const addToCart = (item: CartItem) => {
@@ -86,7 +89,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       const newTotalPrice = updatedItems.reduce((acc, cartItem) => {
         const price =
-          cartItem.product.sale_price || cartItem.product.base_price;
+          cartItem.variant.product.sale_price ||
+          cartItem.variant.product.base_price;
         return acc + price * cartItem.quantity;
       }, 0);
 
@@ -119,7 +123,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 </div>
                 <div className="flex flex-col w-full gap-1">
                   <div className="font-semibold text-sm">
-                    {item.product.name}
+                    {item.variant.product.name}
                   </div>
                   <div className="flex justify-start">
                     <p className="text-sm text-gray-500 ">
@@ -134,9 +138,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                   <div className="flex justify-start gap-2 items-center">
                     <p className="text-sm text-gray-500">Tổng tiền:</p>
                     <p className="font-semibold text-black">
-                      {(item.product.sale_price
-                        ? item.product.sale_price * item.quantity
-                        : item.product.base_price * item.quantity
+                      {(item.variant.product.sale_price
+                        ? item.variant.product.sale_price * item.quantity
+                        : item.variant.product.base_price * item.quantity
                       ).toLocaleString()}
                       ₫
                     </p>
@@ -165,7 +169,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       const newTotalPrice = newCartItems.reduce((acc, cartItem) => {
         const price =
-          cartItem.product.sale_price || cartItem.product.base_price;
+          cartItem.variant.product.sale_price ||
+          cartItem.variant.product.base_price;
         return acc + price * cartItem.quantity;
       }, 0);
 
@@ -187,7 +192,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setCart({
       cart_id: user ? user.user_id : "guest",
       cartItems: [],
-      cart_total_price: 0,
     });
     if (!user) clearLocalCart();
   };
@@ -196,7 +200,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setCart((prev) => {
       const newTotalPrice = prev.cartItems.reduce((acc, cartItem) => {
         const price =
-          cartItem.product.sale_price || cartItem.product.base_price;
+          cartItem.variant.product.sale_price ||
+          cartItem.variant.product.base_price;
         return acc + price * cartItem.quantity;
       }, 0);
 
@@ -221,14 +226,28 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const handleLogOut = () => {
     setUser(null);
     setCart(getLocalCart());
+    notification.success({
+      message: "Đăng xuất thành công",
+      description: null,
+      placement: "topRight",
+    });
   };
 
   const handleLogin = async (email: string, password: string) => {
     try {
-      const data = await loginService({ email, password });
-      setUser(data.user);
+      const data = await login(email, password);
+      setUser(data);
+      notification.success({
+        message: "Đăng nhập thành công",
+        description: null,
+        placement: "topRight",
+      });
     } catch (error) {
-      console.error("Login failed", error);
+      notification.error({
+        message: "Lỗi đăng nhập",
+        description: String(error),
+        placement: "topRight",
+      });
     }
   };
 
