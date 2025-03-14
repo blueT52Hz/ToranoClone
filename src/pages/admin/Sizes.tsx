@@ -5,6 +5,7 @@ import SizeAddModal from "@/components/admin/sizes/SizeAddModal";
 import SizeEditModal from "@/components/admin/sizes/SizeEditModal";
 import SizeDeleteModal from "@/components/admin/sizes/SizeDeleteModal";
 import { Size } from "@/types/product";
+import Loading from "@/components/common/Loading";
 
 const SizesPage: React.FC = () => {
   const [sizes, setSizes] = useState<Size[]>([]);
@@ -121,10 +122,7 @@ const SizesPage: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-            <p className="mt-2 text-gray-600">Đang tải dữ liệu...</p>
-          </div>
+          <Loading />
         ) : error ? (
           <div className="text-center py-8">
             <p className="text-red-500">{error}</p>

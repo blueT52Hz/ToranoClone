@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import {
   getPaginatedGalleryImages,
   uploadImageToGallery,
-} from "@/services/imageService";
-import { ProductImage } from "@/types/product";
+} from "@/services/admin/gallery";
+import { Image } from "@/types/product";
 import { Upload, ArrowLeft, ArrowRight, X } from "lucide-react";
 
 interface ImageSelectorProps {
-  onImageSelect: (image: ProductImage) => void;
+  onImageSelect: (image: Image) => void;
   onCancel: () => void;
-  selectedImages?: ProductImage[];
+  selectedImages?: Image[];
   title?: string;
   multiple?: boolean;
 }
@@ -24,7 +24,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
   const [view, setView] = useState<"gallery" | "upload">("gallery");
   const [isUploading, setIsUploading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [galleryImages, setGalleryImages] = useState<ProductImage[]>([]);
+  const [galleryImages, setGalleryImages] = useState<Image[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 12;
 
@@ -32,8 +32,16 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
     loadGalleryImages(currentPage);
   }, [currentPage]);
 
-  const loadGalleryImages = (page: number) => {
-    const { images, totalPages } = getPaginatedGalleryImages(page, pageSize);
+  const loadGalleryImages = async (page: number) => {
+    console.log("Lấy ảnh");
+
+    const { images, totalPages } = await getPaginatedGalleryImages(
+      page,
+      pageSize
+    );
+
+    console.log(images, totalPages);
+
     setGalleryImages(images);
     setTotalPages(totalPages);
   };

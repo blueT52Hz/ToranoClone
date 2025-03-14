@@ -4,7 +4,6 @@ import Collections from "@/pages/admin/collections/Collections";
 import ColorsPage from "@/pages/admin/Colors";
 import Dashboard from "@/pages/admin/Dashboard";
 import GalleryPage from "@/pages/admin/Gallery";
-import ExampleOrderDetails from "@/pages/admin/orders/OrderDetail";
 import Orders from "@/pages/admin/orders/Orders";
 import OutfitDetail from "@/pages/admin/outfits/OutfitDetail";
 import Outfits from "@/pages/admin/outfits/Outfits";

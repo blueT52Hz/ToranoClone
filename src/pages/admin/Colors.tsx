@@ -13,6 +13,7 @@ import ColorAddModal from "@/components/admin/colors/ColorAddModal";
 import ColorEditModal from "@/components/admin/colors/ColorEditModal";
 import ColorDeleteModal from "@/components/admin/colors/ColorDeleteModal";
 import { Color } from "@/types/product";
+import Loading from "@/components/common/Loading";
 
 const ColorsPage: React.FC = () => {
   const [colors, setColors] = useState<Color[]>([]);
@@ -132,10 +133,7 @@ const ColorsPage: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-            <p className="mt-2 text-gray-600">Đang tải dữ liệu...</p>
-          </div>
+          <Loading />
         ) : error ? (
           <div className="text-center py-8">
             <p className="text-red-500">{error}</p>

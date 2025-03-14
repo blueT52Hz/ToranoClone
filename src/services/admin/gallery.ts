@@ -166,7 +166,6 @@ export const removeFromGallery = async (image_id: string): Promise<void> => {
     }
 
     // Delete from database
-    alert(image_id);
     const { error: dbError } = await supabase
       .from(TABLE_NAME)
       .delete()
@@ -189,4 +188,68 @@ export const removeFromGallery = async (image_id: string): Promise<void> => {
     console.error("Error in removeFromGallery:", error);
     throw error;
   }
+};
+
+export const getPaginatedGalleryImages = async (
+  page: number,
+  pageSize: number
+): Promise<{ images: Image[]; totalPages: number }> => {
+  const {
+    data: images,
+    count: totalImages,
+    error: countError,
+  } = await supabase
+    .from("product_image")
+    .select("*", { count: "exact" })
+    .range((page - 1) * pageSize, page * pageSize - 1);
+
+  if (countError) {
+    throw countError;
+  }
+
+  // Tính toán tổng số trang
+  const totalPages = Math.ceil((totalImages || 0) / pageSize);
+
+  // Trả về kết quả
+  return {
+    images: images || [],
+    totalPages,
+  };
+};
+
+export const getImagesByProductId = async (
+  productId: string
+): Promise<Image[]> => {
+  const { data: images, error } = await supabase
+    .from("product_image")
+    .select("*")
+    .eq("product_id", productId);
+
+  if (error) {
+    throw error;
+  }
+
+  return images || [];
+};
+
+export const getImageByImageId = async (imageId: string): Promise<Image> => {
+  const { data: image, error } = await supabase
+    .from("product_image")
+    .select("*")
+    .eq("image_id", imageId)
+    .single(); // Sử dụng .single() để lấy một bản ghi duy nhất
+
+  // Xử lý lỗi
+  if (error) {
+    console.error("Error fetching image:", error.message);
+    throw error;
+  }
+
+  // Kiểm tra xem image có tồn tại không
+  if (!image) {
+    throw new Error(`Image with ID ${imageId} not found.`);
+  }
+
+  // Trả về ảnh
+  return image;
 };

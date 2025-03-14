@@ -10,72 +10,7 @@ export default function Outfits() {
   const navigate = useNavigate();
 
   // Sample data
-  const [outfits, setOutfits] = useState<Outfit[]>([
-    {
-      outfit_id: "1",
-      outfit_name: "Bộ đồ mùa hè cơ bản",
-      image: {
-        image_id: "1",
-        image_url: `https://picsum.photos/seed/1/600/852`,
-        image_name: "summer_outfit.jpg",
-        created_at: new Date(),
-        published_at: new Date(),
-        updated_at: new Date(),
-      },
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-      variants: [],
-    },
-    {
-      outfit_id: "2",
-      outfit_name: "Trang phục công sở",
-      image: {
-        image_id: "2",
-        image_url: `https://picsum.photos/seed/3/600/852`,
-        image_name: "office_outfit.jpg",
-        created_at: new Date(),
-        published_at: new Date(),
-        updated_at: new Date(),
-      },
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-      variants: [],
-    },
-    {
-      outfit_id: "3",
-      outfit_name: "Outfit dạo phố cuối tuần",
-      image: {
-        image_id: "3",
-        image_url: `https://picsum.photos/seed/2/600/852`,
-        image_name: "weekend_outfit.jpg",
-        created_at: new Date(),
-        published_at: null,
-        updated_at: new Date(),
-      },
-      published_at: null,
-      created_at: new Date(),
-      updated_at: new Date(),
-      variants: [],
-    },
-    {
-      outfit_id: "4",
-      outfit_name: "Set đồ thể thao",
-      image: {
-        image_id: "4",
-        image_url: `https://picsum.photos/seed/4/600/852`,
-        image_name: "sport_outfit.jpg",
-        created_at: new Date(),
-        published_at: new Date(),
-        updated_at: new Date(),
-      },
-      published_at: new Date(),
-      created_at: new Date(),
-      updated_at: new Date(),
-      variants: [],
-    },
-  ]);
+  const [outfits, setOutfits] = useState<Outfit[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

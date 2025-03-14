@@ -34,7 +34,8 @@ export const getGalleryImages = (): Image[] => {
 
 export const getPaginatedGalleryImages = (
   page: number,
-  pageSize: number
+  pageSize: number,
+  galleryImages: Image[]
 ): { images: Image[]; totalPages: number } => {
   const start = (page - 1) * pageSize;
   const end = start + pageSize;

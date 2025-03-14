@@ -13,6 +13,8 @@ export interface Product {
   updated_at: Date;
   variants: ProductVariant[];
   variant_images: Image[];
+  collections: Collection[];
+  outfits: Outfit[];
 }
 
 export interface ProductVariant {
@@ -40,10 +42,10 @@ export interface Image {
 export interface Outfit {
   outfit_id: string;
   outfit_name: string;
-  image: Image;
   created_at: Date;
   published_at: Date | null;
   updated_at: Date;
+  image: Image;
 }
 
 export interface Color {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Edit,
   Plus,
@@ -11,12 +11,27 @@ import {
 import { Collection } from "@/types/product";
 import { useNavigate } from "react-router-dom";
 import Pagination from "@/components/common/Pagination";
+import {
+  deleteCollectionById,
+  getAllCollections,
+} from "@/services/admin/collection";
+import Loading from "@/components/common/Loading";
 
 type StatusFilter = "all" | "published" | "draft";
 
 export default function Collections() {
   const navigate = useNavigate();
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const fetchCollection = async () => {
+      setIsLoading(true);
+      const result = await getAllCollections();
+      setCollections(result);
+      setIsLoading(false);
+    };
+    fetchCollection();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -96,15 +111,18 @@ export default function Collections() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedCollection) {
+      setIsLoading(true);
       setCollections(
         collections.filter(
           (c) => c.collection_id !== selectedCollection.collection_id
         )
       );
-      setIsDeleteModalOpen(false);
+      await deleteCollectionById(selectedCollection.collection_id);
       setSelectedCollection(null);
+      setIsLoading(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -150,6 +168,8 @@ export default function Collections() {
         return "bg-blue-100 text-blue-700";
     }
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <div className="space-y-6">
@@ -304,7 +324,9 @@ export default function Collections() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-500">
-                    {collection.created_at.toLocaleDateString("vi-VN")}
+                    {new Date(collection.created_at).toLocaleDateString(
+                      "vi-VN"
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
@@ -450,3 +472,7 @@ export default function Collections() {
     </div>
   );
 }
+
+const DeleteModal = () => {
+  return <></>;
+};

@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Save, Trash2, Upload, Plus, Image } from "lucide-react";
-import { FormErrors, ProductImage } from "@/types/product";
-import { uploadImageToGallery } from "@/services/imageService";
+import {
+  Collection,
+  Color,
+  FormErrors,
+  Image as ImageType,
+  Product,
+  ProductVariant,
+  Size,
+} from "@/types/product";
+import { uploadImageToGallery } from "@/services/admin/gallery";
 import ImageSelector from "@/components/admin/ImageSelector";
-
-type Product = {
-  product_id: string;
-  product_code: string;
-  brand_name: string;
-  name: string;
-  description: string;
-  base_price: number;
-  sale_price: number | null;
-  discount: number;
-  published_at: Date | null;
-  created_at: Date;
-  updated_at: Date;
-  images: ProductImage[];
-  variants: {
-    id: number;
-    color: string;
-    size: string;
-    quantity: number;
-    image: ProductImage | null;
-  }[];
-  collections: string[];
-};
+import {
+  addProductWithDetails,
+  getProductById,
+} from "@/services/admin/product";
+import { getAllCollections } from "@/services/admin/collection";
+import { v4 } from "uuid";
+import { getCollectionById } from "@/services/collection-controller";
+import { getAllColors } from "@/services/admin/color";
+import { getAllSizes } from "@/services/admin/size";
+import { notification } from "antd";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -36,7 +31,8 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product>({
     product_id: "",
     product_code: "",
-    brand_name: "BLUET",
+    brand_name: "",
+    slug: "",
     name: "",
     description: "",
     base_price: 0,
@@ -45,130 +41,76 @@ export default function ProductDetail() {
     published_at: null,
     created_at: new Date(),
     updated_at: new Date(),
-    images: [],
-    variants: [{ id: 1, color: "", size: "", quantity: 0, image: null }],
+    variant_images: [],
+    variants: [],
     collections: [],
+    outfits: [],
   });
 
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<
+    FormErrors & {
+      variants?: {
+        [key: string]: { color?: string; size?: string; quantity?: string };
+      };
+    }
+  >({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    null
+  );
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+
+  // danh sách collection chọn
+  const [collectionSelectedIds, setCollectionSelectedIds] = useState<string[]>(
+    []
+  );
+
+  // danh sách tất cả collection
+  const [availableCollections, setAvailableCollections] = useState<
+    Collection[]
+  >([]);
 
   // New state for image selectors
   const [isImageSelectorOpen, setIsImageSelectorOpen] = useState(false);
   const [isVariantImageSelectorOpen, setIsVariantImageSelectorOpen] =
     useState(false);
 
-  const [availableCollections] = useState([
-    { id: "1", name: "Summer Collection" },
-    { id: "2", name: "Winter Essentials" },
-    { id: "3", name: "Formal Wear" },
-    { id: "4", name: "Casual Basics" },
-  ]);
+  const [availableColors, setAvailableColors] = useState<Color[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<Size[]>([]);
 
-  const [availableColors] = useState([
-    { color_id: "1", color_name: "Đen", color_code: "#000000" },
-    { color_id: "2", color_name: "Trắng", color_code: "#FFFFFF" },
-    { color_id: "3", color_name: "Xanh Navy", color_code: "#000080" },
-    { color_id: "4", color_name: "Xám", color_code: "#808080" },
-  ]);
-
-  const [availableSizes] = useState([
-    { size_id: "1", size_code: "S" },
-    { size_id: "2", size_code: "M" },
-    { size_id: "3", size_code: "L" },
-    { size_id: "4", size_code: "XL" },
-  ]);
-
-  // Mock data for edit mode
   useEffect(() => {
     if (isEditMode) {
       // In a real app, you would fetch the product data from an API
-      setTimeout(() => {
-        setProduct({
-          product_id: id || "",
-          product_code: "TS001",
-          brand_name: "BLUET",
-          name: "Áo thun nam basic",
-          description:
-            "Áo thun nam chất liệu cotton 100%, form regular fit, phù hợp với mọi vóc dáng.",
-          base_price: 299000,
-          sale_price: 249000,
-          discount: 17,
-          published_at: new Date(),
-          created_at: new Date(),
-          updated_at: new Date(),
-          images: [
-            {
-              image_id: "1",
-              image_url: "/placeholder.svg",
-              image_name: "ao-thun-basic-1.jpg",
-              created_at: new Date(),
-              published_at: new Date(),
-              updated_at: new Date(),
-            },
-            {
-              image_id: "2",
-              image_url: "/placeholder.svg",
-              image_name: "ao-thun-basic-2.jpg",
-              created_at: new Date(),
-              published_at: new Date(),
-              updated_at: new Date(),
-            },
-          ],
-          variants: [
-            {
-              id: 1,
-              color: "1",
-              size: "1",
-              quantity: 50,
-              image: {
-                image_id: "v1",
-                image_url: "/placeholder.svg",
-                image_name: "ao-thun-basic-den-s.jpg",
-                created_at: new Date(),
-                published_at: new Date(),
-                updated_at: new Date(),
-              },
-            },
-            {
-              id: 2,
-              color: "1",
-              size: "2",
-              quantity: 45,
-              image: {
-                image_id: "v2",
-                image_url: "/placeholder.svg",
-                image_name: "ao-thun-basic-den-m.jpg",
-                created_at: new Date(),
-                published_at: new Date(),
-                updated_at: new Date(),
-              },
-            },
-            {
-              id: 3,
-              color: "2",
-              size: "1",
-              quantity: 30,
-              image: {
-                image_id: "v3",
-                image_url: "/placeholder.svg",
-                image_name: "ao-thun-basic-trang-s.jpg",
-                created_at: new Date(),
-                published_at: new Date(),
-                updated_at: new Date(),
-              },
-            },
-          ],
-          collections: ["1", "4"],
-        });
-        setIsLoading(false);
-      }, 500);
+      const getProduct = async () => {
+        const result = await getProductById(id);
+        setProduct(result);
+        setCollectionSelectedIds([
+          ...collectionSelectedIds,
+          ...product.collections.map((collection) => collection.collection_id),
+        ]);
+        setVariants([...product.variants]);
+      };
+      getProduct();
+      setIsLoading(false);
     } else {
       setIsLoading(false);
     }
+  }, []);
+
+  // Mock data for edit mode
+  useEffect(() => {
+    const getColorSizeCollection = async () => {
+      const allCollections = await getAllCollections();
+      const allColors = await getAllColors();
+      const allSizes = await getAllSizes();
+      setAvailableCollections(allCollections);
+      setAvailableColors(allColors);
+      setAvailableSizes(allSizes);
+    };
+
+    getColorSizeCollection();
   }, [isEditMode, id]);
 
   const handleInputChange = (
@@ -197,45 +139,66 @@ export default function ProductDetail() {
     }
   };
 
-  const updateVariant = (id: number, field: string, value: string | number) => {
+  const updateVariant = (id: string, field: string, value: string | number) => {
     setProduct((prev) => ({
       ...prev,
       variants: prev.variants.map((variant) =>
-        variant.id === id ? { ...variant, [field]: value } : variant
+        variant.variant_id === id ? { ...variant, [field]: value } : variant
       ),
     }));
   };
 
   const addVariant = () => {
-    const newId =
-      product.variants.length > 0
-        ? Math.max(...product.variants.map((v) => v.id)) + 1
-        : 1;
+    const newId = v4();
     setProduct((prev) => ({
       ...prev,
       variants: [
         ...prev.variants,
-        { id: newId, color: "", size: "", quantity: 0, image: null },
+        {
+          variant_id: newId,
+          variant_code: "",
+          product: {
+            name: prev.name,
+            product_id: prev.product_id,
+            base_price: prev.base_price,
+            sale_price: prev.sale_price,
+          },
+          color: {
+            color_id: "",
+            color_name: "",
+            color_code: "",
+          },
+          size: { size_code: "", size_id: "" },
+          quantity: 0,
+          image: {
+            image_id: "",
+            image_url: "",
+            image_name: "",
+            created_at: new Date(),
+            published_at: null,
+            updated_at: new Date(),
+          },
+          created_at: new Date(),
+          published_at: null,
+          updated_at: new Date(),
+        },
       ],
     }));
   };
 
-  const removeVariant = (id: number) => {
+  const removeVariant = (id: string) => {
     setProduct((prev) => ({
       ...prev,
-      variants: prev.variants.filter((variant) => variant.id !== id),
+      variants: prev.variants.filter((variant) => variant.variant_id !== id),
     }));
   };
 
-  const toggleCollection = (collectionId: string) => {
-    setProduct((prev) => {
-      if (prev.collections.includes(collectionId)) {
-        return {
-          ...prev,
-          collections: prev.collections.filter((id) => id !== collectionId),
-        };
+  const toggleCollection = async (collectionId: string) => {
+    setCollectionSelectedIds((prev) => {
+      if (prev.includes(collectionId)) {
+        return [...prev.filter((id) => id === collectionId)];
       } else {
-        return { ...prev, collections: [...prev.collections, collectionId] };
+        return [...prev, collectionId];
       }
     });
   };
@@ -246,10 +209,10 @@ export default function ProductDetail() {
   };
 
   // Method to handle selecting an image from the gallery
-  const handleProductImageSelect = (image: ProductImage) => {
+  const handleProductImageSelect = (image: ImageType) => {
     setProduct((prev) => ({
       ...prev,
-      images: [...prev.images, image],
+      images: [...prev.variant_images, image],
     }));
 
     // Close the selector after selection
@@ -268,7 +231,7 @@ export default function ProductDetail() {
 
         setProduct((prev) => ({
           ...prev,
-          images: [...prev.images, ...newImages],
+          images: [...prev.variant_images, ...newImages],
         }));
       } catch (error) {
         console.error("Error uploading images:", error);
@@ -279,23 +242,23 @@ export default function ProductDetail() {
   const removeImage = (imageId: string) => {
     setProduct((prev) => ({
       ...prev,
-      images: prev.images.filter((img) => img.image_id !== imageId),
+      images: prev.variant_images.filter((img) => img.image_id !== imageId),
     }));
   };
 
   // Method to open variant image selector
-  const openVariantImageSelector = (variantId: number) => {
-    setSelectedVariant(variantId);
+  const openVariantImageSelector = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
     setIsVariantImageSelectorOpen(true);
   };
 
   // Method to handle variant image selection from gallery
-  const handleVariantImageSelect = (image: ProductImage) => {
+  const handleVariantImageSelect = (image: ImageType) => {
     if (selectedVariant !== null) {
       setProduct((prev) => ({
         ...prev,
         variants: prev.variants.map((variant) =>
-          variant.id === selectedVariant
+          variant.variant_id === selectedVariant.variant_id
             ? { ...variant, image: image }
             : variant
         ),
@@ -333,7 +296,7 @@ export default function ProductDetail() {
 
     // Validate variants
     const variantErrors: {
-      [key: number]: { color?: string; size?: string; quantity?: string };
+      [key: string]: { color?: string; size?: string; quantity?: string };
     } = {};
     let hasVariantErrors = false;
 
@@ -357,7 +320,7 @@ export default function ProductDetail() {
       }
 
       if (Object.keys(variantError).length > 0) {
-        variantErrors[variant.id] = variantError;
+        variantErrors[variant.variant_id] = variantError;
       }
     });
 
@@ -365,14 +328,29 @@ export default function ProductDetail() {
       newErrors.variants = variantErrors;
     }
 
-    setErrors(newErrors);
+    setErrors(
+      newErrors as FormErrors & {
+        variants?: {
+          [key: string]: { color?: string; size?: string; quantity?: string };
+        };
+      }
+    );
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (publish = false) => {
     if (!validateForm()) {
+      notification.error({
+        message: isEditMode
+          ? "Cập nhật không thành công!"
+          : "Xuất bản không thành công",
+      });
       return;
     }
+
+    notification.success({
+      message: isEditMode ? "Cập nhật thành công!" : "Xuất bản thành công",
+    });
 
     setIsSaving(true);
 
@@ -384,7 +362,14 @@ export default function ProductDetail() {
     // In a real app, you would send the data to your API
     setTimeout(() => {
       setIsSaving(false);
-      navigate("/products");
+      addProductWithDetails(
+        { ...product, sale_price: product.sale_price ?? undefined },
+        product.variant_images,
+        collectionSelectedIds,
+        product.outfits.map((outfit) => outfit.outfit_id),
+        variants
+      );
+      navigate("/admin/products");
     }, 1000);
   };
 
@@ -418,7 +403,7 @@ export default function ProductDetail() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
-              to="/products"
+              to="/admin/products"
               className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -589,9 +574,9 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              {product.images.length > 0 ? (
+              {product.variant_images.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {product.images.map((image) => (
+                  {product.variant_images.map((image) => (
                     <div key={image.image_id} className="relative group">
                       <img
                         src={image.image_url || "/placeholder.svg"}
@@ -707,7 +692,7 @@ export default function ProductDetail() {
 
               {product.variants.map((variant, index) => (
                 <div
-                  key={variant.id}
+                  key={variant.variant_id}
                   className="p-4 border border-gray-200 rounded-md mb-4"
                 >
                   <div className="flex justify-between items-center mb-3">
@@ -715,7 +700,7 @@ export default function ProductDetail() {
                     {product.variants.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeVariant(variant.id)}
+                        onClick={() => removeVariant(variant.variant_id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -729,11 +714,15 @@ export default function ProductDetail() {
                         Màu sắc <span className="text-red-500">*</span>
                       </label>
                       <select
-                        value={variant.color}
+                        value={variant.color.color_id}
                         onChange={(e) =>
-                          updateVariant(variant.id, "color", e.target.value)
+                          updateVariant(
+                            variant.variant_id,
+                            "color",
+                            e.target.value
+                          )
                         }
-                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.id]?.color ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.color ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                       >
                         <option value="">Chọn màu</option>
                         {availableColors.map((color) => (
@@ -742,9 +731,9 @@ export default function ProductDetail() {
                           </option>
                         ))}
                       </select>
-                      {errors.variants?.[variant.id]?.color && (
+                      {errors.variants?.[variant.variant_id]?.color && (
                         <p className="mt-1 text-sm text-red-500">
-                          {errors.variants[variant.id].color}
+                          {errors.variants[variant.variant_id].color}
                         </p>
                       )}
                     </div>
@@ -753,11 +742,15 @@ export default function ProductDetail() {
                         Kích cỡ <span className="text-red-500">*</span>
                       </label>
                       <select
-                        value={variant.size}
+                        value={variant.size.size_id}
                         onChange={(e) =>
-                          updateVariant(variant.id, "size", e.target.value)
+                          updateVariant(
+                            variant.variant_id,
+                            "size",
+                            e.target.value
+                          )
                         }
-                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.id]?.size ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.size ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                       >
                         <option value="">Chọn kích cỡ</option>
                         {availableSizes.map((size) => (
@@ -766,9 +759,9 @@ export default function ProductDetail() {
                           </option>
                         ))}
                       </select>
-                      {errors.variants?.[variant.id]?.size && (
+                      {errors.variants?.[variant.variant_id]?.size && (
                         <p className="mt-1 text-sm text-red-500">
-                          {errors.variants[variant.id].size}
+                          {errors.variants[variant.variant_id].size}
                         </p>
                       )}
                     </div>
@@ -781,18 +774,18 @@ export default function ProductDetail() {
                         value={variant.quantity}
                         onChange={(e) =>
                           updateVariant(
-                            variant.id,
+                            variant.variant_id,
                             "quantity",
                             Number.parseInt(e.target.value)
                           )
                         }
-                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.id]?.quantity ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.quantity ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                         placeholder="50"
                         min="0"
                       />
-                      {errors.variants?.[variant.id]?.quantity && (
+                      {errors.variants?.[variant.variant_id]?.quantity && (
                         <p className="mt-1 text-sm text-red-500">
-                          {errors.variants[variant.id].quantity}
+                          {errors.variants[variant.variant_id].quantity}
                         </p>
                       )}
                     </div>
@@ -803,11 +796,11 @@ export default function ProductDetail() {
                       {variant.image ? (
                         <div
                           className="relative group h-20 w-20 cursor-pointer"
-                          onClick={() => openVariantImageSelector(variant.id)}
+                          onClick={() => openVariantImageSelector(variant)}
                         >
                           <img
                             src={variant.image.image_url || "/placeholder.svg"}
-                            alt={`${getColorName(variant.color)} ${getSizeName(variant.size)}`}
+                            alt={`${getColorName(variant.color.color_name)} ${getSizeName(variant.size.size_code)}`}
                             className="w-full h-full object-cover rounded-md border border-gray-300"
                           />
                           <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
@@ -817,7 +810,7 @@ export default function ProductDetail() {
                       ) : (
                         <button
                           type="button"
-                          onClick={() => openVariantImageSelector(variant.id)}
+                          onClick={() => openVariantImageSelector(variant)}
                           className="flex items-center justify-center w-20 h-20 border-2 border-dashed border-gray-300 rounded-md hover:border-gray-400 focus:outline-none"
                         >
                           <Image className="h-8 w-8 text-gray-400" />
@@ -880,14 +873,18 @@ export default function ProductDetail() {
               <div className="space-y-2">
                 {availableCollections.map((collection) => (
                   <label
-                    key={collection.id}
+                    key={collection.collection_id}
                     className="flex items-center space-x-2"
                   >
                     <input
                       type="checkbox"
                       className="rounded text-blue-600 focus:ring-blue-600"
-                      checked={product.collections.includes(collection.id)}
-                      onChange={() => toggleCollection(collection.id)}
+                      checked={collectionSelectedIds.includes(
+                        collection.collection_id
+                      )}
+                      onChange={() =>
+                        toggleCollection(collection.collection_id)
+                      }
                     />
                     <span className="text-sm">{collection.name}</span>
                   </label>
@@ -902,14 +899,14 @@ export default function ProductDetail() {
                 <div className="space-y-3">
                   {product.variants.map((variant) => (
                     <div
-                      key={variant.id}
+                      key={variant.variant_id}
                       className="p-3 border border-gray-200 rounded-md"
                     >
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium">
-                            {getColorName(variant.color)} /{" "}
-                            {getSizeName(variant.size)}
+                            {getColorName(variant.color.color_name)} /{" "}
+                            {getSizeName(variant.size.size_code)}
                           </p>
                           <p className="text-sm text-gray-500">
                             Số lượng: {variant.quantity}
@@ -918,7 +915,7 @@ export default function ProductDetail() {
                         {variant.image && (
                           <img
                             src={variant.image.image_url || "/placeholder.svg"}
-                            alt={`${getColorName(variant.color)} ${getSizeName(variant.size)}`}
+                            alt={`${getColorName(variant.color.color_name)} ${getSizeName(variant.size.size_code)}`}
                             className="w-10 h-10 object-cover rounded-md"
                           />
                         )}
@@ -965,7 +962,7 @@ export default function ProductDetail() {
           <ImageSelector
             onImageSelect={handleProductImageSelect}
             onCancel={() => setIsImageSelectorOpen(false)}
-            selectedImages={product.images}
+            selectedImages={product.variant_images}
             title="Chọn hình ảnh sản phẩm"
             multiple={true}
           />
@@ -977,24 +974,33 @@ export default function ProductDetail() {
             onImageSelect={handleVariantImageSelect}
             onCancel={() => setIsVariantImageSelectorOpen(false)}
             selectedImages={
-              product.variants.find((v) => v.id === selectedVariant)?.image
+              product.variants.find(
+                (v) => v.variant_id === selectedVariant.variant_id
+              )?.image
                 ? [
-                    product.variants.find((v) => v.id === selectedVariant)!
-                      .image!,
+                    product.variants.find(
+                      (v) => v.variant_id === selectedVariant.variant_id
+                    )!.image!,
                   ]
                 : []
             }
             title={`Chọn hình ảnh cho biến thể ${
-              product.variants.find((v) => v.id === selectedVariant)?.color &&
+              product.variants.find(
+                (v) => v.variant_id === selectedVariant.variant_id
+              )?.color &&
               getColorName(
-                product.variants.find((v) => v.id === selectedVariant)?.color ||
-                  ""
+                product.variants.find(
+                  (v) => v.variant_id === selectedVariant.variant_id
+                )?.color.color_name || ""
               )
             } / ${
-              product.variants.find((v) => v.id === selectedVariant)?.size &&
+              product.variants.find(
+                (v) => v.variant_id === selectedVariant.variant_id
+              )?.size.size_code &&
               getSizeName(
-                product.variants.find((v) => v.id === selectedVariant)?.size ||
-                  ""
+                product.variants.find(
+                  (v) => v.variant_id === selectedVariant.variant_id
+                )?.size.size_code || ""
               )
             }`}
             multiple={false}
