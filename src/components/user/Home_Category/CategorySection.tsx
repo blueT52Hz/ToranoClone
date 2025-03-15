@@ -1,4 +1,4 @@
-import { mockCollections } from "@/types/mock";
+import { getPublishedCollectionsWithImage } from "@/services/client/collection/colelction";
 import { Collection } from "@/types/product";
 import clsx from "clsx";
 import { AnimatePresence, easeInOut, motion } from "framer-motion";
@@ -15,8 +15,9 @@ const CategorySection = () => {
 
   useEffect(() => {
     const getCollection = async () => {
-      setTimeout(() => {}, 1000);
-      setCollections(mockCollections);
+      const result = await getPublishedCollectionsWithImage();
+      setCollections(result);
+      console.log(result);
     };
     getCollection();
   }, []);

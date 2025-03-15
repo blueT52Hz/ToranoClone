@@ -1,9 +1,17 @@
+import { getAllOutfits } from "@/services/admin/outfit";
 import { Outfit } from "@/types/product";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const OutFit = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
   const [outfits, setOutfits] = useState<Outfit[]>([]);
+  useEffect(() => {
+    const get = async () => {
+      const result = await getAllOutfits();
+      setOutfits(result);
+    };
+    get();
+  }, []);
   return (
     <section className="outfit-page">
       <div className="container min-w-full px-12 my-4">

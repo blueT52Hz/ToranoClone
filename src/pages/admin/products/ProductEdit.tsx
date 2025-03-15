@@ -13,7 +13,7 @@ import {
 import { uploadImageToGallery } from "@/services/admin/gallery";
 import ImageSelector from "@/components/admin/ImageSelector";
 import {
-  addProductWithDetails,
+  // addProductWithDetails,
   getProductById,
 } from "@/services/admin/product";
 import { getAllCollections } from "@/services/admin/collection";
@@ -362,13 +362,13 @@ export default function ProductDetail() {
     // In a real app, you would send the data to your API
     setTimeout(() => {
       setIsSaving(false);
-      addProductWithDetails(
-        { ...product, sale_price: product.sale_price ?? undefined },
-        product.variant_images,
-        collectionSelectedIds,
-        product.outfits.map((outfit) => outfit.outfit_id),
-        variants
-      );
+      // addProductWithDetails(
+      //   { ...product, sale_price: product.sale_price ?? undefined },
+      //   product.variant_images,
+      //   collectionSelectedIds,
+      //   product.outfits.map((outfit) => outfit.outfit_id),
+      //   variants
+      // );
       navigate("/admin/products");
     }, 1000);
   };

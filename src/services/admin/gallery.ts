@@ -201,6 +201,7 @@ export const getPaginatedGalleryImages = async (
   } = await supabase
     .from("product_image")
     .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
 
   if (countError) {

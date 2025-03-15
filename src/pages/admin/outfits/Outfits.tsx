@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Edit, Plus, Search, Trash2, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Outfit } from "@/types/product";
 import Pagination from "@/components/common/Pagination";
+import { getAllOutfits } from "@/services/admin/outfit";
+import Loading from "@/components/common/Loading";
 
 type StatusFilter = "all" | "published" | "draft";
 
@@ -11,6 +13,7 @@ export default function Outfits() {
 
   // Sample data
   const [outfits, setOutfits] = useState<Outfit[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -24,6 +27,16 @@ export default function Outfits() {
   // Sorting state
   const [sortField, setSortField] = useState<keyof Outfit | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  useEffect(() => {
+    const getOutFits = async () => {
+      setIsLoading(true);
+      const result = await getAllOutfits();
+      setOutfits(result);
+      setIsLoading(false);
+    };
+    getOutFits();
+  }, []);
 
   // Thêm hàm xử lý sắp xếp
   const handleSort = (field: keyof Outfit) => {
@@ -110,6 +123,8 @@ export default function Outfits() {
         return "bg-blue-100 text-blue-700";
     }
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <div className="space-y-6">

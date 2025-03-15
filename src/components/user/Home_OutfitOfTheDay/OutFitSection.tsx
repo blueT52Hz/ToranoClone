@@ -1,10 +1,18 @@
+import { getAllOutfits } from "@/services/admin/outfit";
 import { Outfit } from "@/types/product";
 import { ArrowRight } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const OutFitSection = () => {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
+  useEffect(() => {
+    const get = async () => {
+      const result = await getAllOutfits();
+      setOutfits(result);
+    };
+    get();
+  }, []);
   return (
     <section className="outfit-of-the-day">
       <div className="container px-12 py-8 min-w-full flex flex-col bg-red-50 gap-8">

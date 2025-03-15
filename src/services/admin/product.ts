@@ -1,11 +1,5 @@
 import { supabase } from "@/services/supabaseClient";
-import {
-  Collection,
-  Image,
-  Outfit,
-  Product,
-  ProductVariant,
-} from "@/types/product";
+import { Product, ProductVariant } from "@/types/product";
 import { notification } from "antd";
 import { getVariantsByProductId } from "./product_variant";
 import { getImagesByProductId } from "./gallery";
@@ -13,27 +7,121 @@ import { getCollectionsByProductId } from "./collection";
 import { getOutfitsByProductId } from "./outfit";
 
 export const addProduct = async (product: {
-  brand_name: string | "Torano";
   name: string;
-  description?: string;
-  sale_price?: number;
   slug: string;
+  brand_name: string | "Torano";
   product_code: string;
+  description?: string;
   base_price: number;
+  sale_price?: number;
   discount: number;
+  variants?: {
+    image_id: string;
+    size_id: string;
+    color_id: string;
+    quantity: number;
+  }[];
+  collectionsIds: string[];
+  outfitIds: string[];
+  imageIds: string[];
 }): Promise<Product> => {
-  const newProduct = { ...product, created_at: new Date() };
-  const { data, error } = await supabase
+  // Bước 1: Thêm sản phẩm vào bảng product
+  const { data: productData, error: productError } = await supabase
     .from("product")
-    .insert([newProduct])
-    .select();
-  if (error) throw error;
+    .insert([
+      {
+        name: product.name,
+        slug: product.slug,
+        brand_name: product.brand_name,
+        product_code: product.product_code,
+        description: product.description,
+        base_price: product.base_price,
+        sale_price: product.sale_price,
+        discount: product.discount,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ])
+    .select()
+    .single(); // Chỉ lấy một bản ghi duy nhất
 
-  if (!data || data.length === 0) {
+  if (productError) {
+    throw productError;
+  }
+
+  if (!productData) {
     throw new Error("Failed to add product: No data returned from Supabase.");
   }
 
-  return data[0] as Product;
+  const productId = productData.product_id;
+
+  // Bước 2: Thêm các biến thể vào bảng product_variant
+  if (product.variants && product.variants.length > 0) {
+    const { error: variantError } = await supabase
+      .from("product_variant")
+      .insert(
+        product.variants.map((variant) => ({
+          product_id: productId,
+          image_id: variant.image_id,
+          size_id: variant.size_id,
+          color_id: variant.color_id,
+          quantity: variant.quantity,
+          created_at: new Date(),
+          updated_at: new Date(),
+        }))
+      );
+
+    if (variantError) {
+      throw variantError;
+    }
+  }
+
+  // Bước 3: Thêm liên kết sản phẩm với bộ sưu tập vào bảng product_collection
+  if (product.collectionsIds && product.collectionsIds.length > 0) {
+    const { error: collectionError } = await supabase
+      .from("product_collection")
+      .insert(
+        product.collectionsIds.map((collectionId) => ({
+          product_id: productId,
+          collection_id: collectionId,
+        }))
+      );
+
+    if (collectionError) {
+      throw collectionError;
+    }
+  }
+
+  // Bước 4: Thêm liên kết sản phẩm với outfit vào bảng product_outfit
+  if (product.outfitIds && product.outfitIds.length > 0) {
+    const { error: outfitError } = await supabase.from("product_outfit").insert(
+      product.outfitIds.map((outfitId) => ({
+        product_id: productId,
+        outfit_id: outfitId,
+      }))
+    );
+
+    if (outfitError) {
+      throw outfitError;
+    }
+  }
+
+  // Bước 5: Thêm liên kết sản phẩm với hình ảnh vào bảng product_image
+  if (product.imageIds && product.imageIds.length > 0) {
+    const { error: imageError } = await supabase.from("product_image").insert(
+      product.imageIds.map((imageId) => ({
+        product_id: productId,
+        image_id: imageId,
+      }))
+    );
+
+    if (imageError) {
+      throw imageError;
+    }
+  }
+
+  // Trả về sản phẩm vừa được thêm
+  return productData;
 };
 
 // Lấy sản phẩm theo ID
@@ -102,85 +190,6 @@ export const getAllProductsWithDetails = async (): Promise<Product[]> => {
   );
 
   return productsWithDetails;
-};
-
-export const addProductWithDetails = async (
-  product: {
-    brand_name: string | "Torano";
-    name: string;
-    description?: string;
-    sale_price?: number;
-    slug: string;
-    product_code: string;
-    base_price: number;
-    discount: number;
-  },
-  images: Image[],
-  collectionIds: string[],
-  outfitIds: string[],
-  variants: ProductVariant[]
-) => {
-  // Bước 1 tạo product trên database trước
-  const productUploaded = await addProduct(product);
-  if (!productUploaded) return;
-
-  // Bước 2: Thêm các ảnh vào bảng product_image
-  const imagesWithProductId = images.map((image) => ({
-    ...image,
-    product_id: productUploaded.product_id,
-  }));
-
-  const { error: imagesError } = await supabase
-    .from("product_image")
-    .insert(imagesWithProductId);
-
-  if (imagesError) {
-    throw imagesError;
-  }
-
-  // Bước 3: Thêm các collection vào bảng product_collection
-  const collectionsWithProductId = collectionIds.map((collectionId) => ({
-    product_id: productUploaded.product_id,
-    collection_id: collectionId,
-  }));
-
-  const { error: collectionsError } = await supabase
-    .from("product_collection")
-    .insert(collectionsWithProductId);
-
-  if (collectionsError) {
-    throw collectionsError;
-  }
-
-  // Bước 4: Thêm các outfit vào bảng product_outfit
-  const outfitsWithProductId = outfitIds.map((outfitId) => ({
-    product_id: productUploaded.product_id,
-    outfit_id: outfitId,
-  }));
-
-  const { error: outfitsError } = await supabase
-    .from("product_outfit")
-    .insert(outfitsWithProductId);
-
-  if (outfitsError) {
-    throw outfitsError;
-  }
-
-  // Bước 5: Thêm các biến thể vào bảng product_variant
-  const variantsWithProductId = variants.map((variant) => ({
-    ...variant,
-    product_id: productUploaded.product_id,
-  }));
-
-  const { error: variantsError } = await supabase
-    .from("product_variant")
-    .insert(variantsWithProductId);
-
-  if (variantsError) {
-    throw variantsError;
-  }
-
-  return productUploaded;
 };
 
 export const getProductsByCollectionId = async (

@@ -8,10 +8,7 @@ import {
   updateCollection,
 } from "@/services/admin/collection";
 import ImageSelector from "@/components/admin/ImageSelector";
-import {
-  getAllProductsWithDetails,
-  getProductsByCollectionId,
-} from "@/services/admin/product";
+import { getProductsByCollectionId } from "@/services/admin/product";
 import Loading from "@/components/common/Loading";
 import { ProductSelectorModal } from "@/components/admin/products/ProductSelectorModal";
 
