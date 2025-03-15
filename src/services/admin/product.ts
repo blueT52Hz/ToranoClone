@@ -124,6 +124,165 @@ export const addProduct = async (product: {
   return productData;
 };
 
+export const updateProductWithDetails = async (
+  productId: string,
+  updatedProduct: {
+    name?: string;
+    slug?: string;
+    brand_name?: string;
+    product_code?: string;
+    description?: string;
+    base_price?: number;
+    sale_price?: number;
+    discount?: number;
+    variants?: {
+      image_id: string;
+      size_id: string;
+      color_id: string;
+      quantity: number;
+    }[];
+    collectionsIds?: string[];
+    outfitIds?: string[];
+    imageIds?: string[];
+  }
+): Promise<Product> => {
+  const product = await updateProduct(productId, updatedProduct);
+  return await getProductById(product.product_id);
+};
+// Cập nhật sản phẩm
+export const updateProduct = async (
+  productId: string,
+  updatedProduct: {
+    name?: string;
+    slug?: string;
+    brand_name?: string;
+    product_code?: string;
+    description?: string;
+    base_price?: number;
+    sale_price?: number;
+    discount?: number;
+    variants?: {
+      image_id: string;
+      size_id: string;
+      color_id: string;
+      quantity: number;
+    }[];
+    collectionsIds?: string[];
+    outfitIds?: string[];
+    imageIds?: string[];
+  }
+): Promise<Product> => {
+  // Bước 1: Cập nhật thông tin sản phẩm trong bảng product
+  const { data: productData, error: productError } = await supabase
+    .from("product")
+    .update({
+      ...updatedProduct,
+      updated_at: new Date(),
+    })
+    .eq("product_id", productId)
+    .select()
+    .single();
+
+  if (productError) {
+    throw productError;
+  }
+
+  if (!productData) {
+    throw new Error(
+      "Failed to update product: No data returned from Supabase."
+    );
+  }
+
+  // Bước 2: Cập nhật các biến thể trong bảng product_variant
+  if (updatedProduct.variants && updatedProduct.variants.length > 0) {
+    // Xóa các biến thể cũ
+    await supabase.from("product_variant").delete().eq("product_id", productId);
+
+    // Thêm các biến thể mới
+    const { error: variantError } = await supabase
+      .from("product_variant")
+      .insert(
+        updatedProduct.variants.map((variant) => ({
+          product_id: productId,
+          image_id: variant.image_id,
+          size_id: variant.size_id,
+          color_id: variant.color_id,
+          quantity: variant.quantity,
+          created_at: new Date(),
+          updated_at: new Date(),
+        }))
+      );
+
+    if (variantError) {
+      throw variantError;
+    }
+  }
+
+  // Bước 3: Cập nhật liên kết sản phẩm với bộ sưu tập trong bảng product_collection
+  if (
+    updatedProduct.collectionsIds &&
+    updatedProduct.collectionsIds.length > 0
+  ) {
+    // Xóa các liên kết cũ
+    await supabase
+      .from("product_collection")
+      .delete()
+      .eq("product_id", productId);
+
+    // Thêm các liên kết mới
+    const { error: collectionError } = await supabase
+      .from("product_collection")
+      .insert(
+        updatedProduct.collectionsIds.map((collectionId) => ({
+          product_id: productId,
+          collection_id: collectionId,
+        }))
+      );
+
+    if (collectionError) {
+      throw collectionError;
+    }
+  }
+
+  // Bước 4: Cập nhật liên kết sản phẩm với outfit trong bảng product_outfit
+  if (updatedProduct.outfitIds && updatedProduct.outfitIds.length > 0) {
+    // Xóa các liên kết cũ
+    await supabase.from("product_outfit").delete().eq("product_id", productId);
+
+    // Thêm các liên kết mới
+    const { error: outfitError } = await supabase.from("product_outfit").insert(
+      updatedProduct.outfitIds.map((outfitId) => ({
+        product_id: productId,
+        outfit_id: outfitId,
+      }))
+    );
+
+    if (outfitError) {
+      throw outfitError;
+    }
+  }
+
+  // Bước 5: Cập nhật liên kết sản phẩm với hình ảnh trong bảng product_image
+  if (updatedProduct.imageIds && updatedProduct.imageIds.length > 0) {
+    // Xóa các liên kết cũ
+    await supabase.from("product_image").delete().eq("product_id", productId);
+
+    // Thêm các liên kết mới
+    const { error: imageError } = await supabase.from("product_image").insert(
+      updatedProduct.imageIds.map((imageId) => ({
+        product_id: productId,
+        image_id: imageId,
+      }))
+    );
+
+    if (imageError) {
+      throw imageError;
+    }
+  }
+
+  // Trả về sản phẩm vừa được cập nhật
+  return productData;
+};
 // Lấy sản phẩm theo ID
 export const getProductById = async (productId: string): Promise<Product> => {
   const { data, error } = await supabase

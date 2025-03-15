@@ -239,7 +239,7 @@ export default function CollectionDetail() {
                   Chọn ảnh
                 </button>
 
-                <div className="relative">
+                {/* <div className="relative">
                   <input
                     type="file"
                     id="product-images"
@@ -255,7 +255,7 @@ export default function CollectionDetail() {
                     <Upload className="w-4 h-4 mr-1" />
                     Tải lên
                   </label>
-                </div>
+                </div> */}
               </div>
             </div>
 

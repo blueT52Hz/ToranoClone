@@ -71,6 +71,7 @@ export interface Collection {
 
 export interface FormErrors {
   name?: string;
+  slug?: string;
   product_code?: string;
   base_price?: string;
   sale_price?: string;

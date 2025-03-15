@@ -211,10 +211,7 @@ export default function ProductDetail() {
   const handleProductImageSelect = (image: ImageType) => {
     setProduct((prev) => ({
       ...prev,
-      variant_images: [
-        ...prev.variant_images.filter((img) => img.image_id !== image.image_id),
-        image,
-      ],
+      images: [...prev.variant_images, image],
     }));
 
     // Close the selector after selection
@@ -244,9 +241,7 @@ export default function ProductDetail() {
   const removeImage = (imageId: string) => {
     setProduct((prev) => ({
       ...prev,
-      variant_images: prev.variant_images.filter(
-        (img) => img.image_id !== imageId
-      ),
+      images: prev.variant_images.filter((img) => img.image_id !== imageId),
     }));
   };
 
