@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Edit,
   Eye,
@@ -9,6 +9,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getAllUsers } from "@/services/admin/user";
 
 type User = {
   user_id: string;
@@ -21,53 +22,16 @@ type User = {
 };
 
 export default function Users() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      user_id: "1",
-      full_name: "Nguyễn Văn A",
-      gender: "Nam",
-      date_of_birth: new Date("1990-01-15"),
-      email: "nguyenvana@example.com",
-      created_at: new Date("2023-01-10"),
-      orders_count: 5,
-    },
-    {
-      user_id: "2",
-      full_name: "Trần Thị B",
-      gender: "Nữ",
-      date_of_birth: new Date("1995-05-20"),
-      email: "tranthib@example.com",
-      created_at: new Date("2023-02-15"),
-      orders_count: 3,
-    },
-    {
-      user_id: "3",
-      full_name: "Lê Văn C",
-      gender: "Nam",
-      date_of_birth: new Date("1988-11-10"),
-      email: "levanc@example.com",
-      created_at: new Date("2023-03-20"),
-      orders_count: 8,
-    },
-    {
-      user_id: "4",
-      full_name: "Phạm Thị D",
-      gender: "Nữ",
-      date_of_birth: new Date("1992-07-25"),
-      email: "phamthid@example.com",
-      created_at: new Date("2023-04-05"),
-      orders_count: 2,
-    },
-    {
-      user_id: "5",
-      full_name: "Hoàng Văn E",
-      gender: "Nam",
-      date_of_birth: new Date("1985-03-12"),
-      email: "hoangvane@example.com",
-      created_at: new Date("2023-05-10"),
-      orders_count: 6,
-    },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const result = await getAllUsers();
+      console.log(result);
+      setUsers(result);
+    };
+    getUser();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState<string>("");
@@ -285,16 +249,16 @@ export default function Users() {
                   <td className="px-4 py-3 text-gray-500">{user.email}</td>
                   <td className="px-4 py-3">{user.gender}</td>
                   <td className="px-4 py-3 text-gray-500">
-                    {formatDate(user.date_of_birth)}
+                    {formatDate(new Date(user.date_of_birth))}
                   </td>
                   <td className="px-4 py-3 text-gray-500">
-                    {formatDate(user.created_at)}
+                    {formatDate(new Date(user.created_at))}
                   </td>
                   <td className="px-4 py-3 text-center">{user.orders_count}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
                       <Link
-                        to={`/users/${user.user_id}`}
+                        to={`/admin/users/${user.user_id}`}
                         className="p-1 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
                       >
                         <Eye className="w-4 h-4" />

@@ -10,6 +10,7 @@ import Outfits from "@/pages/admin/outfits/Outfits";
 import ProductEdit from "@/pages/admin/products/ProductEdit";
 import Products from "@/pages/admin/products/Products";
 import Sizes from "@/pages/admin/Sizes";
+import UserDetailPage from "@/pages/admin/users/UserDetail";
 import Users from "@/pages/admin/users/Users";
 import { Route, Routes } from "react-router-dom";
 
@@ -34,9 +35,10 @@ const AdminRoutes = () => {
         <Route path="/outfits/new" element={<OutfitDetail />} />
         <Route path="/outfits/:id" element={<OutfitDetail />} />
         <Route path="/outfits/:id/edit" element={<OutfitDetail />} />
-        {/* Pages */}
         <Route index element={<Dashboard />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<UserDetailPage />} />
+        {/* Pages */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/colors" element={<ColorsPage />} />
         <Route path="/sizes" element={<Sizes />} />

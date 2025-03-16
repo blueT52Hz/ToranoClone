@@ -217,7 +217,7 @@ export default function UserDetailPage() {
           <h1 className="text-2xl font-bold text-gray-800">{user.full_name}</h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <Link
             to={`/users/edit/${user.user_id}`}
             className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
@@ -225,7 +225,7 @@ export default function UserDetailPage() {
             <Edit className="w-4 h-4 mr-2 inline-block" />
             Chỉnh sửa
           </Link>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -271,7 +271,7 @@ export default function UserDetailPage() {
         </div>
 
         {/* Shipping Addresses */}
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6 col-span-2">
           <h2 className="text-lg font-medium mb-4">Địa chỉ giao hàng</h2>
           <div className="space-y-4">
             {user.shipping_addresses.map((address) => (
@@ -293,7 +293,7 @@ export default function UserDetailPage() {
         </div>
 
         {/* Statistics */}
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        {/* <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
           <h2 className="text-lg font-medium mb-4">Thống kê</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
@@ -311,7 +311,7 @@ export default function UserDetailPage() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Order History */}

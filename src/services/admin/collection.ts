@@ -17,9 +17,13 @@ export const getCollectionById = async (
     throw error;
   }
 
-  const image = await getImageByImageId(data.image_id);
+  if(data.image_id) {
 
-  return { ...data, image: image };
+    const image = await getImageByImageId(data.image_id);
+    return { ...data, image: image };
+  }
+  
+  return data;
 };
 
 export const getCollectionsByProductId = async (
@@ -113,7 +117,8 @@ export const getProductsByCollectionSlug = async (
 export const getAllCollections = async (): Promise<Collection[]> => {
   const { data: collections, error } = await supabase
     .from("collection")
-    .select("*");
+    .select("*")
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw error;
@@ -130,7 +135,7 @@ export const addCollection = async (
     image_id?: string | null;
   },
   productIds?: string[] // Danh sách product_id liên quan
-): Promise<Collection> => {
+): Promise<Collection> => {  
   // Thêm trường created_at và updated_at vào collection
   const newCollection = {
     ...collection,
@@ -191,6 +196,8 @@ export const updateCollection = async (
   },
   productIds?: string[] // Danh sách product_id liên quan
 ): Promise<Collection> => {
+  console.log(productIds);
+  
   // Thêm trường updated_at vào updatedCollection
   const newUpdatedCollection = {
     ...updatedCollection,
@@ -220,31 +227,34 @@ export const updateCollection = async (
   }
 
   // Nếu có productIds, cập nhật các bản ghi trong bảng product_collection
-  if (productIds && productIds.length > 0) {
-    // Xóa các liên kết cũ trong bảng product_collection
-    const { error: deleteError } = await supabase
-      .from("product_collection")
-      .delete()
-      .eq("collection_id", collectionId);
-
-    if (deleteError) {
-      throw deleteError;
-    }
-
-    // Thêm các liên kết mới vào bảng product_collection
-    const { error: insertError } = await supabase
-      .from("product_collection")
-      .insert(
-        productIds.map((productId) => ({
-          collection_id: collectionId,
-          product_id: productId,
-        }))
-      );
-
-    // Xử lý lỗi khi thêm vào bảng product_collection
-    if (insertError) {
-      throw insertError;
-    }
+  if (productIds) {
+      // 1. Xóa các liên kết cũ liên quan đến productIds
+      const { error: deleteError } = await supabase
+        .from("product_collection")
+        .delete()
+        .eq("collection_id", collectionId);
+  
+      if (deleteError) {
+        throw new Error(`Lỗi khi xóa liên kết cũ: ${deleteError.message}`);
+      }
+  
+      // 2. Thêm các liên kết mới vào bảng product_collection
+      const { error: insertError } = await supabase
+        .from("product_collection")
+        .insert(
+          productIds.map((productId) => ({
+            collection_id: collectionId,
+            product_id: productId,
+          }))
+        );
+  
+      if (insertError) {
+        throw new Error(`Lỗi khi thêm liên kết mới: ${insertError.message}`);
+      }
+  
+      console.log("Cập nhật liên kết thành công!");
+  } else {
+    console.log("Không có productIds để cập nhật.");
   }
 
   // Trả về collection vừa được cập nhật
