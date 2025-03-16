@@ -1,13 +1,15 @@
-import { useCart, useUser } from "@/context/UserContext";
-import { Badge, Divider, Drawer, Empty, Flex, Modal } from "antd";
+import { useCart } from "@/context/UserContext";
+import { Badge, Divider, Drawer, Flex, Modal } from "antd";
 import { ShoppingCart as CartIcon, X } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import CartItemComponent from "@/components/user/Cart/CartItemCard";
 import "@components/user/Cart/style.css";
 
 const ShoppingCart = () => {
   const { cart } = useCart();
+  console.log(cart);
+
   const [openCart, setOpenCart] = useState(false);
   const [openSaleModal, setOpenSaleModal] = useState(false);
   const cart_total_price = useMemo(() => {
@@ -128,7 +130,7 @@ const ShoppingCart = () => {
             </>
           ) : (
             cart.cartItems.map((item) => (
-              <CartItemComponent item={item} key={item.cartItem_id} />
+              <CartItemComponent item={item} key={item.cart_item_id} />
             ))
           )}
         </div>

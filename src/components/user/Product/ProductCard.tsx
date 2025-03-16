@@ -22,14 +22,22 @@ const ProductCard = (props: ProductCardProps) => {
   useEffect(() => {
     if (!isOpenModal) setIsHovered(false);
   }, [isOpenModal]);
-  const colorCount = item.variants.reduce(
-    (acc, variant) => (acc += variant.color.color_id ? 1 : 0),
-    0
-  );
-  const sizeCount = item.variants.reduce(
-    (acc, variant) => (acc += variant.size.size_id ? 1 : 0),
-    0
-  );
+  console.log(item.product_id);
+
+  let colorCount = 0;
+  let sizeCount = 0;
+
+  if (item.variants) {
+    colorCount = item.variants.reduce(
+      (acc, variant) => (acc += variant.color.color_id ? 1 : 0),
+      0
+    );
+    sizeCount = item.variants.reduce(
+      (acc, variant) => (acc += variant.size.size_id ? 1 : 0),
+      0
+    );
+  }
+
   console.log(colorCount, sizeCount);
   return (
     <motion.div
@@ -80,7 +88,7 @@ const ProductCard = (props: ProductCardProps) => {
           </motion.div>
           {item.discount !== 0 && (
             <div className="absolute z-100 top-3 left-2 px-[10px] py-[5px] min-w-[52px] rounded-[11px] bg-[#ff0000] text-center text-xs text-[#fff] font-semibold leading-none">
-              {item.discount}
+              -{item.discount}%
             </div>
           )}
           <AnimatePresence>

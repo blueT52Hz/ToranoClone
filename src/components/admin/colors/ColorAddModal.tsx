@@ -81,7 +81,7 @@ const ColorAddModal: React.FC<ColorAddModalProps> = ({
               type="text"
               id="color_code"
               value={colorCode}
-              onChange={(e) => setColorCode(e.target.value)}
+              onChange={(e) => setColorCode(e.target.value.toUpperCase())}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
               placeholder="Nhập mã màu (VD: MR)"
               required

@@ -19,7 +19,7 @@ export const getLocalCart = (): Cart => {
     console.error("Error parsing cart from localStorage:", error);
   }
 
-  return { cart_id: "guest", cartItems: [], cart_total_price: 0 };
+  return { cart_id: "guest", cartItems: [] };
 };
 
 export const setLocalCart = (cart: Cart) => {

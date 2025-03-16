@@ -21,7 +21,7 @@ export interface Cart {
 
 export interface CartItem {
   created_at: Date;
-  cartItem_id: string;
+  cart_item_id: string;
   variant: ProductVariant;
   quantity: number;
 }

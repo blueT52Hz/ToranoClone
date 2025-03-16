@@ -23,7 +23,7 @@ const ProductModal = (props: ProductModalProps) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [activeImageId, setActiveImageId] = useState(
-    product.variants[0].image.image_id
+    product.variant_images[0].image_id
   );
 
   const { isOpenModal, setIsOpenModal } = props;
@@ -31,10 +31,6 @@ const ProductModal = (props: ProductModalProps) => {
   const [quantity, setQuantity] = useState(1);
   const [form] = Form.useForm();
   const { addToCart } = useCart();
-
-  useEffect(() => {
-    setIdSelectedSize("");
-  }, [activeImageId]);
 
   const handleAddToCart = () => {
     form.submit();
@@ -44,27 +40,22 @@ const ProductModal = (props: ProductModalProps) => {
       return;
     }
 
-    const maxQuantity = product.variants.filter(
-      (variant) =>
-        variant.image.image_id === activeImageId &&
-        variant.size.size_id === idSelectedSize
-    )[0].quantity;
+    const maxQuantity = product.variants.find(
+      (variant) => variant.size.size_id === idSelectedSize
+    )?.quantity;
 
-    if (quantity > maxQuantity) {
+    if (maxQuantity && quantity > maxQuantity) {
       setErrorMessage("Số lượng sản phẩm không đủ");
       return;
     }
 
     const item: CartItem = {
-      cartItem_id: uuidv4(),
+      cart_item_id: uuidv4(),
       variant: product.variants.filter(
-        (variant) =>
-          variant.image.image_id === activeImageId &&
-          variant.size.size_id === idSelectedSize
+        (variant) => variant.size.size_id === idSelectedSize
       )[0],
       quantity,
       created_at: new Date(),
-      product: product,
     };
     addToCart(item);
     setIsOpenModal(false);
@@ -106,9 +97,9 @@ const ProductModal = (props: ProductModalProps) => {
           <span className="flex justify-center items-center flex-1">
             <Image
               src={
-                product.variant_images.filter(
+                product.variant_images.find(
                   (item) => item.image_id === activeImageId
-                )[0].image_url
+                )?.image_url
               }
               className="w-full rounded-lg"
             />
@@ -135,7 +126,7 @@ const ProductModal = (props: ProductModalProps) => {
                 : product.base_price.toLocaleString()}
               ₫
             </span>
-            {product.discount && (
+            {product.discount > 0 && (
               <>
                 <span className="text-[#9e9e9e] text-sm line-through ml-4">
                   {product.base_price.toLocaleString()}₫
@@ -179,7 +170,6 @@ const ProductModal = (props: ProductModalProps) => {
                 const isVariantInStock = product.variants.some(
                   (variant) =>
                     variant.quantity > 0 &&
-                    variant.image.image_id === activeImageId &&
                     variant.size.size_id === size.size_id
                 );
 

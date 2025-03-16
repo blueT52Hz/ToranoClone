@@ -53,6 +53,9 @@ const Products = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [productsRelated, setProductsRelated] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
+  useEffect(() => {
+    const getProduct = async () => {};
+  }, [slug]);
   if (!product || collections.length === 0 || productsRelated.length === 0)
     return <div>Loading...</div>;
   return (

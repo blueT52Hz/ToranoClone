@@ -1,7 +1,10 @@
+import Loading from "@/components/common/Loading";
 import Pagination from "@/components/user/Pagination";
 import ProductsSection from "@/components/user/ProductsSection";
 import Sidebar from "@/components/user/SidebarFilter";
-import { Product, Collection } from "@/types/product";
+import { getProductsByCollectionSlug } from "@/services/client/product";
+import { supabase } from "@/services/supabaseClient";
+import { Product } from "@/types/product";
 import { cn } from "@/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
@@ -10,13 +13,34 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 const Collections = () => {
   const { slug } = useParams();
-  const [collection, setCollection] = useState<Collection | null>(null);
+  const [collection, setCollection] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 850);
   const [searchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
   window.scrollTo({ top: 0, behavior: "smooth" });
+
+  useEffect(() => {
+    const getProducts = async () => {
+      if (!slug) return;
+      setIsLoading(true);
+      const result = await getProductsByCollectionSlug(slug);
+      console.log(result);
+
+      const { data } = await supabase
+        .from("collection")
+        .select("name")
+        .eq("slug", slug)
+        .single();
+
+      setProducts(result);
+      setCollection(data?.name);
+      setIsLoading(false);
+    };
+    getProducts();
+  }, [slug]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,6 +50,7 @@ const Collections = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   return (
     <div className="container min-w-full px-12">
       <section className="collection-section py-7">
@@ -33,28 +58,37 @@ const Collections = () => {
           <div className="sidebar">
             <Sidebar />
           </div>
-          <div className="main-container px-3 flex flex-col col-span-3">
-            <div className="toolbar-main flex justify-between mb-[30px]">
-              <div className="title-toolbar flex gap-4 items-center">
-                <div className="title-collection text-shop-color-title font-bold text-[22px]">
-                  {collection && collection.name}
-                </div>
-                <div className="product-count text-sm">
-                  <span className="font-bold">{products.length}</span>
-                  <span className="font-light"> sản phẩm</span>
-                </div>
-              </div>
-              <div className="product-filter-sort flex items-center justify-between">
-                {isMobile && <div>Bộ lọc</div>}
-                <div className="flex gap-4 items-center">
-                  <div>Sắp xếp theo</div>
-                  <DropdownMenu />
-                </div>
-              </div>
+          {isLoading ? (
+            <div className="main-container px-3 flex flex-col col-span-3">
+              <Loading />
             </div>
-            <ProductsSection columns={4} products={products}></ProductsSection>
-            <Pagination total={products.length} currentPage={currentPage} />
-          </div>
+          ) : (
+            <div className="main-container px-3 flex flex-col col-span-3">
+              <div className="toolbar-main flex justify-between mb-[30px]">
+                <div className="title-toolbar flex gap-4 items-center">
+                  <div className="title-collection text-shop-color-title font-bold text-[22px]">
+                    {collection}
+                  </div>
+                  <div className="product-count text-sm">
+                    <span className="font-bold">{products.length}</span>
+                    <span className="font-light"> sản phẩm</span>
+                  </div>
+                </div>
+                <div className="product-filter-sort flex items-center justify-between">
+                  {isMobile && <div>Bộ lọc</div>}
+                  <div className="flex gap-4 items-center">
+                    <div>Sắp xếp theo</div>
+                    <DropdownMenu />
+                  </div>
+                </div>
+              </div>
+              <ProductsSection
+                columns={4}
+                products={products}
+              ></ProductsSection>
+              <Pagination total={products.length} currentPage={currentPage} />
+            </div>
+          )}
         </div>
       </section>
     </div>

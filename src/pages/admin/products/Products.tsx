@@ -10,6 +10,7 @@ import {
   ArrowUp,
   Filter,
 } from "lucide-react";
+import { Image } from "antd";
 import { Product } from "@/types/product";
 import { getAllProductsWithDetails } from "@/services/admin/product";
 import Loading from "@/components/common/Loading";
@@ -200,7 +201,7 @@ const ProductList = () => {
                   Mã sản phẩm {getSortIcon("product_code")}
                 </th>
                 <th
-                  className="py-3 px-4 text-center font-medium text-gray-600 cursor-pointer hover:text-blue-600"
+                  className="py-3 px-2 text-center font-medium text-gray-600 cursor-pointer hover:text-blue-600"
                   onClick={() => handleSort("created_at")}
                 >
                   Ngày tạo {getSortIcon("created_at")}

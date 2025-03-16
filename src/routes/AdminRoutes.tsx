@@ -4,6 +4,7 @@ import Collections from "@/pages/admin/collections/Collections";
 import ColorsPage from "@/pages/admin/Colors";
 import Dashboard from "@/pages/admin/Dashboard";
 import GalleryPage from "@/pages/admin/Gallery";
+import OrderDetailsPage from "@/pages/admin/orders/OrderDetail";
 import Orders from "@/pages/admin/orders/Orders";
 import OutfitDetail from "@/pages/admin/outfits/OutfitDetail";
 import Outfits from "@/pages/admin/outfits/Outfits";
@@ -25,6 +26,7 @@ const AdminRoutes = () => {
         <Route path="/products/:id/edit" element={<ProductEdit />} />
         {/* OrderPages */}
         <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:orderId" element={<OrderDetailsPage />} />{" "}
         {/* CollectionPages */}
         <Route path="/collections" element={<Collections />} />
         <Route path="/collections/new" element={<CollectionDetail />} />

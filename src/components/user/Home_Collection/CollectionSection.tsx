@@ -1,14 +1,40 @@
+import Loading from "@/components/common/Loading";
 import ProductCard from "@/components/user/Product/ProductCard";
+import { getProductsByCollectionSlug } from "@/services/client/product";
 import { Product } from "@/types/product";
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const headerTitle = ["Áo Khoác", "Bộ Nỉ", "Sơ Mi - Quần Dài", "Áo Polo"];
+interface Title {
+  name: string;
+  slug: string;
+}
+
+const headerTitle: Title[] = [
+  { name: "Áo khoác", slug: "ao-khoac" },
+  { name: "Bộ nỉ", slug: "bo-ni" },
+  { name: "Sơ mi - Quần dài", slug: "so-mi-quan-dai" },
+  { name: "Áo polo", slug: "ao-polo" },
+];
 
 const CollectionSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      setIsLoading(true);
+      const result = await getProductsByCollectionSlug(
+        headerTitle[currentSlide].slug
+      );
+      setProducts(result);
+      setIsLoading(false);
+    };
+    getProducts();
+  }, [currentSlide]);
+
   return (
     <section className="featured-section my-20">
       <div className="container min-w-full px-12 flex flex-col">
@@ -27,26 +53,30 @@ const CollectionSection = () => {
                 )}
                 onClick={() => setCurrentSlide(_i)}
               >
-                {item}
+                {item.name}
               </div>
             );
           })}
         </div>
         <div className="collection py-8">
-          <div className="grid grid-cols-5 gap-4">
-            {products.map((item, index) => {
-              return (
-                <div key={index} className="pr-4">
-                  <ProductCard
-                    perPage={0}
-                    currentSlide={0}
-                    item={item}
-                    isDragging={false}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="grid grid-cols-5 gap-4">
+              {products.map((item, index) => {
+                return (
+                  <div key={index} className="pr-4">
+                    <ProductCard
+                      perPage={0}
+                      currentSlide={0}
+                      item={item}
+                      isDragging={false}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
         <div className="flex justify-center py-8">
           <Link
@@ -55,7 +85,7 @@ const CollectionSection = () => {
           >
             XEM TẤT CẢ{" "}
             <span className="font-semibold">
-              {headerTitle[currentSlide].toUpperCase()}
+              {headerTitle[currentSlide].name.toUpperCase()}
             </span>
           </Link>
         </div>

@@ -10,6 +10,7 @@ import PromotionPage from "@/pages/user/Promotion";
 import Register from "@/pages/user/Register";
 import Search from "@/pages/user/Search";
 import StoreLocator from "@/pages/user/StoreLocator";
+import UserDetailPage from "@/pages/user/UserDetail";
 import { Route, Routes } from "react-router-dom";
 
 const UserRoutes = () => {
@@ -27,6 +28,7 @@ const UserRoutes = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/accounts/login" element={<Login />} />
           <Route path="/accounts/register" element={<Register />} />
+          <Route path="/accounts/user/:userId" element={<UserDetailPage />} />
         </Route>
       </Routes>
     </AppProvider>

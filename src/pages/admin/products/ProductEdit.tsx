@@ -764,7 +764,7 @@ export default function ProductDetail() {
               <span className="sr-only">Quay lại</span>
             </Link>
             <h1 className="text-2xl font-bold text-gray-800">
-              {isEditMode ? `Chỉnh sửa: ${product.name}` : "Thêm sản phẩm mới"}
+              {isEditMode ? `Chỉnh sửa:` : "Thêm sản phẩm mới"}
             </h1>
           </div>
 
@@ -938,13 +938,13 @@ export default function ProductDetail() {
                       className="hidden"
                       onChange={handleImageUpload}
                     />
-                    <label
+                    {/* <label
                       htmlFor="product-images"
                       className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer"
                     >
                       <Upload className="w-4 h-4 mr-1" />
                       Tải lên
-                    </label>
+                    </label> */}
                   </div>
                 </div>
               </div>
@@ -1285,7 +1285,7 @@ export default function ProductDetail() {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium">
-                            {getColorCode(variant.color_id)} /{" "}
+                            {getColorName(variant.color_id)} /{" "}
                             {getSizeName(variant.size_id)}
                           </p>
                           <p className="text-sm text-gray-500">
