@@ -17,12 +17,11 @@ export const getCollectionById = async (
     throw error;
   }
 
-  if(data.image_id) {
-
+  if (data.image_id) {
     const image = await getImageByImageId(data.image_id);
     return { ...data, image: image };
   }
-  
+
   return data;
 };
 
@@ -69,51 +68,6 @@ export const getCollectionBySlug = async (
   return data || null;
 };
 
-export const getProductsByCollectionSlug = async (
-  slug: string
-): Promise<Product[]> => {
-  const { data: collection, error: collectionError } = await supabase
-    .from("collection")
-    .select("collection_id")
-    .eq("slug", slug)
-    .single();
-
-  if (collectionError) {
-    throw collectionError;
-  }
-
-  if (!collection) {
-    return [];
-  }
-
-  const { data: productCollection, error: productCollectionError } =
-    await supabase
-      .from("product_collection")
-      .select("product_id")
-      .eq("collection_id", collection.collection_id);
-
-  if (productCollectionError) {
-    throw productCollectionError;
-  }
-
-  if (!productCollection || productCollection.length === 0) {
-    return [];
-  }
-
-  const productIdArray = productCollection.map((item) => item.product_id);
-
-  const { data: products, error: productsError } = await supabase
-    .from("product")
-    .select("*")
-    .in("product_id", productIdArray);
-
-  if (productsError) {
-    throw productsError;
-  }
-
-  return products || [];
-};
-
 export const getAllCollections = async (): Promise<Collection[]> => {
   const { data: collections, error } = await supabase
     .from("collection")
@@ -135,7 +89,7 @@ export const addCollection = async (
     image_id?: string | null;
   },
   productIds?: string[] // Danh sách product_id liên quan
-): Promise<Collection> => {  
+): Promise<Collection> => {
   // Thêm trường created_at và updated_at vào collection
   const newCollection = {
     ...collection,
@@ -197,7 +151,7 @@ export const updateCollection = async (
   productIds?: string[] // Danh sách product_id liên quan
 ): Promise<Collection> => {
   console.log(productIds);
-  
+
   // Thêm trường updated_at vào updatedCollection
   const newUpdatedCollection = {
     ...updatedCollection,
@@ -228,31 +182,31 @@ export const updateCollection = async (
 
   // Nếu có productIds, cập nhật các bản ghi trong bảng product_collection
   if (productIds) {
-      // 1. Xóa các liên kết cũ liên quan đến productIds
-      const { error: deleteError } = await supabase
-        .from("product_collection")
-        .delete()
-        .eq("collection_id", collectionId);
-  
-      if (deleteError) {
-        throw new Error(`Lỗi khi xóa liên kết cũ: ${deleteError.message}`);
-      }
-  
-      // 2. Thêm các liên kết mới vào bảng product_collection
-      const { error: insertError } = await supabase
-        .from("product_collection")
-        .insert(
-          productIds.map((productId) => ({
-            collection_id: collectionId,
-            product_id: productId,
-          }))
-        );
-  
-      if (insertError) {
-        throw new Error(`Lỗi khi thêm liên kết mới: ${insertError.message}`);
-      }
-  
-      console.log("Cập nhật liên kết thành công!");
+    // 1. Xóa các liên kết cũ liên quan đến productIds
+    const { error: deleteError } = await supabase
+      .from("product_collection")
+      .delete()
+      .eq("collection_id", collectionId);
+
+    if (deleteError) {
+      throw new Error(`Lỗi khi xóa liên kết cũ: ${deleteError.message}`);
+    }
+
+    // 2. Thêm các liên kết mới vào bảng product_collection
+    const { error: insertError } = await supabase
+      .from("product_collection")
+      .insert(
+        productIds.map((productId) => ({
+          collection_id: collectionId,
+          product_id: productId,
+        }))
+      );
+
+    if (insertError) {
+      throw new Error(`Lỗi khi thêm liên kết mới: ${insertError.message}`);
+    }
+
+    console.log("Cập nhật liên kết thành công!");
   } else {
     console.log("Không có productIds để cập nhật.");
   }

@@ -1,20 +1,39 @@
+import Loading from "@/components/common/Loading";
 import ProductCard from "@/components/user/Product/ProductCard";
+import { getProductsByCollectionSlug } from "@/services/client/product";
 import { Product } from "@/types/product";
 import Item from "antd/es/list/Item";
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const headerTitle = [
-  "SẢN PHẨM NỔI BẬT",
-  "ĐỒ THU ĐÔNG",
-  "ĐỒ CÔNG SỞ",
-  "ĐỒ THỂ THAO",
+interface Title {
+  name: string;
+  slug: string;
+}
+
+const headerTitle: Title[] = [
+  { name: "SẢN PHẨM NỔI BẬT", slug: "onsale" },
+  { name: "ĐỒ THU ĐÔNG", slug: "do-thu-dong" },
+  { name: "ĐỒ CÔNG SỞ", slug: "do-cong-so" },
+  { name: "ĐỒ THỂ THAO", slug: "do-the-thao" },
 ];
 
 const FeaturedSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const getProducts = async () => {
+      setIsLoading(true);
+      const result = await getProductsByCollectionSlug(
+        headerTitle[currentSlide].slug
+      );
+      setProducts(result);
+      setIsLoading(false);
+    };
+    getProducts();
+  }, [currentSlide]);
   return (
     <section className="featured-section my-20">
       <div className="container min-w-full px-12 flex flex-col">
@@ -33,26 +52,30 @@ const FeaturedSection = () => {
                 )}
                 onClick={() => setCurrentSlide(_i)}
               >
-                {item.toUpperCase()}
+                {item.name.toUpperCase()}
               </div>
             );
           })}
         </div>
         <div className="collection py-8">
-          <div className="grid grid-cols-5 gap-4">
-            {products.map((item, index) => {
-              return (
-                <div key={index} className="pr-4">
-                  <ProductCard
-                    perPage={0}
-                    currentSlide={0}
-                    item={item}
-                    isDragging={false}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="grid grid-cols-5 gap-4">
+              {products.map((item, index) => {
+                return (
+                  <div key={index} className="pr-4">
+                    <ProductCard
+                      perPage={0}
+                      currentSlide={0}
+                      item={item}
+                      isDragging={false}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
         <div className="flex justify-center py-8">
           <Link
@@ -61,7 +84,7 @@ const FeaturedSection = () => {
           >
             XEM TẤT CẢ{" "}
             <span className="font-semibold">
-              {headerTitle[currentSlide].toUpperCase()}
+              {headerTitle[currentSlide].name.toUpperCase()}
             </span>
           </Link>
         </div>

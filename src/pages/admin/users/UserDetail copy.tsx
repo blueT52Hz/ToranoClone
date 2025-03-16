@@ -1,15 +1,16 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  Search,
-  Mail,
-  Phone,
   ArrowUp,
   ArrowDown,
-  ArrowUpDown,
+  Search,
+  Edit,
+  Mail,
+  Phone,
 } from "lucide-react";
-import { supabase } from "@/services/supabaseClient";
+import { Link, useParams } from "react-router-dom";
 
 type Order = {
   order_id: string;
@@ -40,7 +41,6 @@ type User = {
 export default function UserDetailPage() {
   const params = useParams();
   const userId = params.id as string;
-  const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,51 +48,72 @@ export default function UserDetailPage() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Lấy dữ liệu từ Supabase
+  // Mock data
   useEffect(() => {
-    const fetchUserData = async () => {
-      setIsLoading(true);
-
-      try {
-        // Lấy thông tin người dùng
-        const { data: userData, error: userError } = await supabase
-          .from("users")
-          .select("*")
-          .eq("user_id", userId)
-          .single();
-
-        if (userError) throw userError;
-
-        // Lấy đơn hàng của người dùng
-        const { data: ordersData, error: ordersError } = await supabase
-          .from("order")
-          .select("*")
-          .eq("user_id", userId);
-
-        if (ordersError) throw ordersError;
-
-        // Lấy địa chỉ giao hàng
-        const { data: addressesData, error: addressesError } = await supabase
-          .from("shipping_address")
-          .select("*")
-          .eq("user_id", userId);
-
-        if (addressesError) throw addressesError;
-
-        // Cập nhật state
-        setUser({
-          ...userData,
-          orders: ordersData,
-          shipping_addresses: addressesData,
-        });
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserData();
+    // In a real app, you would fetch the user data from an API
+    setTimeout(() => {
+      setUser({
+        user_id: userId,
+        full_name: "Nguyễn Văn A",
+        gender: "Nam",
+        date_of_birth: new Date("1990-01-15"),
+        email: "nguyenvana@example.com",
+        phone: "0901234567",
+        created_at: new Date("2023-01-10"),
+        orders_count: 5,
+        total_spent: 2500000,
+        shipping_addresses: [
+          {
+            id: "1",
+            address: "123 Đường ABC, Quận 1, TP.HCM",
+            is_default: true,
+          },
+          {
+            id: "2",
+            address: "456 Đường XYZ, Quận 2, TP.HCM",
+            is_default: false,
+          },
+        ],
+        orders: [
+          {
+            order_id: "#ORD001",
+            created_at: new Date("2023-07-15"),
+            status: "completed",
+            payment_method: "Thanh toán khi nhận hàng",
+            final_price: 550000,
+          },
+          {
+            order_id: "#ORD002",
+            created_at: new Date("2023-06-20"),
+            status: "completed",
+            payment_method: "Chuyển khoản ngân hàng",
+            final_price: 750000,
+          },
+          {
+            order_id: "#ORD003",
+            created_at: new Date("2023-05-10"),
+            status: "canceled",
+            payment_method: "Thanh toán trực tuyến",
+            final_price: 425000,
+          },
+          {
+            order_id: "#ORD004",
+            created_at: new Date("2023-04-05"),
+            status: "completed",
+            payment_method: "Thanh toán khi nhận hàng",
+            final_price: 890000,
+          },
+          {
+            order_id: "#ORD005",
+            created_at: new Date("2023-03-15"),
+            status: "completed",
+            payment_method: "Thanh toán trực tuyến",
+            final_price: 1250000,
+          },
+        ],
+      });
+      setIsLoading(false);
+    }, 500);
   }, [userId]);
 
   const handleSort = (field: string) => {
@@ -184,7 +205,6 @@ export default function UserDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Phần header và thông tin người dùng */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
@@ -196,11 +216,20 @@ export default function UserDetailPage() {
           </Link>
           <h1 className="text-2xl font-bold text-gray-800">{user.full_name}</h1>
         </div>
+
+        {/* <div className="flex items-center gap-3">
+          <Link
+            to={`/users/edit/${user.user_id}`}
+            className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
+          >
+            <Edit className="w-4 h-4 mr-2 inline-block" />
+            Chỉnh sửa
+          </Link>
+        </div> */}
       </div>
 
-      {/* Phần thông tin cá nhân và địa chỉ giao hàng */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Thông tin cá nhân */}
+        {/* User Information */}
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
           <h2 className="text-lg font-medium mb-4">Thông tin cá nhân</h2>
           <div className="space-y-4">
@@ -214,15 +243,11 @@ export default function UserDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Ngày sinh</p>
-              <p className="font-medium">
-                {formatDate(new Date(user.date_of_birth))}
-              </p>
+              <p className="font-medium">{formatDate(user.date_of_birth)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Ngày đăng ký</p>
-              <p className="font-medium">
-                {formatDate(new Date(user.created_at))}
-              </p>
+              <p className="font-medium">{formatDate(user.created_at)}</p>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-gray-500" />
@@ -245,13 +270,13 @@ export default function UserDetailPage() {
           </div>
         </div>
 
-        {/* Địa chỉ giao hàng */}
+        {/* Shipping Addresses */}
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6 col-span-2">
           <h2 className="text-lg font-medium mb-4">Địa chỉ giao hàng</h2>
           <div className="space-y-4">
-            {user.shipping_addresses.map((address, index) => (
+            {user.shipping_addresses.map((address) => (
               <div
-                key={index}
+                key={address.id}
                 className="p-3 border border-gray-200 rounded-md"
               >
                 <div className="flex justify-between items-start">
@@ -266,9 +291,30 @@ export default function UserDetailPage() {
             ))}
           </div>
         </div>
+
+        {/* Statistics */}
+        {/* <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+          <h2 className="text-lg font-medium mb-4">Thống kê</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-600 font-medium">Tổng đơn hàng</p>
+              <p className="text-2xl font-bold text-blue-700">
+                {user.orders_count}
+              </p>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg">
+              <p className="text-sm text-green-600 font-medium">
+                Tổng chi tiêu
+              </p>
+              <p className="text-2xl font-bold text-green-700">
+                {formatCurrency(user.total_spent)}
+              </p>
+            </div>
+          </div>
+        </div> */}
       </div>
 
-      {/* Lịch sử đơn hàng */}
+      {/* Order History */}
       <div className="bg-white shadow-sm rounded-lg border border-gray-200">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
@@ -296,15 +342,12 @@ export default function UserDetailPage() {
                 >
                   <div className="flex items-center">
                     Mã đơn hàng
-                    {sortField === "order_id" ? (
-                      sortDirection === "asc" ? (
+                    {sortField === "order_id" &&
+                      (sortDirection === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      )
-                    ) : (
-                      <ArrowUpDown className="ml-1 h-3 w-3" />
-                    )}
+                      ))}
                   </div>
                 </th>
                 <th
@@ -313,15 +356,12 @@ export default function UserDetailPage() {
                 >
                   <div className="flex items-center">
                     Ngày đặt
-                    {sortField === "created_at" ? (
-                      sortDirection === "asc" ? (
+                    {sortField === "created_at" &&
+                      (sortDirection === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      )
-                    ) : (
-                      <ArrowUpDown className="ml-1 h-3 w-3" />
-                    )}
+                      ))}
                   </div>
                 </th>
                 <th
@@ -330,15 +370,12 @@ export default function UserDetailPage() {
                 >
                   <div className="flex items-center">
                     Trạng thái
-                    {sortField === "status" ? (
-                      sortDirection === "asc" ? (
+                    {sortField === "status" &&
+                      (sortDirection === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      )
-                    ) : (
-                      <ArrowUpDown className="ml-1 h-3 w-3" />
-                    )}
+                      ))}
                   </div>
                 </th>
                 <th
@@ -347,15 +384,12 @@ export default function UserDetailPage() {
                 >
                   <div className="flex items-center">
                     Phương thức thanh toán
-                    {sortField === "payment_method" ? (
-                      sortDirection === "asc" ? (
+                    {sortField === "payment_method" &&
+                      (sortDirection === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      )
-                    ) : (
-                      <ArrowUpDown className="ml-1 h-3 w-3" />
-                    )}
+                      ))}
                   </div>
                 </th>
                 <th
@@ -381,9 +415,7 @@ export default function UserDetailPage() {
                   <td className="px-4 py-3 font-medium text-gray-900">
                     {order.order_id}
                   </td>
-                  <td className="px-4 py-3">
-                    {formatDate(new Date(order.created_at))}
-                  </td>
+                  <td className="px-4 py-3">{formatDate(order.created_at)}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}
@@ -396,14 +428,12 @@ export default function UserDetailPage() {
                     {formatCurrency(order.final_price)}
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() =>
-                        navigate(`/admin/orders/${order.order_id}`)
-                      }
+                    <Link
+                      to={`/orders/${order.order_id}`}
                       className="text-blue-600 hover:text-blue-800 hover:underline"
                     >
                       Xem chi tiết
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

@@ -30,7 +30,9 @@ const CartItemComponent = ({ item }: CartItemProps) => {
       </div>
       <div className="flex flex-col w-full">
         <div className="flex justify-between">
-          <h3 className="font-semibold text-sm flex-1">{item.product.name}</h3>
+          <h3 className="font-semibold text-sm flex-1">
+            {item.variant.product.name}
+          </h3>
           <button className=" text-gray-500 hover:text-black">
             <X
               size={20}
@@ -73,15 +75,18 @@ const CartItemComponent = ({ item }: CartItemProps) => {
             </div>
             <div className="text-right">
               <p className="font-semibold text-black">
-                {(item.product.sale_price
-                  ? item.product.sale_price * quantity
-                  : item.product.base_price * quantity
+                {(item.variant.product.sale_price
+                  ? item.variant.product.sale_price * quantity
+                  : item.variant.product.base_price * quantity
                 ).toLocaleString()}
                 ₫
               </p>
-              {item.product.sale_price && (
+              {item.variant.product.sale_price && (
                 <p className="text-gray-400 text-sm line-through">
-                  {(quantity * item.product.base_price).toLocaleString()}₫
+                  {(
+                    quantity * item.variant.product.base_price
+                  ).toLocaleString()}
+                  ₫
                 </p>
               )}
             </div>

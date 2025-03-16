@@ -1,5 +1,6 @@
+import Loading from "@/components/common/Loading";
 import ProductCard from "@/components/user/Product/ProductCard";
-import { mockProducts } from "@/types/mock";
+import { getProductsByCollectionSlug } from "@/services/client/product";
 import { Product } from "@/types/product";
 import clsx from "clsx";
 import { AnimatePresence, easeInOut, motion } from "framer-motion";
@@ -11,13 +12,18 @@ import { Link, useNavigate } from "react-router-dom";
 const SaleSection = () => {
   const [perPage, setPerPage] = useState(6);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const getProducts = async () => {
-      setTimeout(() => {}, 1000);
-      setProducts(mockProducts);
+      setIsLoading(true);
+      const result = await getProductsByCollectionSlug("onsale");
+      console.log(result);
+
+      setProducts(result);
+      setIsLoading(false);
     };
     getProducts();
   }, []);
@@ -92,40 +98,46 @@ const SaleSection = () => {
             </div>
           </div>
         </div>
-        <div className="overflow-hidden pb-6">
-          <AnimatePresence>
-            <motion.div
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              drag={"x"}
-              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-              onDragStart={() => {
-                setIsDragging(true);
-              }}
-              className="flex"
-              onDragEnd={(event, info) => {
-                if (info.offset.x > 20) {
-                  handleDecrease();
-                } else if (info.offset.x < 20) {
-                  handleIncrease();
-                }
-                setIsDragging(false);
-              }}
-            >
-              {products.map((item, index) => {
-                return (
-                  <ProductCard
-                    key={index}
-                    currentSlide={currentSlide}
-                    isDragging={isDragging}
-                    item={item}
-                    perPage={perPage}
-                    className="pr-4"
-                  ></ProductCard>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <div className="overflow-hidden pb-6">
+            {
+              <AnimatePresence>
+                <motion.div
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  drag={"x"}
+                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                  onDragStart={() => {
+                    setIsDragging(true);
+                  }}
+                  className="flex"
+                  onDragEnd={(event, info) => {
+                    if (info.offset.x > 20) {
+                      handleDecrease();
+                    } else if (info.offset.x < 20) {
+                      handleIncrease();
+                    }
+                    setIsDragging(false);
+                  }}
+                >
+                  {products.map((item, index) => {
+                    return (
+                      <ProductCard
+                        key={index}
+                        currentSlide={currentSlide}
+                        isDragging={isDragging}
+                        item={item}
+                        perPage={perPage}
+                        className="pr-4"
+                      ></ProductCard>
+                    );
+                  })}
+                </motion.div>
+              </AnimatePresence>
+            }
+          </div>
+        )}
         <div className="flex justify-center pb-8">
           <Link
             to={"collections/onsale"}

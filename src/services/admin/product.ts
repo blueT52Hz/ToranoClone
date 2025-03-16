@@ -399,3 +399,48 @@ export const getProductsByOutfitId = async (
 
   return productsWithDetails;
 };
+
+export const getProductsByCollectionSlug = async (
+  slug: string
+): Promise<Product[]> => {
+  const { data: collection, error: collectionError } = await supabase
+    .from("collection")
+    .select("collection_id")
+    .eq("slug", slug)
+    .single();
+
+  if (collectionError) {
+    throw collectionError;
+  }
+
+  if (!collection) {
+    return [];
+  }
+
+  const { data: productCollection, error: productCollectionError } =
+    await supabase
+      .from("product_collection")
+      .select("product_id")
+      .eq("collection_id", collection.collection_id);
+
+  if (productCollectionError) {
+    throw productCollectionError;
+  }
+
+  if (!productCollection || productCollection.length === 0) {
+    return [];
+  }
+
+  const productIdArray = productCollection.map((item) => item.product_id);
+
+  const { data: products, error: productsError } = await supabase
+    .from("product")
+    .select("*")
+    .in("product_id", productIdArray);
+
+  if (productsError) {
+    throw productsError;
+  }
+
+  return products || [];
+};

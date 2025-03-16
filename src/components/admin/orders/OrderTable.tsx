@@ -39,7 +39,7 @@ const formatDate = (date: Date): string => {
 };
 
 const formatAddress = (address: ShippingAddress): string => {
-  return `${address.address}, ${address.city}`;
+  return `${address.address_detail}, ${address.city}`;
 };
 
 const getStatusText = (status: Order["status"]): string => {
@@ -310,7 +310,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                   <td className="py-3 text-center">
                     <div className="flex jutify-center items-center">
                       <Link
-                        to={"/admin/orders/detail"}
+                        to={`/admin/orders/${order.order_id}`}
                         className="p-1 text-blue-600 hover:text-blue-800 mx-auto"
                       >
                         <Eye className="w-4 h-4" />

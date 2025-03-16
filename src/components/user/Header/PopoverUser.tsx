@@ -45,7 +45,12 @@ const PopoverUser = () => {
         content={
           user ? (
             <>
-              <div>{user.full_name}</div>
+              <div className="text-center text-base">{user.full_name}</div>
+              <div className="text-center text-base">
+                <Link to={"/accounts/user/" + user.user_id}>
+                  Thông tin tài khoản
+                </Link>
+              </div>
               <Button
                 className="w-full mb-6"
                 type="text"
