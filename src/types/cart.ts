@@ -8,7 +8,12 @@ export interface Order {
   cart: Cart;
   note: string | null;
   payment_method: "cod" | "online_payment" | "bank_transfer";
-  status: "pending_approval" | "shipping" | "completed" | "canceled";
+  status:
+    | "pending_payment"
+    | "pending_approval"
+    | "shipping"
+    | "completed"
+    | "canceled";
   discount: number | null;
   shipping_fee: number | 30000;
   final_price: number;

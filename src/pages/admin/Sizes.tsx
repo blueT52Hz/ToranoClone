@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { ArrowUp, ArrowDown, Edit, Plus, Search, Trash2 } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  Edit,
+  Plus,
+  Search,
+  Trash2,
+  ArrowUpDown,
+} from "lucide-react";
 import { getAllSizes } from "@/services/admin/size";
 import SizeAddModal from "@/components/admin/sizes/SizeAddModal";
 import SizeEditModal from "@/components/admin/sizes/SizeEditModal";
@@ -85,7 +93,8 @@ const SizesPage: React.FC = () => {
 
   // Render helper functions
   const renderSortIndicator = (field: keyof Size) => {
-    if (sortField !== field) return null;
+    if (sortField !== field)
+      return <ArrowUpDown className="ml-1 h-3 w-3"></ArrowUpDown>;
 
     return sortDirection === "asc" ? (
       <ArrowUp className="ml-1 h-3 w-3" />

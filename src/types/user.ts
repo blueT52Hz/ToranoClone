@@ -25,3 +25,18 @@ export interface ShippingAddress {
   created_at: Date;
   updated_at: Date;
 }
+
+export interface Province {
+  id: string;
+  full_name: string;
+}
+
+export interface District {
+  id: string;
+  full_name: string;
+}
+
+export interface Ward {
+  id: string;
+  full_name: string;
+}

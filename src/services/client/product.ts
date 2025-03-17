@@ -1,4 +1,10 @@
-import { Product } from "@/types/product";
+import {
+  Collection,
+  Image,
+  Outfit,
+  Product,
+  ProductVariant,
+} from "@/types/product";
 import { supabase } from "../supabaseClient";
 
 // Hàm lấy tất cả sản phẩm theo collection_slug
@@ -31,185 +37,404 @@ export const getProductsByCollectionSlug = async (
 
   const productIds = productCollections.map((pc) => pc.product_id);
 
-  // 3. Lấy thông tin chi tiết của từng sản phẩm từ bảng product
-  const { data: products, error: productsError } = await supabase
-    .from("product")
-    .select("*")
-    .in("product_id", productIds);
-
-  if (productsError) {
-    throw new Error(`Lỗi khi lấy thông tin sản phẩm: ${productsError.message}`);
-  }
-
   // 4. Lấy thông tin biến thể, ảnh, bộ sưu tập, và outfit liên quan đến từng sản phẩm
   const productsWithDetails = await Promise.all(
-    products.map(async (product) => {
-      // Lấy biến thể sản phẩm
-      const { data: variants, error: variantsError } = await supabase
-        .from("product_variant")
-        .select("*")
-        .eq("product_id", product.product_id);
-
-      if (variantsError) {
-        throw new Error(
-          `Lỗi khi lấy biến thể sản phẩm: ${variantsError.message}`
-        );
-      }
-
-      // Lấy thông tin chi tiết của từng biến thể
-      const variantsWithDetails = await Promise.all(
-        variants.map(async (variant) => {
-          // Lấy thông tin ảnh của biến thể
-          const { data: image, error: imageError } = await supabase
-            .from("product_image")
-            .select("*")
-            .eq("image_id", variant.image_id)
-            .single();
-
-          if (imageError) {
-            throw new Error(`Lỗi khi lấy ảnh biến thể: ${imageError.message}`);
-          }
-
-          // Lấy thông tin màu sắc
-          const { data: color, error: colorError } = await supabase
-            .from("color")
-            .select("*")
-            .eq("color_id", variant.color_id)
-            .single();
-
-          if (colorError) {
-            throw new Error(
-              `Lỗi khi lấy thông tin màu sắc: ${colorError.message}`
-            );
-          }
-
-          // Lấy thông tin kích thước
-          const { data: size, error: sizeError } = await supabase
-            .from("size")
-            .select("*")
-            .eq("size_id", variant.size_id)
-            .single();
-
-          if (sizeError) {
-            throw new Error(
-              `Lỗi khi lấy thông tin kích thước: ${sizeError.message}`
-            );
-          }
-
-          // Kết hợp thông tin biến thể
-          return {
-            ...variant,
-            product: {
-              name: product.name,
-              product_id: product.product_id,
-              base_price: product.base_price,
-              sale_price: product.sale_price,
-            },
-            image,
-            color,
-            size,
-          };
-        })
-      );
-
-      // Lấy ảnh biến thể
-      const { data: variantImages, error: variantImagesError } = await supabase
-        .from("product_image")
-        .select("*")
-        .eq("product_id", product.product_id);
-
-      if (variantImagesError) {
-        throw new Error(
-          `Lỗi khi lấy ảnh biến thể: ${variantImagesError.message}`
-        );
-      }
-
-      // Lấy bộ sưu tập liên quan
-      const { data: collections, error: collectionsError } = await supabase
-        .from("product_collection")
-        .select("collection_id")
-        .eq("product_id", product.product_id);
-
-      if (collectionsError) {
-        throw new Error(`Lỗi khi lấy bộ sưu tập: ${collectionsError.message}`);
-      }
-
-      // Lấy thông tin chi tiết của từng bộ sưu tập
-      const collectionDetails = await Promise.all(
-        collections.map(async (col) => {
-          const { data: collection, error: collectionError } = await supabase
-            .from("collection")
-            .select("*")
-            .eq("collection_id", col.collection_id)
-            .single();
-
-          if (collectionError) {
-            throw new Error(
-              `Lỗi khi lấy thông tin bộ sưu tập: ${collectionError.message}`
-            );
-          }
-
-          return {
-            ...collection,
-          };
-        })
-      );
-
-      // Lấy outfit liên quan
-      const { data: outfits, error: outfitsError } = await supabase
-        .from("product_outfit")
-        .select("outfit_id")
-        .eq("product_id", product.product_id);
-
-      if (outfitsError) {
-        throw new Error(`Lỗi khi lấy outfit: ${outfitsError.message}`);
-      }
-
-      // Lấy thông tin chi tiết của từng outfit
-      const outfitDetails = await Promise.all(
-        outfits.map(async (outfit) => {
-          const { data: outfitDetail, error: outfitError } = await supabase
-            .from("outfit")
-            .select("*")
-            .eq("outfit_id", outfit.outfit_id)
-            .single();
-
-          if (outfitError) {
-            throw new Error(
-              `Lỗi khi lấy thông tin outfit: ${outfitError.message}`
-            );
-          }
-
-          // Lấy ảnh của outfit
-          const { data: outfitImage, error: outfitImageError } = await supabase
-            .from("product_image")
-            .select("*")
-            .eq("image_id", outfitDetail.image_id)
-            .single();
-
-          if (outfitImageError) {
-            throw new Error(
-              `Lỗi khi lấy ảnh outfit: ${outfitImageError.message}`
-            );
-          }
-
-          return {
-            ...outfitDetail,
-            image: outfitImage,
-          };
-        })
-      );
-
-      // Kết hợp thông tin và trả về sản phẩm đầy đủ
-      return {
-        ...product,
-        variants: variantsWithDetails,
-        variant_images: variantImages,
-        collections: collectionDetails,
-        outfits: outfitDetails,
-      };
+    productIds.map(async (productId) => {
+      return await getProductByProductId(productId);
     })
   );
 
   return productsWithDetails;
+};
+
+export const getProductByProductSlug = async (
+  slug: string
+): Promise<Product> => {
+  // Lấy thông tin sản phẩm dựa trên slug
+  const { data: productData, error: productError } = await supabase
+    .from("product")
+    .select()
+    .eq("slug", slug)
+    .single();
+
+  if (productError) {
+    throw productError;
+  }
+
+  // Lấy danh sách các biến thể (variants) của sản phẩm
+  const { data: variantsData, error: variantsError } = await supabase
+    .from("product_variant")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (variantsError) throw variantsError;
+
+  // Lấy danh sách hình ảnh của sản phẩm
+  const { data: imagesData, error: imagesError } = await supabase
+    .from("product_image")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (imagesError) throw imagesError;
+
+  // Lấy danh sách các bộ sưu tập (collections) của sản phẩm
+  const { data: collectionsData, error: collectionsError } = await supabase
+    .from("product_collection")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (collectionsError) throw collectionsError;
+
+  // Lấy danh sách các outfit của sản phẩm
+  const { data: outfitsData, error: outfitsError } = await supabase
+    .from("product_outfit")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (outfitsError) throw outfitsError;
+
+  // Xử lý thông tin các biến thể (variants)
+  const variants: ProductVariant[] = await Promise.all(
+    variantsData.map(async (variantData): Promise<ProductVariant> => {
+      // Lấy thông tin màu sắc (color)
+      const { data: colorData, error: colorError } = await supabase
+        .from("color")
+        .select()
+        .eq("color_id", variantData.color_id)
+        .single();
+      if (colorError) throw colorError;
+
+      // Lấy thông tin kích thước (size)
+      const { data: sizeData, error: sizeError } = await supabase
+        .from("size")
+        .select()
+        .eq("size_id", variantData.size_id)
+        .single();
+      if (sizeError) throw sizeError;
+
+      // Lấy thông tin hình ảnh của biến thể (image)
+      const { data: imageData, error: imageError } = await supabase
+        .from("product_image")
+        .select()
+        .eq("image_id", variantData.image_id)
+        .single();
+      if (imageError) throw imageError;
+
+      // Trả về thông tin biến thể hoàn chỉnh
+      return {
+        variant_id: variantData.variant_id,
+        variant_code: variantData.variant_code,
+        product: {
+          product_id: productData.product_id,
+          base_price: productData.base_price,
+          sale_price: productData.sale_price,
+          name: productData.name,
+        },
+        image: {
+          image_id: imageData.image_id,
+          image_url: imageData.image_url,
+          image_name: imageData.image_name,
+          created_at: new Date(imageData.created_at),
+          published_at: imageData.published_at
+            ? new Date(imageData.published_at)
+            : null,
+          updated_at: new Date(imageData.updated_at),
+        },
+        color: {
+          color_id: colorData.color_id,
+          color_name: colorData.color_name,
+          color_code: colorData.color_code,
+        },
+        size: {
+          size_id: sizeData.size_id,
+          size_code: sizeData.size_code,
+        },
+        quantity: variantData.quantity,
+        created_at: new Date(variantData.created_at),
+        published_at: variantData.published_at
+          ? new Date(variantData.published_at)
+          : null,
+        updated_at: new Date(variantData.updated_at),
+      };
+    })
+  );
+
+  // Xử lý thông tin hình ảnh (images)
+  const images: Image[] = imagesData.map((imageData) => ({
+    image_id: imageData.image_id,
+    image_url: imageData.image_url,
+    image_name: imageData.image_name,
+    created_at: new Date(imageData.created_at),
+    published_at: imageData.published_at
+      ? new Date(imageData.published_at)
+      : null,
+    updated_at: new Date(imageData.updated_at),
+  }));
+
+  // Xử lý thông tin bộ sưu tập (collections)
+  const collections: Collection[] = await Promise.all(
+    collectionsData.map(async (collectionData) => {
+      const { data: collectionInfo, error: collectionInfoError } =
+        await supabase
+          .from("collection")
+          .select()
+          .eq("collection_id", collectionData.collection_id)
+          .single();
+      if (collectionInfoError) throw collectionInfoError;
+
+      return {
+        collection_id: collectionInfo.collection_id,
+        name: collectionInfo.name,
+        slug: collectionInfo.slug,
+        created_at: new Date(collectionInfo.created_at),
+        published_at: collectionInfo.published_at
+          ? new Date(collectionInfo.published_at)
+          : null,
+        updated_at: new Date(collectionInfo.updated_at),
+        image: {
+          image_id: collectionInfo.image_id,
+          image_url: collectionInfo.image_url,
+          image_name: collectionInfo.image_name,
+          created_at: new Date(collectionInfo.created_at),
+          published_at: collectionInfo.published_at
+            ? new Date(collectionInfo.published_at)
+            : null,
+          updated_at: new Date(collectionInfo.updated_at),
+        },
+      };
+    })
+  );
+
+  // Xử lý thông tin outfit
+  const outfits: Outfit[] = await Promise.all(
+    outfitsData.map(async (outfitData) => {
+      const { data: outfitInfo, error: outfitInfoError } = await supabase
+        .from("outfit")
+        .select()
+        .eq("outfit_id", outfitData.outfit_id)
+        .single();
+      if (outfitInfoError) throw outfitInfoError;
+
+      return {
+        outfit_id: outfitInfo.outfit_id,
+        outfit_name: outfitInfo.outfit_name,
+        created_at: new Date(outfitInfo.created_at),
+        published_at: outfitInfo.published_at
+          ? new Date(outfitInfo.published_at)
+          : null,
+        updated_at: new Date(outfitInfo.updated_at),
+        image: {
+          image_id: outfitInfo.image_id,
+          image_url: outfitInfo.image_url,
+          image_name: outfitInfo.image_name,
+          created_at: new Date(outfitInfo.created_at),
+          published_at: outfitInfo.published_at
+            ? new Date(outfitInfo.published_at)
+            : null,
+          updated_at: new Date(outfitInfo.updated_at),
+        },
+      };
+    })
+  );
+
+  // Trả về đối tượng Product hoàn chỉnh
+  return {
+    ...productData,
+    variants,
+    variant_images: images,
+    collections,
+    outfits,
+  };
+};
+
+export const getProductByProductId = async (
+  product_id: string
+): Promise<Product> => {
+  // Lấy thông tin sản phẩm dựa trên slug
+  const { data: productData, error: productError } = await supabase
+    .from("product")
+    .select()
+    .eq("product_id", product_id)
+    .single();
+
+  if (productError) {
+    throw productError;
+  }
+
+  // Lấy danh sách các biến thể (variants) của sản phẩm
+  const { data: variantsData, error: variantsError } = await supabase
+    .from("product_variant")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (variantsError) throw variantsError;
+
+  // Lấy danh sách hình ảnh của sản phẩm
+  const { data: imagesData, error: imagesError } = await supabase
+    .from("product_image")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (imagesError) throw imagesError;
+
+  // Lấy danh sách các bộ sưu tập (collections) của sản phẩm
+  const { data: collectionsData, error: collectionsError } = await supabase
+    .from("product_collection")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (collectionsError) throw collectionsError;
+
+  // Lấy danh sách các outfit của sản phẩm
+  const { data: outfitsData, error: outfitsError } = await supabase
+    .from("product_outfit")
+    .select()
+    .eq("product_id", productData.product_id);
+  if (outfitsError) throw outfitsError;
+
+  // Xử lý thông tin các biến thể (variants)
+  const variants: ProductVariant[] = await Promise.all(
+    variantsData.map(async (variantData): Promise<ProductVariant> => {
+      // Lấy thông tin màu sắc (color)
+      const { data: colorData, error: colorError } = await supabase
+        .from("color")
+        .select()
+        .eq("color_id", variantData.color_id)
+        .single();
+      if (colorError) throw colorError;
+
+      // Lấy thông tin kích thước (size)
+      const { data: sizeData, error: sizeError } = await supabase
+        .from("size")
+        .select()
+        .eq("size_id", variantData.size_id)
+        .single();
+      if (sizeError) throw sizeError;
+
+      // Lấy thông tin hình ảnh của biến thể (image)
+      const { data: imageData, error: imageError } = await supabase
+        .from("product_image")
+        .select()
+        .eq("image_id", variantData.image_id)
+        .single();
+      if (imageError) throw imageError;
+
+      // Trả về thông tin biến thể hoàn chỉnh
+      return {
+        variant_id: variantData.variant_id,
+        variant_code: variantData.variant_code,
+        product: {
+          product_id: productData.product_id,
+          base_price: productData.base_price,
+          sale_price: productData.sale_price,
+          name: productData.name,
+        },
+        image: {
+          image_id: imageData.image_id,
+          image_url: imageData.image_url,
+          image_name: imageData.image_name,
+          created_at: new Date(imageData.created_at),
+          published_at: imageData.published_at
+            ? new Date(imageData.published_at)
+            : null,
+          updated_at: new Date(imageData.updated_at),
+        },
+        color: {
+          color_id: colorData.color_id,
+          color_name: colorData.color_name,
+          color_code: colorData.color_code,
+        },
+        size: {
+          size_id: sizeData.size_id,
+          size_code: sizeData.size_code,
+        },
+        quantity: variantData.quantity,
+        created_at: new Date(variantData.created_at),
+        published_at: variantData.published_at
+          ? new Date(variantData.published_at)
+          : null,
+        updated_at: new Date(variantData.updated_at),
+      };
+    })
+  );
+
+  // Xử lý thông tin hình ảnh (images)
+  const images: Image[] = imagesData.map((imageData) => ({
+    image_id: imageData.image_id,
+    image_url: imageData.image_url,
+    image_name: imageData.image_name,
+    created_at: new Date(imageData.created_at),
+    published_at: imageData.published_at
+      ? new Date(imageData.published_at)
+      : null,
+    updated_at: new Date(imageData.updated_at),
+  }));
+
+  // Xử lý thông tin bộ sưu tập (collections)
+  const collections: Collection[] = await Promise.all(
+    collectionsData.map(async (collectionData) => {
+      const { data: collectionInfo, error: collectionInfoError } =
+        await supabase
+          .from("collection")
+          .select()
+          .eq("collection_id", collectionData.collection_id)
+          .single();
+      if (collectionInfoError) throw collectionInfoError;
+
+      return {
+        collection_id: collectionInfo.collection_id,
+        name: collectionInfo.name,
+        slug: collectionInfo.slug,
+        created_at: new Date(collectionInfo.created_at),
+        published_at: collectionInfo.published_at
+          ? new Date(collectionInfo.published_at)
+          : null,
+        updated_at: new Date(collectionInfo.updated_at),
+        image: {
+          image_id: collectionInfo.image_id,
+          image_url: collectionInfo.image_url,
+          image_name: collectionInfo.image_name,
+          created_at: new Date(collectionInfo.created_at),
+          published_at: collectionInfo.published_at
+            ? new Date(collectionInfo.published_at)
+            : null,
+          updated_at: new Date(collectionInfo.updated_at),
+        },
+      };
+    })
+  );
+
+  // Xử lý thông tin outfit
+  const outfits: Outfit[] = await Promise.all(
+    outfitsData.map(async (outfitData) => {
+      const { data: outfitInfo, error: outfitInfoError } = await supabase
+        .from("outfit")
+        .select()
+        .eq("outfit_id", outfitData.outfit_id)
+        .single();
+      if (outfitInfoError) throw outfitInfoError;
+
+      return {
+        outfit_id: outfitInfo.outfit_id,
+        outfit_name: outfitInfo.outfit_name,
+        created_at: new Date(outfitInfo.created_at),
+        published_at: outfitInfo.published_at
+          ? new Date(outfitInfo.published_at)
+          : null,
+        updated_at: new Date(outfitInfo.updated_at),
+        image: {
+          image_id: outfitInfo.image_id,
+          image_url: outfitInfo.image_url,
+          image_name: outfitInfo.image_name,
+          created_at: new Date(outfitInfo.created_at),
+          published_at: outfitInfo.published_at
+            ? new Date(outfitInfo.published_at)
+            : null,
+          updated_at: new Date(outfitInfo.updated_at),
+        },
+      };
+    })
+  );
+
+  // Trả về đối tượng Product hoàn chỉnh
+  return {
+    ...productData,
+    variants,
+    variant_images: images,
+    collections,
+    outfits,
+  };
 };
