@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Province, District, Ward, ShippingAddress } from "@/types/user";
-import { useUser } from "@/context/UserContext";
+import { v4 as uuidv4 } from "uuid";
 
-interface AddressFormProps {
-  existingAddress?: ShippingAddress | null;
-  onClose: () => void;
-  onAddressAdded?: (address: ShippingAddress) => void;
+interface GuestAddressFormProps {
+  onAddressSaved: (address: ShippingAddress) => void;
 }
 
-const AddressForm: React.FC<AddressFormProps> = ({
-  existingAddress,
-  onClose,
-  onAddressAdded,
+const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
+  onAddressSaved,
 }) => {
-  const { addAddress, updateAddress } = useUser();
-
   const [formData, setFormData] = useState({
-    full_name: existingAddress?.full_name || "",
-    phone_number: existingAddress?.phone_number || "",
-    address_detail: existingAddress?.address_detail || "",
-    country: existingAddress?.country || "Việt Nam",
-    is_default: existingAddress?.is_default || false,
+    full_name: "",
+    phone_number: "",
+    address_detail: "",
+    country: "Việt Nam",
   });
 
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -36,6 +29,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const [wardLabel, setWardLabel] = useState<string>("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Fetch provinces on mount
   useEffect(() => {
@@ -44,17 +38,6 @@ const AddressForm: React.FC<AddressFormProps> = ({
       .then((data) => {
         if (data.error === 0) {
           setProvinces(data.data);
-
-          // If editing address, find the province id
-          if (existingAddress) {
-            const provinceMatch = data.data.find(
-              (p: Province) => p.full_name === existingAddress.city
-            );
-            if (provinceMatch) {
-              setSelectedProvince(provinceMatch.id);
-              setProvinceLabel(provinceMatch.full_name);
-            }
-          }
         }
       })
       .catch((error) => {
@@ -64,7 +47,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           general: "Không thể tải danh sách tỉnh/thành phố",
         }));
       });
-  }, [existingAddress]);
+  }, []);
 
   // Fetch districts when province is selected
   useEffect(() => {
@@ -74,20 +57,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
         .then((data) => {
           if (data.error === 0) {
             setDistricts(data.data);
-
-            // If editing address, find the district id
-            if (existingAddress) {
-              const districtMatch = data.data.find(
-                (d: District) => d.full_name === existingAddress.district
-              );
-              if (districtMatch) {
-                setSelectedDistrict(districtMatch.id);
-                setDistrictLabel(districtMatch.full_name);
-              }
-            } else {
-              setSelectedDistrict("");
-              setWards([]);
-            }
+            setSelectedDistrict("");
+            setWards([]);
           }
         })
         .catch((error) => {
@@ -98,7 +69,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           }));
         });
     }
-  }, [selectedProvince, existingAddress]);
+  }, [selectedProvince]);
 
   // Fetch wards when district is selected
   useEffect(() => {
@@ -108,19 +79,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         .then((data) => {
           if (data.error === 0) {
             setWards(data.data);
-
-            // If editing address, find the ward id
-            if (existingAddress) {
-              const wardMatch = data.data.find(
-                (w: Ward) => w.full_name === existingAddress.ward
-              );
-              if (wardMatch) {
-                setSelectedWard(wardMatch.id);
-                setWardLabel(wardMatch.full_name);
-              }
-            } else {
-              setSelectedWard("");
-            }
+            setSelectedWard("");
           }
         })
         .catch((error) => {
@@ -131,19 +90,18 @@ const AddressForm: React.FC<AddressFormProps> = ({
           }));
         });
     }
-  }, [selectedDistrict, existingAddress]);
+  }, [selectedDistrict]);
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value, type } = e.target as HTMLInputElement;
+    const { name, value } = e.target;
 
     setFormData({
       ...formData,
-      [name]:
-        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      [name]: value,
     });
 
     // Clear error when field is updated
@@ -297,62 +255,75 @@ const AddressForm: React.FC<AddressFormProps> = ({
       return;
     }
 
-    try {
-      let updatedAddress;
+    // Create a guest address without saving it
+    const guestAddress: ShippingAddress = {
+      address_id: uuidv4(), // Generate a temporary ID
+      user_id: "guest",
+      full_name: formData.full_name,
+      phone_number: formData.phone_number,
+      address_detail: formData.address_detail,
+      city: provinceLabel,
+      district: districtLabel,
+      ward: wardLabel,
+      country: formData.country,
+      is_default: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
 
-      if (existingAddress) {
-        // Update existing address
-        updatedAddress = {
-          ...existingAddress,
-          ...formData,
-          city: provinceLabel,
-          district: districtLabel,
-          ward: wardLabel,
-          updated_at: new Date(),
-        };
-        updateAddress(updatedAddress);
-      } else {
-        // Add new address
-        updatedAddress = addAddress({
-          ...formData,
-          city: provinceLabel,
-          district: districtLabel,
-          ward: wardLabel,
-        });
-      }
-
-      // Callback if provided
-      if (onAddressAdded) {
-        onAddressAdded(updatedAddress);
-      }
-
-      // Close the form
-      onClose();
-    } catch (error) {
-      console.error("Error saving address:", error);
-      setErrors((prev) => ({
-        ...prev,
-        general: "Đã có lỗi xảy ra khi lưu địa chỉ",
-      }));
-    }
+    // Pass the address to parent component
+    onAddressSaved(guestAddress);
+    setIsSubmitted(true);
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">
-          {existingAddress ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
-        </h2>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-          ✕
-        </button>
-      </div>
+  if (isSubmitted) {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-md p-4">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-5 w-5 text-green-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium text-green-800">
+              Địa chỉ đã được thêm thành công
+            </p>
+          </div>
+        </div>
 
+        <div className="mt-3 bg-white rounded-md border border-gray-200 p-4">
+          <div className="font-medium">{formData.full_name}</div>
+          <div className="text-gray-600">{formData.phone_number}</div>
+          <div className="text-gray-600 mt-1">
+            {formData.address_detail}, {wardLabel}, {districtLabel},{" "}
+            {provinceLabel}, {formData.country}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white">
       {errors.general && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
           {errors.general}
         </div>
       )}
+
+      <p className="mb-4 text-gray-600">
+        Vui lòng nhập thông tin giao hàng của bạn:
+      </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,7 +332,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
               htmlFor="full_name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Họ và tên
+              Họ và tên <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -382,7 +353,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
               htmlFor="phone_number"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Số điện thoại
+              Số điện thoại <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -404,7 +375,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             htmlFor="address_detail"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Địa chỉ chi tiết
+            Địa chỉ chi tiết <span className="text-red-500">*</span>
           </label>
           <textarea
             id="address_detail"
@@ -427,7 +398,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
               htmlFor="province"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Tỉnh / Thành phố
+              Tỉnh / Thành phố <span className="text-red-500">*</span>
             </label>
             <select
               id="province"
@@ -453,7 +424,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
               htmlFor="district"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Quận / Huyện
+              Quận / Huyện <span className="text-red-500">*</span>
             </label>
             <select
               id="district"
@@ -480,7 +451,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
               htmlFor="ward"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Phường / Xã
+              Phường / Xã <span className="text-red-500">*</span>
             </label>
             <select
               id="ward"
@@ -520,36 +491,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
           />
         </div>
 
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="is_default"
-            name="is_default"
-            checked={formData.is_default}
-            onChange={handleChange}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label
-            htmlFor="is_default"
-            className="ml-2 block text-sm text-gray-700"
-          >
-            Đặt làm địa chỉ mặc định
-          </label>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            Hủy
-          </button>
+        <div className="flex justify-end pt-4">
           <button
             type="submit"
             className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
           >
-            {existingAddress ? "Cập nhật" : "Thêm địa chỉ"}
+            Sử dụng địa chỉ này
           </button>
         </div>
       </form>
@@ -557,4 +504,4 @@ const AddressForm: React.FC<AddressFormProps> = ({
   );
 };
 
-export default AddressForm;
+export default GuestAddressForm;

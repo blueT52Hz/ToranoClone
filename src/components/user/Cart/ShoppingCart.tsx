@@ -69,6 +69,7 @@ const ShoppingCart = () => {
                 <Link
                   to="/checkout"
                   className="text-white bg-[#ff0000] rounded-md py-2 text-center my-4"
+                  onClick={() => setOpenCart(false)}
                 >
                   THANH TOÁN
                 </Link>
@@ -129,8 +130,8 @@ const ShoppingCart = () => {
               </div>
             </>
           ) : (
-            cart.cartItems.map((item) => (
-              <CartItemComponent item={item} key={item.cart_item_id} />
+            cart.cartItems.map((item, index) => (
+              <CartItemComponent item={item} key={index} />
             ))
           )}
         </div>

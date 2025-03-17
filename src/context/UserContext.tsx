@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { User } from "@/types/user";
+import { ShippingAddress, User } from "@/types/user";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
-import { Cart, CartItem } from "@/types/cart";
+import { Cart, CartItem, Order } from "@/types/cart";
 import { message, notification } from "antd";
 import { Image } from "antd";
 import { CheckCircle, X } from "lucide-react";
@@ -9,6 +9,7 @@ import "./style.css";
 import { getCartByUserId } from "@/services/client/cart/cart";
 import { login } from "@/services/client/user/user";
 import { supabase } from "@/services/supabaseClient";
+import { v4 } from "uuid";
 interface UserContextType {
   user: User | null;
   cart: Cart;
@@ -19,6 +20,19 @@ interface UserContextType {
   removeItemFromCart: (variant_id: string) => void;
   updateItemQuantity: (variant_id: string, quantity: number) => void;
   clearCart: () => void;
+  updateUser: (updatedUser: Partial<User>) => void;
+  finalizePayment: () => void;
+  addresses: ShippingAddress[];
+  addAddress: (
+    address: Omit<
+      ShippingAddress,
+      "address_id" | "user_id" | "created_at" | "updated_at"
+    >
+  ) => ShippingAddress;
+  updateAddress: (address: ShippingAddress) => void;
+  deleteAddress: (addressId: string) => void;
+  setDefaultAddress: (addressId: string) => void;
+  getDefaultAddress: () => ShippingAddress | undefined;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -48,11 +62,38 @@ const UserContext = createContext<UserContextType>({
   async handleLogin(email: string, password: string): Promise<void> {
     throw new Error("Function not implemented.");
   },
+  updateUser: (updatedUser: Partial<User>) => {
+    throw new Error("Function not implemented.");
+  },
+  finalizePayment: () => {
+    throw new Error("Function not implemented.");
+  },
+  addresses: [],
+  addAddress: function (
+    address: Omit<
+      ShippingAddress,
+      "address_id" | "user_id" | "created_at" | "updated_at"
+    >
+  ): ShippingAddress {
+    throw new Error("Function not implemented.");
+  },
+  updateAddress: function (address: ShippingAddress): void {
+    throw new Error("Function not implemented.");
+  },
+  deleteAddress: function (addressId: string): void {
+    throw new Error("Function not implemented.");
+  },
+  setDefaultAddress: function (addressId: string): void {
+    throw new Error("Function not implemented.");
+  },
+  getDefaultAddress: function (): ShippingAddress | undefined {
+    throw new Error("Function not implemented.");
+  },
 });
-
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [cart, setCart] = useState<Cart>(getLocalCart());
+  const [addresses, setAddresses] = useState<ShippingAddress[]>([]);
 
   useEffect(() => {
     console.log("Change User");
@@ -68,6 +109,16 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setCart(getLocalCart());
     }
   }, [user]);
+
+  const updateUser = (updatedUser: Partial<User>) => {
+    if (!user) return;
+
+    setUser((prev) => ({
+      ...prev!,
+      ...updatedUser,
+      updated_at: new Date().toISOString(),
+    }));
+  };
 
   const addToCart = async (item: CartItem) => {
     console.log(item);
@@ -206,6 +257,83 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const addAddress = (
+    address: Omit<
+      ShippingAddress,
+      "address_id" | "user_id" | "created_at" | "updated_at"
+    >
+  ) => {
+    if (!user) throw new Error("User not logged in");
+    const newAddress: ShippingAddress = {
+      ...address,
+      address_id: v4(),
+      user_id: user?.user_id,
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+
+    if (addresses.length === 0 || address.is_default) {
+      setAddresses((prev) =>
+        prev.map((addr) => ({ ...addr, is_default: false }))
+      );
+    }
+
+    setAddresses((prev) => [...prev, newAddress]);
+    return newAddress;
+  };
+
+  const updateAddress = (updatedAddress: ShippingAddress) => {
+    if (updatedAddress.is_default) {
+      setAddresses((prev) =>
+        prev.map((addr) => ({
+          ...addr,
+          is_default: addr.address_id === updatedAddress.address_id,
+        }))
+      );
+    } else {
+      setAddresses((prev) =>
+        prev.map((addr) =>
+          addr.address_id === updatedAddress.address_id
+            ? { ...updatedAddress, updated_at: new Date() }
+            : addr
+        )
+      );
+    }
+  };
+
+  const deleteAddress = (addressId: string) => {
+    const addressToDelete = addresses.find(
+      (addr) => addr.address_id === addressId
+    );
+
+    setAddresses((prev) =>
+      prev.filter((addr) => addr.address_id !== addressId)
+    );
+
+    if (addressToDelete?.is_default && addresses.length > 1) {
+      setAddresses((prev) => {
+        const newAddresses = [...prev];
+        if (newAddresses.length > 0) {
+          newAddresses[0].is_default = true;
+        }
+        return newAddresses;
+      });
+    }
+  };
+
+  const setDefaultAddress = (addressId: string) => {
+    setAddresses((prev) =>
+      prev.map((addr) => ({
+        ...addr,
+        is_default: addr.address_id === addressId,
+      }))
+    );
+  };
+
+  const getDefaultAddress = () => {
+    return addresses.find((addr) => addr.is_default);
+  };
+
   const removeItemFromCart = async (variant_id: string) => {
     setCart((prev) => {
       const newCartItems = prev.cartItems.filter(
@@ -334,6 +462,22 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const finalizePayment = () => {
+    // setOrders(prev =>
+    //   prev.map(order =>
+    //     order.order_id === orderId
+    //       ? { ...order, status: "pending_approval" }
+    //       : order
+    //   )
+    // );
+
+    // Clear the cart after successful payment
+    setCart({
+      cart_id: v4(),
+      cartItems: [],
+    });
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -346,6 +490,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         updateItemQuantity,
         handleLogOut,
         handleLogin,
+        updateUser,
+        finalizePayment,
+        addresses,
+        addAddress,
+        deleteAddress,
+        setDefaultAddress,
+        getDefaultAddress,
+        updateAddress,
       }}
     >
       {children}
@@ -363,6 +515,14 @@ export const useUser = () => {
     setUser: context.setUser,
     handleLogOut: context.handleLogOut,
     handleLogin: context.handleLogin,
+    updateUser: context.updateUser,
+    finalizePayment: context.finalizePayment,
+    addresses: context.addresses,
+    addAddress: context.addAddress,
+    deleteAddress: context.deleteAddress,
+    setDefaultAddress: context.setDefaultAddress,
+    getDefaultAddress: context.getDefaultAddress,
+    updateAddress: context.updateAddress,
   };
 };
 

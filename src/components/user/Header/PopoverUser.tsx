@@ -44,14 +44,33 @@ const PopoverUser = () => {
         onOpenChange={setOpen}
         content={
           user ? (
-            <>
-              <div className="text-center text-base">{user.full_name}</div>
-              <div className="text-center text-base">
-                <Link to={"/accounts/user/" + user.user_id}>
-                  Thông tin tài khoản
-                </Link>
-              </div>
-              <Button
+            <div className="w-[95vw] min850:w-[20vw] px-3 min850:h-auto">
+              <div className="text-center text-lg mb-4">{user.full_name}</div>
+              <ul className="list-disc pl-8 my-4 space-y-2">
+                <li>
+                  <div className="text-base">
+                    <Link to={"/account/profile"}>Tài khoản của tôi</Link>
+                  </div>
+                </li>
+                <li>
+                  <div className="text-base">
+                    <Link to={"/account/address"}>Danh sách địa chỉ</Link>
+                  </div>
+                </li>
+                <li>
+                  <div
+                    className="text-base cursor-pointer hover:text-red-500"
+                    onClick={() => {
+                      setOpen(false);
+                      handleLogOut();
+                    }}
+                  >
+                    Đăng xuất
+                  </div>
+                </li>
+              </ul>
+
+              {/* <Button
                 className="w-full mb-6"
                 type="text"
                 color="primary"
@@ -62,8 +81,8 @@ const PopoverUser = () => {
                 }}
               >
                 ĐĂNG XUẤT
-              </Button>
-            </>
+              </Button> */}
+            </div>
           ) : (
             <div className="w-[95vw] min850:w-[25vw] px-3 min850:h-auto">
               <Form

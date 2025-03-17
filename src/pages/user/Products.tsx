@@ -1,6 +1,11 @@
+import Loading from "@/components/common/Loading";
 import AppBreadcrumb from "@/components/user/Breadcrumb/AppBreadcrumb";
 import ProductsSection from "@/components/user/ProductsSection";
 import { useCart } from "@/context/UserContext";
+import {
+  getProductByProductSlug,
+  getProductsByCollectionSlug,
+} from "@/services/client/product";
 import { CartItem } from "@/types/cart";
 import { Color, Product, Image, Size, Collection } from "@/types/product";
 import { cn } from "@/utils/cn";
@@ -47,17 +52,28 @@ const policyItem = [
 ];
 
 const Products = () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
   const { slug } = useParams();
   const [expanded, setExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [productsRelated, setProductsRelated] = useState<Product[]>([]);
-  const [collections, setCollections] = useState<Collection[]>([]);
+  // const [collections, setCollections] = useState<Collection[]>([]);
   useEffect(() => {
-    const getProduct = async () => {};
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    const getProduct = async () => {
+      if (!slug) return;
+      setIsLoading(true);
+      const result = await getProductByProductSlug(slug);
+      setProduct(result);
+      const productsRelatedResult = await getProductsByCollectionSlug(
+        result.collections[0].slug
+      );
+      setProductsRelated(productsRelatedResult);
+      setIsLoading(false);
+    };
+    getProduct();
   }, [slug]);
-  if (!product || collections.length === 0 || productsRelated.length === 0)
-    return <div>Loading...</div>;
+  if (!product || isLoading) return <Loading />;
   return (
     <>
       <AppBreadcrumb
@@ -114,7 +130,7 @@ const Products = () => {
             <ProductsSection
               products={productsRelated}
               columns={5}
-              gap={30}
+              gap={20}
             ></ProductsSection>
           </div>
         </div>
@@ -163,7 +179,7 @@ const ProductOptions = (props: ProductOptionsProps) => {
 
   const handleAddToCart = () => {
     const item: CartItem = {
-      cartItem_id: uuidv4(),
+      cart_item_id: uuidv4(),
       variant: product.variants.filter(
         (variant) =>
           variant.image.image_id === activeImageId &&
@@ -171,7 +187,6 @@ const ProductOptions = (props: ProductOptionsProps) => {
       )[0],
       quantity,
       created_at: new Date(),
-      product: product,
     };
     addToCart(item);
   };
@@ -182,9 +197,9 @@ const ProductOptions = (props: ProductOptionsProps) => {
         <span className="flex justify-center items-center my-2">
           <ImageComponent
             src={
-              product.variant_images.filter(
+              product.variant_images.find(
                 (item) => item.image_id === activeImageId
-              )[0].image_url
+              )?.image_url
             }
             className="rounded-lg"
           />
@@ -235,9 +250,9 @@ const ProductOptions = (props: ProductOptionsProps) => {
                   <button
                     key={color.color_id}
                     className={`border px-2 py-2 rounded ${
-                      product.variants.filter(
+                      product.variants.find(
                         (variant) => variant.image.image_id === activeImageId
-                      )[0].color.color_id === color.color_id
+                      )?.color.color_id === color.color_id
                         ? "border-red-500 border-2"
                         : "border-gray-300"
                     }`}
