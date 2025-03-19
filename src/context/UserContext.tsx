@@ -1,13 +1,17 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { ShippingAddress, User } from "@/types/user";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
-import { Cart, CartItem, Order } from "@/types/cart";
-import { message, notification } from "antd";
+import { Cart, CartItem } from "@/types/cart";
+import { notification } from "antd";
 import { Image } from "antd";
-import { CheckCircle, X } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import "./style.css";
 import { getCartByUserId } from "@/services/client/cart/cart";
-import { login } from "@/services/client/user/user";
+import {
+  createCartByUserId,
+  getShippingAddressesByUserId,
+  login,
+} from "@/services/client/user/user";
 import { supabase } from "@/services/supabaseClient";
 import { v4 } from "uuid";
 interface UserContextType {
@@ -19,7 +23,7 @@ interface UserContextType {
   addToCart: (item: CartItem) => void;
   removeItemFromCart: (variant_id: string) => void;
   updateItemQuantity: (variant_id: string, quantity: number) => void;
-  clearCart: () => void;
+  clearCart: () => Promise<void>;
   updateUser: (updatedUser: Partial<User>) => void;
   finalizePayment: () => void;
   addresses: ShippingAddress[];
@@ -28,10 +32,10 @@ interface UserContextType {
       ShippingAddress,
       "address_id" | "user_id" | "created_at" | "updated_at"
     >
-  ) => ShippingAddress;
-  updateAddress: (address: ShippingAddress) => void;
+  ) => Promise<ShippingAddress>;
+  updateAddress: (address: ShippingAddress) => Promise<ShippingAddress>;
   deleteAddress: (addressId: string) => void;
-  setDefaultAddress: (addressId: string) => void;
+  setDefaultAddress: (addressId: string) => Promise<void>;
   getDefaultAddress: () => ShippingAddress | undefined;
 }
 
@@ -53,7 +57,7 @@ const UserContext = createContext<UserContextType>({
   updateItemQuantity: function (variant_id: string, quantity: number): void {
     throw new Error("Function not implemented.");
   },
-  clearCart: function (): void {
+  clearCart: async function (): Promise<void> {
     throw new Error("Function not implemented.");
   },
   handleLogOut: function (): void {
@@ -69,21 +73,21 @@ const UserContext = createContext<UserContextType>({
     throw new Error("Function not implemented.");
   },
   addresses: [],
-  addAddress: function (
+  addAddress: async function (
     address: Omit<
       ShippingAddress,
       "address_id" | "user_id" | "created_at" | "updated_at"
     >
-  ): ShippingAddress {
+  ): Promise<ShippingAddress> {
     throw new Error("Function not implemented.");
   },
-  updateAddress: function (address: ShippingAddress): void {
+  updateAddress: function (address: ShippingAddress): Promise<ShippingAddress> {
     throw new Error("Function not implemented.");
   },
   deleteAddress: function (addressId: string): void {
     throw new Error("Function not implemented.");
   },
-  setDefaultAddress: function (addressId: string): void {
+  setDefaultAddress: function (addressId: string): Promise<void> {
     throw new Error("Function not implemented.");
   },
   getDefaultAddress: function (): ShippingAddress | undefined {
@@ -99,12 +103,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     console.log("Change User");
 
     if (user !== null) {
-      const getCart = async () => {
+      const getData = async () => {
         const result = await getCartByUserId(user.user_id);
         setCart(result);
         console.log(result);
+
+        const addressResult = await getShippingAddressesByUserId(user.user_id);
+        setAddresses(addressResult);
       };
-      getCart();
+      getData();
     } else {
       setCart(getLocalCart());
     }
@@ -257,17 +264,18 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const addAddress = (
+  const addAddress = async (
     address: Omit<
       ShippingAddress,
       "address_id" | "user_id" | "created_at" | "updated_at"
     >
-  ) => {
+  ): Promise<ShippingAddress> => {
     if (!user) throw new Error("User not logged in");
+
     const newAddress: ShippingAddress = {
       ...address,
       address_id: v4(),
-      user_id: user?.user_id,
+      user_id: user.user_id,
       created_at: new Date(),
       updated_at: new Date(),
     };
@@ -276,21 +284,60 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setAddresses((prev) =>
         prev.map((addr) => ({ ...addr, is_default: false }))
       );
+
+      await supabase
+        .from("shipping_address")
+        .update({ is_default: false })
+        .eq("user_id", user.user_id);
+    }
+
+    const { data, error } = await supabase
+      .from("shipping_address")
+      .insert([{ ...newAddress }]);
+
+    if (error) {
+      console.error("Lỗi khi thêm địa chỉ:", error);
+      throw error;
     }
 
     setAddresses((prev) => [...prev, newAddress]);
+
     return newAddress;
   };
 
-  const updateAddress = (updatedAddress: ShippingAddress) => {
-    if (updatedAddress.is_default) {
-      setAddresses((prev) =>
-        prev.map((addr) => ({
-          ...addr,
-          is_default: addr.address_id === updatedAddress.address_id,
-        }))
-      );
-    } else {
+  const updateAddress = async (updatedAddress: ShippingAddress) => {
+    try {
+      // Cập nhật địa chỉ trong Supabase
+      const { data, error } = await supabase
+        .from("shipping_address")
+        .update({
+          ...updatedAddress,
+          updated_at: new Date().toISOString(), // Đảm bảo định dạng ISO cho Supabase
+        })
+        .eq("address_id", updatedAddress.address_id)
+        .single(); // Lấy kết quả trả về dưới dạng một bản ghi duy nhất
+
+      if (error) {
+        console.error("Lỗi khi cập nhật địa chỉ:", error);
+        throw error;
+      }
+
+      // Cập nhật trạng thái cục bộ
+      if (updatedAddress.is_default) {
+        // Đặt tất cả các địa chỉ khác thành không mặc định
+        setAddresses((prev) =>
+          prev.map((addr) => ({
+            ...addr,
+            is_default: addr.address_id === updatedAddress.address_id,
+          }))
+        );
+
+        await supabase
+          .from("shipping_address")
+          .update({ is_default: false })
+          .eq("user_id", updatedAddress.user_id)
+          .neq("address_id", updatedAddress.address_id);
+      }
       setAddresses((prev) =>
         prev.map((addr) =>
           addr.address_id === updatedAddress.address_id
@@ -298,36 +345,116 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             : addr
         )
       );
+
+      console.log("Địa chỉ đã được cập nhật:", data);
+      return data; // Trả về dữ liệu đã được cập nhật từ Supabase
+    } catch (error) {
+      console.error("Lỗi khi cập nhật địa chỉ:", error);
+      throw error;
     }
   };
 
-  const deleteAddress = (addressId: string) => {
-    const addressToDelete = addresses.find(
-      (addr) => addr.address_id === addressId
-    );
+  const deleteAddress = async (addressId: string) => {
+    try {
+      // Lấy thông tin địa chỉ cần xóa
+      const addressToDelete = addresses.find(
+        (addr) => addr.address_id === addressId
+      );
 
-    setAddresses((prev) =>
-      prev.filter((addr) => addr.address_id !== addressId)
-    );
+      if (!addressToDelete) {
+        throw new Error("Không tìm thấy địa chỉ cần xóa");
+      }
 
-    if (addressToDelete?.is_default && addresses.length > 1) {
-      setAddresses((prev) => {
-        const newAddresses = [...prev];
-        if (newAddresses.length > 0) {
-          newAddresses[0].is_default = true;
+      // Xóa địa chỉ trong Supabase
+      const { error } = await supabase
+        .from("shipping_address")
+        .delete()
+        .eq("address_id", addressId);
+
+      if (error) {
+        console.error("Lỗi khi xóa địa chỉ:", error);
+        throw error;
+      }
+
+      // Cập nhật trạng thái cục bộ
+      setAddresses((prev) =>
+        prev.filter((addr) => addr.address_id !== addressId)
+      );
+
+      // Nếu địa chỉ bị xóa là mặc định và còn địa chỉ khác
+      if (addressToDelete.is_default && addresses.length > 1) {
+        // Đặt địa chỉ đầu tiên trong danh sách còn lại làm mặc định
+        const newDefaultAddress = addresses.find(
+          (addr) => addr.address_id !== addressId
+        );
+
+        if (newDefaultAddress) {
+          // Cập nhật địa chỉ mới làm mặc định trong Supabase
+          const { error: updateError } = await supabase
+            .from("shipping_address")
+            .update({ is_default: true })
+            .eq("address_id", newDefaultAddress.address_id);
+
+          if (updateError) {
+            console.error("Lỗi khi đặt địa chỉ mặc định mới:", updateError);
+            throw updateError;
+          }
+
+          // Cập nhật trạng thái cục bộ
+          setAddresses((prev) =>
+            prev.map((addr) => ({
+              ...addr,
+              is_default: addr.address_id === newDefaultAddress.address_id,
+            }))
+          );
         }
-        return newAddresses;
-      });
+      }
+
+      console.log("Địa chỉ đã được xóa:", addressId);
+    } catch (error) {
+      console.error("Lỗi khi xóa địa chỉ:", error);
+      throw error;
     }
   };
 
-  const setDefaultAddress = (addressId: string) => {
+  const setDefaultAddress = async (addressId: string) => {
+    if (!user) {
+      throw new Error("Người dùng chưa đăng nhập");
+    }
+
+    const { data: updatedAddress, error: updateError } = await supabase
+      .from("shipping_address")
+      .update({ is_default: true })
+      .eq("address_id", addressId)
+      .single();
+
+    if (updateError) {
+      console.error("Lỗi khi đặt địa chỉ mặc định:", updateError);
+      throw updateError;
+    }
+
+    const { error: resetError } = await supabase
+      .from("shipping_address")
+      .update({ is_default: false })
+      .eq("user_id", user.user_id)
+      .neq("address_id", addressId);
+
+    if (resetError) {
+      console.error(
+        "Lỗi khi đặt các địa chỉ khác thành không mặc định:",
+        resetError
+      );
+      throw resetError;
+    }
+
     setAddresses((prev) =>
       prev.map((addr) => ({
         ...addr,
         is_default: addr.address_id === addressId,
       }))
     );
+
+    console.log("Địa chỉ mặc định đã được cập nhật:", updatedAddress);
   };
 
   const getDefaultAddress = () => {
@@ -353,14 +480,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         cart_total_price: newTotalPrice,
       };
 
-      // Nếu có user, xóa sản phẩm khỏi giỏ hàng trên Supabase
       if (user) {
         const removeCartItemFromSupabase = async () => {
           const { error } = await supabase
             .from("cart_item")
             .delete()
             .eq("variant_id", variant_id)
-            .eq("cart_id", cart.cart_id); // Đảm bảo chỉ xóa sản phẩm của user hiện tại
+            .eq("cart_id", cart.cart_id);
 
           if (error) {
             console.error("Lỗi khi xóa sản phẩm khỏi giỏ hàng:", error);
@@ -371,7 +497,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         removeCartItemFromSupabase();
       } else {
-        // Nếu không có user, lưu giỏ hàng mới vào localStorage
         setLocalCart(newCart);
       }
 
@@ -379,12 +504,18 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const clearCart = () => {
-    setCart({
-      cart_id: user ? user.user_id : "guest",
-      cartItems: [],
-    });
-    if (!user) clearLocalCart();
+  const clearCart = async () => {
+    if (user) {
+      const newCart = await createCartByUserId(user.user_id);
+      console.log(newCart);
+      setCart(newCart);
+    } else {
+      setCart({
+        cart_id: v4(),
+        cartItems: [],
+      });
+      clearLocalCart();
+    }
   };
 
   const updateItemQuantity = async (variant_id: string, quantity: number) => {
@@ -408,14 +539,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         cart_total_price: newTotalPrice,
       };
 
-      // Nếu có user, cập nhật số lượng sản phẩm trên Supabase
       if (user) {
         const updateCartItemQuantityOnSupabase = async () => {
           const { error } = await supabase
             .from("cart_item")
             .update({ quantity })
             .eq("variant_id", variant_id)
-            .eq("cart_id", cart.cart_id); // Đảm bảo chỉ cập nhật sản phẩm của user hiện tại
+            .eq("cart_id", cart.cart_id);
 
           if (error) {
             console.error("Lỗi khi cập nhật số lượng sản phẩm:", error);
@@ -426,7 +556,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         updateCartItemQuantityOnSupabase();
       } else {
-        // Nếu không có user, lưu giỏ hàng mới vào localStorage
         setLocalCart(newCart);
       }
 

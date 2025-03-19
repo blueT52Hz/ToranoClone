@@ -6,20 +6,24 @@ interface AddressFormProps {
   existingAddress?: ShippingAddress | null;
   onClose: () => void;
   onAddressAdded?: (address: ShippingAddress) => void;
+  setAddressState: React.Dispatch<React.SetStateAction<ShippingAddress[]>>;
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
   existingAddress,
   onClose,
   onAddressAdded,
+  setAddressState,
 }) => {
+  console.log(existingAddress);
+
   const { addAddress, updateAddress } = useUser();
 
   const [formData, setFormData] = useState({
     full_name: existingAddress?.full_name || "",
     phone_number: existingAddress?.phone_number || "",
     address_detail: existingAddress?.address_detail || "",
-    country: existingAddress?.country || "Việt Nam",
+    // country: existingAddress?.country || "Việt Nam",
     is_default: existingAddress?.is_default || false,
   });
 
@@ -36,6 +40,12 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const [wardLabel, setWardLabel] = useState<string>("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    setSelectedProvince(existingAddress?.city || "");
+    setSelectedDistrict(existingAddress?.district || "");
+    setSelectedWard(existingAddress?.ward || "");
+  }, [existingAddress]);
 
   // Fetch provinces on mount
   useEffect(() => {
@@ -265,10 +275,9 @@ const AddressForm: React.FC<AddressFormProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form
     const newErrors: { [key: string]: string } = {};
 
     const fullNameError = validateField("full_name", formData.full_name);
@@ -310,10 +319,9 @@ const AddressForm: React.FC<AddressFormProps> = ({
           ward: wardLabel,
           updated_at: new Date(),
         };
-        updateAddress(updatedAddress);
+        await updateAddress(updatedAddress);
       } else {
-        // Add new address
-        updatedAddress = addAddress({
+        updatedAddress = await addAddress({
           ...formData,
           city: provinceLabel,
           district: districtLabel,
@@ -325,6 +333,22 @@ const AddressForm: React.FC<AddressFormProps> = ({
       if (onAddressAdded) {
         onAddressAdded(updatedAddress);
       }
+
+      if (updatedAddress.is_default) {
+        setAddressState((prev) =>
+          prev.map((addr) => ({
+            ...addr,
+            is_default: addr.address_id === updatedAddress.address_id,
+          }))
+        );
+      }
+      setAddressState((prev) =>
+        prev.map((addr) =>
+          addr.address_id === updatedAddress.address_id
+            ? { ...updatedAddress, updated_at: new Date() }
+            : addr
+        )
+      );
 
       // Close the form
       onClose();
@@ -510,14 +534,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
           >
             Quốc gia
           </label>
-          <input
+          {/* <input
             type="text"
             id="country"
             name="country"
             value={formData.country}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+          /> */}
         </div>
 
         <div className="flex items-center">

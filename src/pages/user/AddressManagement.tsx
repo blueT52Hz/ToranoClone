@@ -4,6 +4,7 @@ import { ShippingAddress } from "@/types/user";
 import AddressForm from "@/components/user/AddressForm";
 import { Navigate } from "react-router-dom";
 import AccountLayout from "@/layouts/Home/AccountLayout";
+import { Modal } from "antd";
 
 const AddressManagement = () => {
   const { addresses, deleteAddress, setDefaultAddress, user } = useUser();
@@ -11,6 +12,10 @@ const AddressManagement = () => {
   const [editingAddress, setEditingAddress] = useState<ShippingAddress | null>(
     null
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
+
+  const [addressState, setAddressState] = useState(addresses);
 
   // Redirect if not logged in
   if (!user) {
@@ -22,14 +27,23 @@ const AddressManagement = () => {
     setIsAddingAddress(true);
   };
 
-  const handleDelete = (addressId: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa địa chỉ này?")) {
-      deleteAddress(addressId);
-    }
+  const handleDelete = () => {
+    if (!selectedAddressId) return;
+    deleteAddress(selectedAddressId);
+    setAddressState((prev) =>
+      prev.filter((address) => address.address_id !== selectedAddressId)
+    );
+    setIsModalOpen(false);
   };
 
   const handleSetDefault = (addressId: string) => {
     setDefaultAddress(addressId);
+    setAddressState((prev) =>
+      prev.map((addr) => ({
+        ...addr,
+        is_default: addressId === addr.address_id,
+      }))
+    );
   };
 
   const handleCloseForm = () => {
@@ -55,17 +69,18 @@ const AddressManagement = () => {
         <AddressForm
           existingAddress={editingAddress}
           onClose={handleCloseForm}
+          setAddressState={setAddressState}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {addresses.length === 0 ? (
+          {addressState.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <p className="text-gray-500">
                 Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới.
               </p>
             </div>
           ) : (
-            addresses.map((address) => (
+            addressState.map((address) => (
               <div
                 key={address.address_id}
                 className="bg-white rounded-lg shadow-md p-6"
@@ -92,18 +107,31 @@ const AddressManagement = () => {
                       Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(address.address_id)}
+                      onClick={() => {
+                        setSelectedAddressId(address.address_id);
+                        setIsModalOpen(true);
+                      }}
                       className="text-red-600 hover:text-red-800"
                     >
                       Xóa
                     </button>
+                    <Modal
+                      title={<div className="mb-8">Xác nhận xóa địa chỉ ?</div>}
+                      open={isModalOpen}
+                      onOk={handleDelete}
+                      centered
+                      onCancel={() => {
+                        setIsModalOpen(false), setSelectedAddressId("");
+                      }}
+                    >
+                      {/* <div>Xác nhận xóa địa chỉ</div> */}
+                    </Modal>
                   </div>
                 </div>
                 <div className="mt-2">
                   <p>{address.address_detail}</p>
                   <p>
                     {address.ward}, {address.district}, {address.city},{" "}
-                    {address.country}
                   </p>
                 </div>
                 {!address.is_default && (

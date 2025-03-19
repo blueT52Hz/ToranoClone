@@ -67,6 +67,7 @@ export const addOutfit = async (
   outfit: {
     outfit_name: string;
     image_id: string;
+    published_at: Date | null;
   },
   productIds?: string[] // Danh sách product_id liên quan
 ): Promise<Outfit> => {
@@ -143,6 +144,7 @@ export const updateOutfit = async (
   updatedOutfit: {
     outfit_name?: string;
     image_id?: string | null;
+    published_at: Date | null;
   },
   productIds?: string[] // Danh sách product_id liên quan
 ): Promise<Outfit> => {

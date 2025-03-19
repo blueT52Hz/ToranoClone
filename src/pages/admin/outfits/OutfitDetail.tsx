@@ -41,6 +41,7 @@ export default function OutfitDetail() {
 
   // State cho các sản phẩm trong outfit
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [isPublish, setIsPublish] = useState(false);
 
   // State cho lỗi và loading
   const [errors, setErrors] = useState<{
@@ -82,6 +83,7 @@ export default function OutfitDetail() {
             image: outfitData.image,
             productIds: productsData.map((product) => product.product_id),
           });
+          setIsPublish(outfitData.published_at !== null);
         } catch (error) {
           console.error("Error loading data:", error);
         } finally {
@@ -121,6 +123,11 @@ export default function OutfitDetail() {
           {
             outfit_name: outfitForm.name,
             image_id: outfitForm.image?.image_id,
+            published_at: isPublish
+              ? outfit.published_at !== null
+                ? outfit.published_at
+                : new Date()
+              : null,
           },
           selectedProducts.map((product) => product.product_id)
         );
@@ -132,6 +139,7 @@ export default function OutfitDetail() {
           {
             outfit_name: outfitForm.name,
             image_id: outfitForm.image?.image_id,
+            published_at: isPublish ? new Date() : null,
           },
           selectedProducts.map((product) => product.product_id)
         );
@@ -158,10 +166,7 @@ export default function OutfitDetail() {
 
   // Xử lý đăng/hủy đăng outfit
   const handlePublishToggle = () => {
-    setOutfit({
-      ...outfit,
-      published_at: outfit.published_at ? null : new Date(),
-    });
+    setIsPublish(!isPublish);
   };
 
   return (
@@ -185,7 +190,7 @@ export default function OutfitDetail() {
                 : "bg-green-100 text-green-700 hover:bg-green-200"
             }`}
           >
-            {outfit.published_at ? (
+            {isPublish ? (
               <>
                 <X className="w-4 h-4 inline mr-1" />
                 Hủy đăng

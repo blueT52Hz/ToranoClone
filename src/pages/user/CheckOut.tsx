@@ -1,24 +1,30 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useCart, useUser } from "@/context/UserContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Order } from "@/types/cart";
 import { ShippingAddress } from "@/types/user";
 import AddressForm from "@/components/user/AddressForm";
 import GuestAddressForm from "@/components/user/GuestAddressForm";
 import { v4 } from "uuid";
+import { notification } from "antd";
+import {
+  createOrderByUserId,
+  createOrderWithoutUserId,
+} from "@/services/client/user/user";
 
 export const Checkout = () => {
   const { user, addresses, getDefaultAddress } = useUser();
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [addAddressState, setAddressState] = useState(addresses);
   const [paymentMethod, setPaymentMethod] =
     useState<Order["payment_method"]>("cod");
   const [note, setNote] = useState("");
-  const [shippingFee] = useState(30000); // Mặc định phí ship là 30,000đ
+  const [shippingFee] = useState(30000);
   const navigate = useNavigate();
-  const createOrder = (orderData: Partial<Order>) => {
+  const createOrder = async (orderData: Partial<Order>) => {
     const cartTotal = cart.cartItems.reduce((total, item) => {
       const price =
         item.variant.product.sale_price ?? item.variant.product.base_price;
@@ -44,35 +50,65 @@ export const Checkout = () => {
       shipping_fee: shippingFee,
       final_price: finalPrice,
     };
+    if (user) {
+      const resultOrder = await createOrderByUserId({
+        order_id: newOrder.order_id,
+        user_id: user.user_id,
+        cart_id: cart.cart_id,
+        address_id: newOrder.shippingAddress.address_id,
+        status: newOrder.status,
+        payment_method: newOrder.payment_method,
+        note: newOrder.note,
+        discount: newOrder.discount,
+        shipping_fee: newOrder.shipping_fee,
+        final_price: newOrder.final_price,
+      });
+      if (resultOrder) clearCart();
+    } else if (guestAddress) {
+      console.log(guestAddress);
+
+      const resultOrder = await createOrderWithoutUserId(
+        cart,
+        {
+          status: newOrder.status,
+          payment_method: newOrder.payment_method,
+          note: newOrder.note,
+          discount: newOrder.discount,
+          shipping_fee: newOrder.shipping_fee,
+          final_price: newOrder.final_price,
+        },
+        guestAddress
+      );
+      if (resultOrder) clearCart();
+    }
+
     return newOrder;
   };
 
-  // For guest checkout
   const [guestAddress, setGuestAddress] = useState<ShippingAddress | null>(
     null
   );
 
-  // Lấy địa chỉ mặc định
   const defaultAddress = user ? getDefaultAddress() : null;
 
-  // Nếu có địa chỉ mặc định và chưa chọn địa chỉ, set địa chỉ mặc định làm địa chỉ được chọn
   useEffect(() => {
     if (defaultAddress && !selectedAddressId) {
       setSelectedAddressId(defaultAddress.address_id);
     }
   }, [defaultAddress, selectedAddressId]);
 
-  // Tính tổng tiền hàng
+  useEffect(() => {
+    setAddressState(addresses);
+  }, [user]);
+
   const subtotal = cart.cartItems.reduce((total, item) => {
     const price =
       item.variant.product.sale_price ?? item.variant.product.base_price;
     return total + price * item.quantity;
   }, 0);
 
-  // Tổng tiền phải trả
   const totalAmount = subtotal + shippingFee;
 
-  // Format số
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -82,7 +118,7 @@ export const Checkout = () => {
 
   const handleAddressClick = (addressId: string) => {
     setSelectedAddressId(addressId);
-    setGuestAddress(null); // Reset guest address when selecting a saved address
+    setGuestAddress(null);
   };
 
   const handleAddressSaved = (address: ShippingAddress) => {
@@ -92,17 +128,23 @@ export const Checkout = () => {
 
   const handleGuestAddressSaved = (address: ShippingAddress) => {
     setGuestAddress(address);
-    setSelectedAddressId(""); // Reset selected address ID when using guest address
+    setSelectedAddressId("");
   };
 
   const handlePlaceOrder = () => {
     if (!user && !guestAddress) {
-      alert("Vui lòng nhập địa chỉ giao hàng");
+      notification.info({
+        message: "Vui lòng nhập địa chỉ giao hàng",
+        placement: "topRight",
+      });
       return;
     }
 
     if (user && !selectedAddressId && !guestAddress) {
-      alert("Vui lòng chọn địa chỉ giao hàng");
+      notification.info({
+        message: "Vui lòng chọn địa chỉ giao hàng",
+        placement: "topRight",
+      });
       return;
     }
 
@@ -116,7 +158,10 @@ export const Checkout = () => {
       );
 
       if (!selectedAddress) {
-        alert("Địa chỉ không hợp lệ");
+        notification.error({
+          message: "Địa chỉ không hợp lệ",
+          placement: "topRight",
+        });
         return;
       }
 
@@ -124,7 +169,10 @@ export const Checkout = () => {
     }
 
     if (cart.cartItems.length === 0) {
-      alert("Giỏ hàng trống. Vui lòng thêm sản phẩm vào giỏ hàng");
+      notification.error({
+        message: "Giỏ hàng trống. Vui lòng thêm sản phẩm vào giỏ hàng",
+        placement: "topRight",
+      });
       return;
     }
 
@@ -141,22 +189,25 @@ export const Checkout = () => {
       const createdOrder = createOrder(orderData);
 
       if (paymentMethod === "online_payment") {
-        // Redirect to payment page for online payments
         navigate("/payment", { state: { orderData: createdOrder } });
       } else {
-        // For other payment methods, show success message and go to home
-        alert("Đặt hàng thành công!");
+        notification.success({
+          message: "Đặt hàng thành công!",
+          placement: "topRight",
+        });
         navigate("/");
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
-      alert("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại sau.");
+      notification.error({
+        message: "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại sau.",
+        placement: "topRight",
+      });
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-8">
-      {/* Cột bên trái: Thông tin giao hàng */}
       <div className="lg:col-span-2">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Địa chỉ giao hàng</h2>
@@ -166,12 +217,13 @@ export const Checkout = () => {
               <AddressForm
                 onClose={() => setIsAddingAddress(false)}
                 onAddressAdded={handleAddressSaved}
+                setAddressState={setAddressState}
               />
             ) : (
               <>
                 <div className="space-y-4 mb-4">
-                  {addresses.length > 0 ? (
-                    addresses.map((address) => (
+                  {addAddressState.length > 0 ? (
+                    addAddressState.map((address) => (
                       <div
                         key={address.address_id}
                         className={`border p-4 rounded-md cursor-pointer ${
@@ -207,7 +259,6 @@ export const Checkout = () => {
                             <p className="text-gray-600 text-sm mt-1">
                               {address.address_detail}, {address.ward},{" "}
                               {address.district}, {address.city},{" "}
-                              {address.country}
                             </p>
                           </div>
                         </div>
@@ -326,14 +377,12 @@ export const Checkout = () => {
         </div>
       </div>
 
-      {/* Cột bên phải: Thông tin đơn hàng */}
       <div className="lg:col-span-1">
         <div className="bg-white rounded-lg shadow-md p-6 sticky top-12">
           <h2 className="text-lg font-semibold mb-4">Đơn hàng của bạn</h2>
 
           {cart.cartItems.length > 0 ? (
             <div className="divide-y">
-              {/* Danh sách sản phẩm */}
               <div className="pb-4 space-y-4">
                 {cart.cartItems.map((item) => (
                   <div key={item.cart_item_id} className="flex gap-3">
@@ -378,7 +427,6 @@ export const Checkout = () => {
                 </div>
               </div>
 
-              {/* Tổng cộng */}
               <div className="pt-4">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Tổng cộng</span>

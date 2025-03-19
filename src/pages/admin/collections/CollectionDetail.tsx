@@ -45,6 +45,7 @@ export default function CollectionDetail() {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [isProductSelectorOpen, setIsProductSelectorOpen] = useState(false);
   const [imageSelectorOpen, setIsImageSelectorOpen] = useState(false);
+  const [isPublish, setIsPublish] = useState(false);
   const [collectionForm, setCollectionForm] = useState<collectionForm>({
     name: "",
     slug: "",
@@ -68,6 +69,8 @@ export default function CollectionDetail() {
           slug: result.slug,
           image: result.image,
         });
+
+        setIsPublish(result.published_at !== null);
         setIsLoading(false);
       };
       fetchCollection();
@@ -90,11 +93,8 @@ export default function CollectionDetail() {
     }
   };
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCollection({
-      ...collection,
-      published_at: e.target.checked ? new Date() : null,
-    });
+  const handleStatusChange = () => {
+    setIsPublish(!isPublish);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,6 +111,7 @@ export default function CollectionDetail() {
     if (!isEditMode) {
       const result = await addCollection(
         {
+          published_at: isPublish ? new Date() : null,
           name: collectionForm.name,
           slug: collectionForm.slug,
           image_id: collectionForm.image?.image_id,
@@ -125,6 +126,11 @@ export default function CollectionDetail() {
           name: collectionForm.name,
           slug: collectionForm.slug,
           image_id: collectionForm.image?.image_id,
+          published_at: isPublish
+            ? collection.published_at === null
+              ? new Date()
+              : collection.published_at
+            : null,
         },
         selectedProducts.map((product) => product.product_id)
       );
@@ -300,7 +306,7 @@ export default function CollectionDetail() {
             <label className="flex items-center">
               <input
                 type="checkbox"
-                checked={collection.published_at !== null}
+                checked={isPublish}
                 onChange={handleStatusChange}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />

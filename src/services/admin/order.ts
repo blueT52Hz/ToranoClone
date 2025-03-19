@@ -70,7 +70,7 @@ export async function getAllOrders(): Promise<Order[]> {
           }
 
           const formattedCartItem: CartItem = {
-            cartItem_id: cartItem.cart_item_id,
+            cart_item_id: cartItem.cart_item_id,
             created_at: new Date(cartItem.created_at),
             variant: {
               variant_id: variant.variant_id,
@@ -106,26 +106,6 @@ export async function getAllOrders(): Promise<Order[]> {
               },
             },
             quantity: cartItem.quantity,
-            product: {
-              product_id: product.product_id,
-              product_code: product.product_code,
-              brand_name: product.brand_name,
-              name: product.name,
-              slug: product.slug,
-              description: product.description,
-              base_price: product.base_price,
-              sale_price: product.sale_price,
-              discount: product.discount,
-              created_at: new Date(product.created_at),
-              published_at: product.published_at
-                ? new Date(product.published_at)
-                : null,
-              updated_at: new Date(product.updated_at),
-              variants: [], // You can fetch variants if needed
-              variant_images: [], // You can fetch variant images if needed
-              collections: [], // You can fetch collections if needed
-              outfits: [], // You can fetch outfits if needed
-            },
           };
 
           return formattedCartItem;
@@ -140,7 +120,7 @@ export async function getAllOrders(): Promise<Order[]> {
           user_id: shippingAddress.user_id,
           full_name: shippingAddress.full_name,
           phone_number: shippingAddress.phone_number,
-          address_detail: shippingAddress.address,
+          address_detail: shippingAddress.address_detail,
           city: shippingAddress.city,
           district: shippingAddress.district,
           ward: shippingAddress.ward,
@@ -275,7 +255,7 @@ export async function getOrderById(orderId: string): Promise<Order> {
       }
 
       const formattedCartItem: CartItem = {
-        cartItem_id: cartItem.cart_item_id,
+        cart_item_id: cartItem.cart_item_id,
         created_at: new Date(cartItem.created_at),
         variant: {
           variant_id: variant.variant_id,
@@ -313,26 +293,6 @@ export async function getOrderById(orderId: string): Promise<Order> {
           },
         },
         quantity: cartItem.quantity,
-        product: {
-          product_id: product.product_id,
-          product_code: product.product_code,
-          brand_name: product.brand_name,
-          name: product.name,
-          slug: product.slug,
-          description: product.description,
-          base_price: product.base_price,
-          sale_price: product.sale_price,
-          discount: product.discount,
-          created_at: new Date(product.created_at),
-          published_at: product.published_at
-            ? new Date(product.published_at)
-            : null,
-          updated_at: new Date(product.updated_at),
-          variants: [], // You can fetch variants if needed
-          variant_images: [], // You can fetch variant images if needed
-          collections: [], // You can fetch collections if needed
-          outfits: [], // You can fetch outfits if needed
-        },
       };
 
       return formattedCartItem;

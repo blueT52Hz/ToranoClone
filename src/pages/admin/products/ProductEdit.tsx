@@ -503,7 +503,7 @@ export default function ProductDetail() {
           if (item.image_id) {
             return await supabase
               .from("product_image")
-              .update(item)
+              .update({ product_id: product.product_id })
               .eq("image_id", item.image_id);
           } else {
             return await supabase
@@ -555,15 +555,17 @@ export default function ProductDetail() {
       // Cập nhật hoặc thêm biến thể mới
       const updateVariants = await Promise.all(
         product_variant.map(async (item) => {
-          if (item.variant_id) {
+          console.log(item);
+          if (currentVariantIds.includes(item.variant_id)) {
             return await supabase
               .from("product_variant")
               .update(item)
               .eq("variant_id", item.variant_id);
           } else {
-            return await supabase
+            const { data } = await supabase
               .from("product_variant")
-              .insert({ ...item, product_id: product.product_id });
+              .insert(item);
+            return data;
           }
         })
       );
@@ -664,10 +666,10 @@ export default function ProductDetail() {
         .from("product_variant")
         .insert(product_variant);
 
-      // console.log(addImage);
-      // console.log(addProduct);
-      // console.log(addCollections);
-      // console.log(addVariant);
+      console.log(addImage);
+      console.log(addProduct);
+      console.log(addCollections);
+      console.log(addVariant);
     }
 
     setIsSaving(false);

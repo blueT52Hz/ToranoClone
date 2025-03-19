@@ -48,13 +48,25 @@ const PopoverUser = () => {
               <div className="text-center text-lg mb-4">{user.full_name}</div>
               <ul className="list-disc pl-8 my-4 space-y-2">
                 <li>
-                  <div className="text-base">
-                    <Link to={"/account/profile"}>Tài khoản của tôi</Link>
+                  <div
+                    className="text-base cursor-pointer"
+                    onClick={() => {
+                      navigate("/account/profile");
+                      setOpen(false);
+                    }}
+                  >
+                    Tài khoản của tôi
                   </div>
                 </li>
                 <li>
-                  <div className="text-base">
-                    <Link to={"/account/address"}>Danh sách địa chỉ</Link>
+                  <div
+                    className="text-base cursor-pointer"
+                    onClick={() => {
+                      navigate("/account/address");
+                      setOpen(false);
+                    }}
+                  >
+                    Danh sách địa chỉ
                   </div>
                 </li>
                 <li>

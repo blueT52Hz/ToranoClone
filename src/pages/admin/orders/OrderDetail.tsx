@@ -1,104 +1,10 @@
+import Loading from "@/components/common/Loading";
 import { getOrderById } from "@/services/admin/order";
 import { supabase } from "@/services/supabaseClient";
+import { Order } from "@/types/cart";
+import { notification } from "antd";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
-// Interfaces
-interface ShippingAddress {
-  name: string;
-  phone: string;
-  address: string;
-  city: string;
-  province: string;
-  postal_code: string;
-}
-
-interface Color {
-  color_id: string;
-  name: string;
-  hex_code: string;
-}
-
-interface Size {
-  size_id: string;
-  name: string;
-}
-
-interface ProductImage {
-  image_id: string;
-  url: string;
-  alt: string;
-}
-
-interface Collection {
-  collection_id: string;
-  name: string;
-}
-
-interface Outfit {
-  outfit_id: string;
-  name: string;
-}
-
-interface Product {
-  product_id: string;
-  product_code: string;
-  brand_name: string;
-  name: string;
-  slug: string;
-  description: string;
-  base_price: number;
-  sale_price: number | null;
-  discount: number;
-  created_at: Date;
-  published_at: Date | null;
-  updated_at: Date;
-  collections: Collection[];
-  outfit: Outfit[];
-  variants: ProductVariant[];
-  variant_images: ProductImage[];
-}
-
-interface ProductVariant {
-  variant_id: string;
-  variant_code: string;
-  product_id: string;
-  image: ProductImage;
-  created_at: Date;
-  published_at: Date | null;
-  updated_at: Date;
-  quantity: number;
-  color: Color;
-  size: Size;
-}
-
-interface CartItem {
-  product: Product;
-  created_at: Date;
-  cartItem_id: string;
-  variant: ProductVariant;
-  quantity: number;
-}
-
-interface Cart {
-  cart_id: string;
-  cartItems: CartItem[];
-  cart_total_price: number;
-}
-
-interface Order {
-  order_id: string;
-  created_at: Date;
-  shippingAddress: ShippingAddress;
-  cart: Cart;
-  note: string | null;
-  payment_method: "cod" | "online_payment" | "bank_transfer";
-  status: "pending_approval" | "shipping" | "completed" | "canceled";
-  discount: number | null;
-  shipping_fee: number | 30000;
-  final_price: number;
-}
-
 // Helper functions
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat("vi-VN", {
@@ -202,15 +108,19 @@ export const OrderDetail = () => {
 
       setOrder({ ...order, status: editedStatus });
       setIsEditingStatus(false);
-      alert("Cập nhật trạng thái thành công!");
+      notification.success({
+        message: "Cập nhật trạng thái thành công!",
+      });
     } catch (err) {
       console.error("Lỗi khi cập nhật trạng thái:", err);
-      alert("Có lỗi xảy ra khi cập nhật trạng thái.");
+      notification.error({
+        message: "Có lỗi xảy ra khi cập nhật trạng thái.",
+      });
     }
   };
 
   if (loading) {
-    return <div>Đang tải...</div>;
+    return <Loading />;
   }
 
   if (error) {
@@ -291,12 +201,12 @@ export const OrderDetail = () => {
             Thông tin giao hàng
           </h2>
           <div className="text-gray-700">
-            <p className="font-medium">{order.shippingAddress.name}</p>
-            <p>Số điện thoại: {order.shippingAddress.phone}</p>
-            <p>{order.shippingAddress.address}</p>
+            <p className="font-medium">{order.shippingAddress.full_name}</p>
+            <p>Số điện thoại: {order.shippingAddress.phone_number}</p>
+            <p>{order.shippingAddress.address_detail}</p>
             <p>
-              {order.shippingAddress.city}, {order.shippingAddress.province},{" "}
-              {order.shippingAddress.postal_code}
+              {order.shippingAddress.ward}, {order.shippingAddress.district},{" "}
+              {order.shippingAddress.city}
             </p>
           </div>
         </div>
@@ -334,32 +244,36 @@ export const OrderDetail = () => {
             <tbody className="divide-y divide-gray-200">
               {order.cart.cartItems.map((item) => {
                 const price =
-                  item.product.sale_price || item.product.base_price;
+                  item.variant.product.sale_price ||
+                  item.variant.product.base_price;
                 const totalPrice = price * item.quantity;
 
                 return (
-                  <tr key={item.cartItem_id}>
+                  <tr key={item.cart_item_id}>
                     <td className="py-4 px-4">
                       <div className="flex items-center">
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                           <img
-                            src={item.variant.image.url || "/placeholder.svg"}
-                            alt={item.variant.image.alt}
+                            src={
+                              item.variant.image.image_url || "/placeholder.svg"
+                            }
+                            alt={item.variant.image.image_name}
                             className="h-full w-full object-cover object-center"
                           />
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {item.product.name}
+                            {item.variant.product.name}
                           </div>
                           <div className="text-sm text-gray-500">
                             <span
                               className="inline-block w-3 h-3 rounded-full mr-1"
                               style={{
-                                backgroundColor: item.variant.color.hex_code,
+                                backgroundColor: item.variant.color.color_code,
                               }}
                             ></span>
-                            {item.variant.color.name}, {item.variant.size.name}
+                            {item.variant.color.color_name},{" "}
+                            {item.variant.size.size_code}
                           </div>
                           <div className="text-xs text-gray-500">
                             Mã: {item.variant.variant_code}
@@ -369,9 +283,9 @@ export const OrderDetail = () => {
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-500">
                       {formatCurrency(price)}
-                      {item.product.sale_price && (
+                      {item.variant.product.sale_price && (
                         <span className="line-through text-gray-400 ml-2">
-                          {formatCurrency(item.product.base_price)}
+                          {formatCurrency(item.variant.product.base_price)}
                         </span>
                       )}
                     </td>
@@ -395,7 +309,16 @@ export const OrderDetail = () => {
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Tạm tính:</span>
             <span className="text-gray-900 font-medium">
-              {formatCurrency(order.cart.cart_total_price)}
+              {formatCurrency(
+                order.cart.cartItems.reduce(
+                  (total, cartItem) =>
+                    total +
+                    cartItem.quantity *
+                      (cartItem.variant.product.sale_price ||
+                        cartItem.variant.product.base_price),
+                  0
+                )
+              )}
             </span>
           </div>
           <div className="flex justify-between text-sm">
