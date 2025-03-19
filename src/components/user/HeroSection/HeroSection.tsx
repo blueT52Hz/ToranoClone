@@ -89,12 +89,12 @@ const HeroSection = () => {
   }, []);
   const slideSize = heroSections.length;
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      handleIncrease();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [currentSlide]);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     handleIncrease();
+  //   }, 4000);
+  //   return () => clearTimeout(timer);
+  // }, [currentSlide]);
 
   const handleOnClickCircle = (index: number) => {
     setCurrentSlide(index);

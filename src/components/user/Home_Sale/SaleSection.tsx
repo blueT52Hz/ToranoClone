@@ -42,7 +42,7 @@ const SaleSection = () => {
     };
 
     updatePerPage();
-    handleResize();
+    // handleResize();
     window.addEventListener("resize", updatePerPage);
     window.addEventListener("resize", handleResize);
     return () => {

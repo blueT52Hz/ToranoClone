@@ -17,10 +17,9 @@ export interface ShippingAddress {
   full_name: string;
   phone_number: string;
   address_detail: string;
-  ward: string; // Phường/Xã
-  district: string; // Quận/Huyện
-  city: string; // Tỉnh/Thành phố
-  country: string;
+  ward: string;
+  district: string;
+  city: string;
   is_default: boolean;
   created_at: Date;
   updated_at: Date;

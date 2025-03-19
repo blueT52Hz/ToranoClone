@@ -11,7 +11,9 @@ import { supabase } from "../supabaseClient";
 export const getProductsByCollectionSlug = async (
   collectionSlug: string
 ): Promise<Product[]> => {
-  // 1. Lấy thông tin collection dựa trên collection_slug
+  if (collectionSlug === "all") {
+    return await getPublishedProducts();
+  }
   const { data: collection, error: collectionError } = await supabase
     .from("collection")
     .select("collection_id")
@@ -437,4 +439,31 @@ export const getProductByProductId = async (
     collections,
     outfits,
   };
+};
+
+export const getPublishedProducts = async (): Promise<Product[]> => {
+  // Truy vấn tất cả sản phẩm đã publish và sắp xếp theo ngày đăng mới nhất
+  const { data: products, error } = await supabase
+    .from("product")
+    .select("*")
+    .not("published_at", "is", null) // Sử dụng "is" để kiểm tra null
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Lỗi khi lấy danh sách sản phẩm: ${error.message}`);
+  }
+
+  // Nếu không có sản phẩm nào, trả về mảng rỗng
+  if (!products || products.length === 0) {
+    return [];
+  }
+
+  // Lấy thông tin chi tiết cho từng sản phẩm (variants, images, collections, outfits)
+  const productsWithDetails = await Promise.all(
+    products.map(async (product) => {
+      return await getProductByProductId(product.product_id);
+    })
+  );
+
+  return productsWithDetails;
 };

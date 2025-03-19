@@ -87,6 +87,7 @@ export const addCollection = async (
     description?: string | null;
     slug: string;
     image_id?: string | null;
+    published_at: Date | null;
   },
   productIds?: string[] // Danh sách product_id liên quan
 ): Promise<Collection> => {
@@ -147,6 +148,7 @@ export const updateCollection = async (
     description?: string | null;
     slug?: string;
     image_id?: string | null;
+    published_at: Date | null;
   },
   productIds?: string[] // Danh sách product_id liên quan
 ): Promise<Collection> => {

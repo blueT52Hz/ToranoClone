@@ -265,7 +265,6 @@ const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
       city: provinceLabel,
       district: districtLabel,
       ward: wardLabel,
-      country: formData.country,
       is_default: false,
       created_at: new Date(),
       updated_at: new Date(),

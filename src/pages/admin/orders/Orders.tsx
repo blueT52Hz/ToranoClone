@@ -3,6 +3,7 @@ import { Order } from "@/types/cart";
 import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { supabase } from "@/services/supabaseClient";
 import { getAllOrders } from "@/services/admin/order";
+import Loading from "@/components/common/Loading";
 
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -24,7 +25,7 @@ const Orders = () => {
   }, []);
 
   if (loading) {
-    return <div>Đang tải danh sách đơn hàng...</div>;
+    return <Loading />;
   }
 
   if (error) {

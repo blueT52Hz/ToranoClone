@@ -92,7 +92,7 @@ const Register = () => {
         <div className="">
           <Form form={form} autoComplete="off" onFinish={onFinish}>
             <Form.Item
-              name="lastName"
+              name="firstName"
               rules={[{ required: true, message: "Vui lòng nhập họ" }]}
             >
               <Input
@@ -103,7 +103,7 @@ const Register = () => {
             </Form.Item>
 
             <Form.Item
-              name="firstName"
+              name="lastName"
               rules={[{ required: true, message: "Vui lòng nhập tên" }]}
             >
               <Input
@@ -118,9 +118,9 @@ const Register = () => {
               rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
             >
               <Radio.Group>
-                <Radio value="female">Nữ</Radio>
-                <Radio value="male">Nam</Radio>
-                <Radio value="other">Khác</Radio>
+                <Radio value="Nữ">Nữ</Radio>
+                <Radio value="Nam">Nam</Radio>
+                <Radio value="Khác">Khác</Radio>
               </Radio.Group>
             </Form.Item>
 

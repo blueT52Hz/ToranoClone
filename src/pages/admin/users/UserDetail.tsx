@@ -198,9 +198,7 @@ export default function UserDetailPage() {
         </div>
       </div>
 
-      {/* Phần thông tin cá nhân và địa chỉ giao hàng */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Thông tin cá nhân */}
         <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
           <h2 className="text-lg font-medium mb-4">Thông tin cá nhân</h2>
           <div className="space-y-4">
@@ -210,7 +208,7 @@ export default function UserDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Giới tính</p>
-              <p className="font-medium">{user.gender}</p>
+              <p className="font-medium">{"Nam"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">Ngày sinh</p>
@@ -233,7 +231,7 @@ export default function UserDetailPage() {
                 {user.email}
               </a>
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-gray-500" />
               <a
                 href={`tel:${user.phone}`}
@@ -241,7 +239,7 @@ export default function UserDetailPage() {
               >
                 {user.phone}
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
 

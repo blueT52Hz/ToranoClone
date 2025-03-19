@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getAllUsers } from "@/services/admin/user";
+import Loading from "@/components/common/Loading";
 
 type User = {
   user_id: string;
@@ -26,9 +27,11 @@ export default function Users() {
 
   useEffect(() => {
     const getUser = async () => {
+      setIsLoading(true);
       const result = await getAllUsers();
       console.log(result);
       setUsers(result);
+      setIsLoading(false);
     };
     getUser();
   }, []);
@@ -37,6 +40,7 @@ export default function Users() {
   const [genderFilter, setGenderFilter] = useState<string>("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Thêm state cho sắp xếp
   const [sortField, setSortField] = useState<keyof User | null>(null);
@@ -107,6 +111,8 @@ export default function Users() {
       day: "2-digit",
     });
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <div className="space-y-6">
