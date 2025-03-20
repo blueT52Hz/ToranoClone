@@ -599,12 +599,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     //       : order
     //   )
     // );
-
     // Clear the cart after successful payment
-    setCart({
-      cart_id: v4(),
-      cartItems: [],
-    });
+    // setCart({
+    //   cart_id: v4(),
+    //   cartItems: [],
+    // });
   };
 
   return (
