@@ -131,7 +131,7 @@ export const Checkout = () => {
     setSelectedAddressId("");
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!user && !guestAddress) {
       notification.info({
         message: "Vui lòng nhập địa chỉ giao hàng",
@@ -184,13 +184,10 @@ export const Checkout = () => {
         shipping_fee: shippingFee,
       };
 
-      console.log(orderData);
-
-      const createdOrder = createOrder(orderData);
-
       if (paymentMethod === "online_payment") {
-        navigate("/payment", { state: { orderData: createdOrder } });
+        navigate("/payment", { state: { orderData: orderData, guestAddress } });
       } else {
+        const createdOrder = await createOrder(orderData);
         notification.success({
           message: "Đặt hàng thành công!",
           placement: "topRight",
