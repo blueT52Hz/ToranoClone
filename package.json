@@ -12,6 +12,8 @@
   "dependencies": {
     "@fontsource/quicksand": "^5.1.1",
     "@supabase/supabase-js": "^2.49.1",
+    "@tanstack/react-query": "^5.75.2",
+    "@tanstack/react-query-devtools": "^5.75.2",
     "antd": "^5.23.2",
     "axios": "^1.8.2",
     "clsx": "^2.1.1",

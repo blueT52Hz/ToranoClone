@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Eye, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import placeholder from "@/assets/images/placeholder.svg";
 
 interface ProductCardProps {
   perPage: number;
@@ -58,7 +59,7 @@ const ProductCard = (props: ProductCardProps) => {
         <div className="w-full pb-[128%] overflow-hidden relative mb-2.5">
           <motion.div className="image cursor-pointer">
             <img
-              src={item.variant_images[0].image_url}
+              src={item.variant_images[0]?.image_url || placeholder}
               alt={item.name}
               title={item.name}
               className={clsx(
@@ -72,7 +73,7 @@ const ProductCard = (props: ProductCardProps) => {
               }}
             />
             <img
-              src={item.variant_images[1].image_url}
+              src={item.variant_images?.[1]?.image_url || placeholder}
               alt={item.name}
               title={item.name}
               className={clsx(
