@@ -19,15 +19,7 @@ const ProductsSection = (props: ProductsSectionProp) => {
         }}
       >
         {products.map((product, index) => {
-          return (
-            <ProductCard
-              key={index}
-              perPage={0}
-              currentSlide={0}
-              item={product}
-              isDragging={false}
-            ></ProductCard>
-          );
+          return <ProductCard key={index} item={product} />;
         })}
       </div>
     </section>

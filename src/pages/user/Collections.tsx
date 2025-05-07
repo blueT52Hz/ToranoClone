@@ -1,13 +1,14 @@
 import Loading from "@/components/common/Loading";
 import Pagination from "@/components/user/Pagination";
-import ProductsSection from "@/components/user/ProductsSection";
+import ProductCard from "@/components/user/Product/ProductCard";
 import Sidebar from "@/components/user/SidebarFilter";
 import { getProductsByCollectionSlug } from "@/services/client/product";
 import { supabase } from "@/services/supabaseClient";
 import { Product } from "@/types/product";
 import { cn } from "@/utils/cn";
+import { Flex, Drawer } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X, ListFilterPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
@@ -16,6 +17,11 @@ const Collections = () => {
   const [collection, setCollection] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+  const onToggleDrawer = () => {
+    setOpenDrawer(!openDrawer);
+  };
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 850);
   const [searchParams] = useSearchParams();
@@ -27,7 +33,6 @@ const Collections = () => {
       if (!slug) return;
       setIsLoading(true);
       const result = await getProductsByCollectionSlug(slug);
-      console.log(result);
 
       const { data } = await supabase
         .from("collection")
@@ -52,19 +57,19 @@ const Collections = () => {
   }, []);
 
   return (
-    <div className="container min-w-full px-12">
+    <div className="container min-w-full px-4 min850:px-12">
       <section className="collection-section py-7">
         <div className="grid grid-cols-4">
-          <div className="sidebar">
+          <div className="hidden min850:block sidebar">
             <Sidebar />
           </div>
           {isLoading ? (
-            <div className="main-container px-3 flex flex-col col-span-3">
+            <div className="main-container px-3 flex flex-col min850:col-span-3">
               <Loading />
             </div>
           ) : (
-            <div className="main-container px-3 flex flex-col col-span-3">
-              <div className="toolbar-main flex justify-between mb-[30px]">
+            <div className="main-container px-3 flex flex-col min850:col-span-3 col-span-4">
+              <div className="toolbar-main flex flex-col min850:flex-row justify-between mb-[30px]">
                 <div className="title-toolbar flex gap-4 items-center">
                   <div className="title-collection text-shop-color-title font-bold text-[22px]">
                     {collection}
@@ -74,18 +79,55 @@ const Collections = () => {
                     <span className="font-light"> sản phẩm</span>
                   </div>
                 </div>
-                <div className="product-filter-sort flex items-center justify-between">
-                  {isMobile && <div>Bộ lọc</div>}
+                <div className="product-filter-sort flex items-center justify-between text-sm">
+                  {isMobile && (
+                    <>
+                      <button
+                        className="px-4 py-2 rounded-md flex justify-between items-center border border-[#dde1ef] gap-2"
+                        onClick={onToggleDrawer}
+                      >
+                        <span>Bộ lọc</span>
+                        <ListFilterPlus />
+                      </button>
+                      <Drawer
+                        title={
+                          <Flex
+                            className="relative w-full flex-row-reverse"
+                            justify="space-between"
+                            align="flex-end"
+                          >
+                            <X
+                              className="text-slate-500 cursor-pointer"
+                              onClick={onToggleDrawer}
+                            />
+                          </Flex>
+                        }
+                        onClose={onToggleDrawer}
+                        open={openDrawer}
+                        placement="left"
+                        width={"20rem"}
+                        closeIcon={null}
+                        className="overflow-auto scrollbar-hidden"
+                      >
+                        <Sidebar />
+                      </Drawer>
+                    </>
+                  )}
                   <div className="flex gap-4 items-center">
                     <div>Sắp xếp theo</div>
                     <DropdownMenu />
                   </div>
                 </div>
               </div>
-              <ProductsSection
-                columns={4}
-                products={products}
-              ></ProductsSection>
+              <div className="grid grid-cols-2 min850:grid-cols-4 min1200:grid-cols-5 min850:gap-4 gap-2">
+                {products.map((item, index) => {
+                  return (
+                    <div key={index}>
+                      <ProductCard item={item} />
+                    </div>
+                  );
+                })}
+              </div>
               <Pagination total={products.length} currentPage={currentPage} />
             </div>
           )}
@@ -129,7 +171,7 @@ const DropdownMenu = () => {
       onMouseLeave={() => setIsOpen(false)}
     >
       <button
-        className="px-4 py-2 rounded-md w-48 flex justify-between border border-[#dde1ef]"
+        className="px-4 py-2 rounded-md w-48 flex justify-between items-center border border-[#dde1ef]"
         onClick={() => {
           if (isMobile) setIsOpen(!isOpen);
         }}

@@ -81,28 +81,23 @@ const CollectionSection = () => {
           {isLoading ? (
             <Loading />
           ) : (
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 min850:grid-cols-4 min1200:grid-cols-5 min850:gap-4 gap-2">
               {products.map((item, index) => {
                 return (
-                  <div key={index} className="pr-4">
-                    <ProductCard
-                      perPage={0}
-                      currentSlide={0}
-                      item={item}
-                      isDragging={false}
-                    />
+                  <div key={index}>
+                    <ProductCard item={item} />
                   </div>
                 );
               })}
             </div>
           )}
         </div>
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center pb-8">
           <Link
             to={"collections/onsale"}
-            className="bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
+            className="flex min450:flex-row min450:gap-1 flex-col justify-center items-center bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
           >
-            XEM TẤT CẢ{" "}
+            <span>XEM TẤT CẢ </span>
             <span className="font-semibold">
               {headerTitle[currentSlide].name.toUpperCase()}
             </span>

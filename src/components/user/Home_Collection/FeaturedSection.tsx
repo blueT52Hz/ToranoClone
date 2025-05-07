@@ -91,12 +91,12 @@ const FeaturedSection = () => {
             </div>
           )}
         </div>
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center pb-8">
           <Link
             to={"collections/onsale"}
-            className="bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
+            className="flex min450:flex-row min450:gap-1 flex-col justify-center items-center bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
           >
-            XEM TẤT CẢ{" "}
+            <span>XEM TẤT CẢ </span>
             <span className="font-semibold">
               {headerTitle[currentSlide].name.toUpperCase()}
             </span>
