@@ -2,10 +2,10 @@ import Loading from "@/components/common/Loading";
 import ProductCard from "@/components/user/Product/ProductCard";
 import { getProductsByCollectionSlug } from "@/services/client/product";
 import { Product } from "@/types/product";
-import Item from "antd/es/list/Item";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 interface Title {
   name: string;
@@ -23,6 +23,7 @@ const FeaturedSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const getProducts = async () => {
       setIsLoading(true);
@@ -34,43 +35,56 @@ const FeaturedSection = () => {
     };
     getProducts();
   }, [currentSlide]);
+
   return (
     <section className="featured-section my-20">
-      <div className="container min-w-full px-12 flex flex-col">
-        <div className="header flex justify-center text-3xl w-full">
+      <div className="container w-full px-4 min1200:px-12 flex flex-col overflow-hidden">
+        <Swiper
+          breakpoints={{
+            0: { spaceBetween: 24, slidesPerView: "auto" },
+            1200: { spaceBetween: 40, slidesPerView: "auto" },
+          }}
+          observer={true}
+          observeParents={true}
+          className="header text-base min850:text-xl min1200:text-2xl overflow-hidden"
+        >
           {headerTitle.map((item, _i) => {
             return (
-              <div
-                key={_i}
-                className={clsx(
-                  "mx-5 transition-all duration-500 cursor-pointer pb-3 relative",
-                  currentSlide === _i
-                    ? "text-shop-color-text font-medium"
-                    : "text-[#959595] font-light hover:text-shop-color-text opacity-80",
-                  "before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-0 before:h-[1px] before:bg-shop-color-text before:transition-all before:duration-300",
-                  currentSlide === _i ? "before:w-full" : "hover:before:w-full"
-                )}
-                onClick={() => setCurrentSlide(_i)}
-              >
-                {item.name.toUpperCase()}
-              </div>
+              <SwiperSlide key={_i} className="!w-auto overflow-hidden">
+                <span
+                  className={clsx(
+                    "transition-all duration-500 cursor-pointer pb-3 relative text-center",
+                    currentSlide === _i
+                      ? "text-shop-color-text font-medium"
+                      : "text-[#959595] font-light hover:text-shop-color-text opacity-80"
+                  )}
+                  onClick={() => setCurrentSlide(_i)}
+                >
+                  <span
+                    className={clsx(
+                      "relative inline-block",
+                      "before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:bg-shop-color-text before:transition-all before:duration-300",
+                      currentSlide === _i
+                        ? "before:w-full"
+                        : "before:w-0 hover:before:w-full"
+                    )}
+                  >
+                    {item.name.toUpperCase()}
+                  </span>
+                </span>
+              </SwiperSlide>
             );
           })}
-        </div>
+        </Swiper>
         <div className="collection py-8">
           {isLoading ? (
             <Loading />
           ) : (
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 min850:grid-cols-4 min1200:grid-cols-5 min850:gap-4 gap-2">
               {products.map((item, index) => {
                 return (
-                  <div key={index} className="pr-4">
-                    <ProductCard
-                      perPage={0}
-                      currentSlide={0}
-                      item={item}
-                      isDragging={false}
-                    />
+                  <div key={index}>
+                    <ProductCard item={item} />
                   </div>
                 );
               })}

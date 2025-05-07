@@ -1,11 +1,21 @@
 import { getAllOutfits } from "@/services/admin/outfit";
 import { Outfit } from "@/types/product";
-import { ArrowRight } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import clsx from "clsx";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { SwiperSlide } from "swiper/react";
+import { Swiper } from "swiper/react";
+import type { Swiper as SwiperType } from "swiper";
 
 const OutFitSection = () => {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [slidesPerView, setSlidesPerView] = useState(1);
+  const canSlidePrev = currentSlide > 0;
+  const canSlideNext = currentSlide < outfits.length - Math.ceil(slidesPerView);
+
   useEffect(() => {
     const get = async () => {
       const result = await getAllOutfits();
@@ -15,8 +25,8 @@ const OutFitSection = () => {
   }, []);
   return (
     <section className="outfit-of-the-day">
-      <div className="container px-12 py-8 min-w-full flex flex-col bg-red-50 gap-8">
-        <div className="header-outfit">
+      <div className="container px-4 min850:px-10 min1200:px-12 py-8 flex flex-col bg-red-50 gap-8">
+        <div className="header-outfit flex justify-between">
           <Link
             to={`/collections/`}
             className="hover:text-shop-color-hover text-xl sm:text-4xl font-bold"
@@ -24,12 +34,57 @@ const OutFitSection = () => {
           >
             <h2>OUTFIT OF THE DAY</h2>
           </Link>
+          <div className="flex gap-4">
+            <ArrowLeft
+              size={"1.5em"}
+              className={clsx(
+                canSlidePrev
+                  ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
+                  : "text-[#959595]"
+              )}
+              style={{ transition: "all .3s easeInOut" }}
+              onClick={() => canSlidePrev && swiperRef.current?.slidePrev()}
+            />
+            <ArrowRight
+              size={"1.5em"}
+              className={clsx(
+                canSlideNext
+                  ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
+                  : "text-[#959595]"
+              )}
+              style={{ transition: "all .3s easeInOut" }}
+              onClick={() => canSlideNext && swiperRef.current?.slideNext()}
+            />
+          </div>
         </div>
-        <div className="outfit-content flex flex-col justify-center items-center gap-8">
-          <div className="grid grid-cols-3 gap-8">
-            {outfits.slice(0, 3).map((item, _i) => {
+        <div className="overflow-hidden outfit-content">
+          <Swiper
+            spaceBetween={16}
+            breakpoints={{
+              0: { spaceBetween: 20, slidesPerView: 1.5 },
+              750: { spaceBetween: 30, slidesPerView: 2 },
+              990: { spaceBetween: 30, slidesPerView: 3 },
+              1200: { spaceBetween: 30, slidesPerView: 4 },
+            }}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+              const slidesPerView = swiper.params.slidesPerView;
+              setSlidesPerView(
+                typeof slidesPerView === "number" ? slidesPerView : 1
+              );
+            }}
+            onSlideChange={(swiper) => {
+              setCurrentSlide(swiper.activeIndex);
+              const slidesPerView = swiper.params.slidesPerView;
+              setSlidesPerView(
+                typeof slidesPerView === "number" ? slidesPerView : 1
+              );
+            }}
+            className="overflow-hidden"
+          >
+            {outfits.map((item, index) => {
               return (
-                <div className="flex flex-col gap-4" key={_i}>
+                <SwiperSlide key={index} className="cursor-pointer">
                   <img
                     src={item.image.image_url}
                     alt={item.image.image_name}
@@ -40,14 +95,10 @@ const OutFitSection = () => {
                       MUA FULLSET
                     </div>
                   </div>
-                </div>
+                </SwiperSlide>
               );
             })}
-          </div>
-          <div className="text-xl min-w-[400px] group px-7 py-3 border-2 rounded-md flex justify-center items-center gap-4 bg-white cursor-pointer border-slate-400 hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500">
-            <Link to={"/bo-suu-tap-outfit"}>XEM THÊM</Link>
-            <ArrowRight className="group-hover:translate-x-2 transition-transform" />
-          </div>
+          </Swiper>
         </div>
       </div>
     </section>

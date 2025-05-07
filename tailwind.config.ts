@@ -14,6 +14,7 @@ export default {
         sans: ["Quicksand", "sans-serif"],
       },
       screens: {
+        min450: "450px",
         min850: "850px",
         min1200: "1200px",
       },
@@ -118,6 +119,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
-
-
+};

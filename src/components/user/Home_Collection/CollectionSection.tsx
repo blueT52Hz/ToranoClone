@@ -5,6 +5,8 @@ import { Product } from "@/types/product";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Swiper } from "swiper/react";
+import { SwiperSlide } from "swiper/react";
 
 interface Title {
   name: string;
@@ -37,27 +39,44 @@ const CollectionSection = () => {
 
   return (
     <section className="featured-section my-20">
-      <div className="container min-w-full px-12 flex flex-col">
-        <div className="header flex justify-center text-3xl w-full">
+      <div className="container min-w-full px-4 min850:px-10 min1200:px-12 flex flex-col">
+        <Swiper
+          breakpoints={{
+            0: { spaceBetween: 24, slidesPerView: "auto" },
+            1200: { spaceBetween: 40, slidesPerView: "auto" },
+          }}
+          observer={true}
+          observeParents={true}
+          className="header text-base min850:text-xl min1200:text-2xl overflow-hidden"
+        >
           {headerTitle.map((item, _i) => {
             return (
-              <div
-                key={_i}
-                className={clsx(
-                  "mx-5 transition-all duration-500 cursor-pointer pb-3 relative",
-                  currentSlide === _i
-                    ? "text-shop-color-text font-medium"
-                    : "text-[#959595] font-light hover:text-shop-color-text opacity-80",
-                  "before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-0 before:h-[2px] before:bg-shop-color-text before:transition-all before:duration-300",
-                  currentSlide === _i ? "before:w-full" : "hover:before:w-full"
-                )}
-                onClick={() => setCurrentSlide(_i)}
-              >
-                {item.name}
-              </div>
+              <SwiperSlide key={_i} className="!w-auto overflow-hidden">
+                <span
+                  className={clsx(
+                    "transition-all duration-500 cursor-pointer pb-3 relative text-center",
+                    currentSlide === _i
+                      ? "text-shop-color-text font-medium"
+                      : "text-[#959595] font-light hover:text-shop-color-text opacity-80"
+                  )}
+                  onClick={() => setCurrentSlide(_i)}
+                >
+                  <span
+                    className={clsx(
+                      "relative inline-block",
+                      "before:content-[''] before:absolute before:bottom-0 before:left-0 before:h-[1px] before:bg-shop-color-text before:transition-all before:duration-300",
+                      currentSlide === _i
+                        ? "before:w-full"
+                        : "before:w-0 hover:before:w-full"
+                    )}
+                  >
+                    {item.name.toUpperCase()}
+                  </span>
+                </span>
+              </SwiperSlide>
             );
           })}
-        </div>
+        </Swiper>
         <div className="collection py-8">
           {isLoading ? (
             <Loading />

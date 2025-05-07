@@ -1,17 +1,19 @@
 import React, { useState, useCallback, memo, useMemo } from "react";
 import placeholder from "@/assets/images/placeholder.svg";
+import clsx from "clsx";
 
 type OptimizedImageProps = {
   src: string;
   alt: string;
   title: string;
-  width?: number | string;
-  height?: number | string;
   loading?: "lazy" | "eager";
   objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   className?: string;
   placeholderSrc?: string;
   fallbackSrc?: string;
+  draggable?: boolean;
+  onClick?: () => void;
+  isHovered?: boolean;
 };
 
 const OptimizedImage: React.FC<OptimizedImageProps> = memo(
@@ -19,25 +21,27 @@ const OptimizedImage: React.FC<OptimizedImageProps> = memo(
     src,
     alt,
     title = "",
-    width,
-    height,
     loading = "lazy",
     objectFit = "cover",
     className = "",
     placeholderSrc = placeholder,
     fallbackSrc,
+    draggable = true,
+    onClick,
+    isHovered = false,
   }) => {
     const [imgSrc, setImgSrc] = useState<string>(placeholderSrc);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const handleLoad = useCallback(() => {
-      if (!isLoaded) {
-        setIsLoaded(true);
-        setImgSrc(src);
-      }
-    }, [src, isLoaded]);
+      setIsLoading(false);
+      setIsLoaded(true);
+      setImgSrc(src);
+    }, [src]);
 
     const handleError = useCallback(() => {
+      setIsLoading(false);
       if (fallbackSrc && imgSrc !== fallbackSrc) {
         setImgSrc(fallbackSrc);
       } else if (imgSrc !== placeholderSrc) {
@@ -46,22 +50,33 @@ const OptimizedImage: React.FC<OptimizedImageProps> = memo(
     }, [fallbackSrc, placeholderSrc, imgSrc]);
 
     const imageClassName = useMemo(() => {
-      return `${className} transition-opacity duration-300 ${isLoaded ? "opacity-100" : "opacity-0"}`;
-    }, [className, isLoaded]);
+      return clsx(
+        className,
+        "transition-all duration-500",
+        isLoaded ? "opacity-100" : "opacity-0",
+        isLoading ? "animate-pulse bg-gray-200" : "",
+        isHovered ? "opacity-0" : "opacity-100"
+      );
+    }, [className, isLoaded, isLoading, isHovered]);
 
     return (
-      <img
-        src={imgSrc}
-        title={title}
-        alt={alt}
-        loading={loading}
-        width={width}
-        height={height}
-        onLoad={handleLoad}
-        onError={handleError}
-        className={imageClassName}
-        style={{ objectFit }}
-      />
+      <div className="relative">
+        <img
+          src={imgSrc}
+          title={title}
+          alt={alt}
+          loading={loading}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={imageClassName}
+          style={{ objectFit }}
+          draggable={draggable}
+          onClick={onClick}
+        />
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        )}
+      </div>
     );
   }
 );

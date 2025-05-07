@@ -3,68 +3,36 @@ import ProductCard from "@/components/user/Product/ProductCard";
 import { getProductsByCollectionSlug } from "@/services/client/product";
 import { Product } from "@/types/product";
 import clsx from "clsx";
-import { AnimatePresence, easeInOut, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Eye, ShoppingBag } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-// import "@components/Home_Sale/style.css";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperType } from "swiper";
 
 const SaleSection = () => {
-  const [perPage, setPerPage] = useState(6);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [slidesPerView, setSlidesPerView] = useState(1);
 
   useEffect(() => {
     const getProducts = async () => {
       setIsLoading(true);
       const result = await getProductsByCollectionSlug("onsale");
-      console.log(result);
-
       setProducts(result);
       setIsLoading(false);
     };
     getProducts();
   }, []);
 
-  useEffect(() => {
-    const updatePerPage = () => {
-      const screenWidth = window.innerWidth;
-      if (screenWidth >= 1200) setPerPage(6);
-      else if (screenWidth >= 992) setPerPage(4);
-      else setPerPage(2);
-    };
+  const canSlidePrev = currentSlide > 0;
+  const canSlideNext =
+    currentSlide < products.length - Math.ceil(slidesPerView);
 
-    const handleResize = () => {
-      if (currentSlide + perPage > products.length)
-        setCurrentSlide(products.length - perPage);
-    };
-
-    updatePerPage();
-    // handleResize();
-    window.addEventListener("resize", updatePerPage);
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", updatePerPage);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  console.log(currentSlide);
-
-  const handleDecrease = (steps = 1) => {
-    setCurrentSlide((prev) => Math.max(0, prev - steps));
-  };
-
-  const handleIncrease = (steps = 1) => {
-    setCurrentSlide((prev) =>
-      Math.min(products.length - perPage, prev + steps)
-    );
-  };
   return (
     <section className="section-home-sale py-18 bg-red-50">
-      <div className="container min-w-full px-12">
+      <div className="container min-w-full px-4 min850:px-10 min1200:px-12">
         <div className="title flex flex-col mb-4">
           <div className="flex justify-between pt-6">
             <Link
@@ -74,26 +42,26 @@ const SaleSection = () => {
             >
               SẢN PHẨM KHUYẾN MÃI
             </Link>
-            <div className="flex gap-4 pr-4">
+            <div className="flex gap-4">
               <ArrowLeft
                 size={"1.5em"}
                 className={clsx(
-                  currentSlide !== 0
+                  canSlidePrev
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
                     : "text-[#959595]"
                 )}
                 style={{ transition: "all .3s easeInOut" }}
-                onClick={() => handleDecrease()}
+                onClick={() => canSlidePrev && swiperRef.current?.slidePrev()}
               />
               <ArrowRight
                 size={"1.5em"}
                 className={clsx(
-                  currentSlide !== products.length - perPage
+                  canSlideNext
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
                     : "text-[#959595]"
                 )}
                 style={{ transition: "all .3s easeInOut" }}
-                onClick={() => handleIncrease()}
+                onClick={() => canSlideNext && swiperRef.current?.slideNext()}
               />
             </div>
           </div>
@@ -102,48 +70,45 @@ const SaleSection = () => {
           <Loading />
         ) : (
           <div className="overflow-hidden pb-6">
-            {
-              <AnimatePresence>
-                <motion.div
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                  drag={"x"}
-                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                  onDragStart={() => {
-                    setIsDragging(true);
-                  }}
-                  className="flex"
-                  onDragEnd={(event, info) => {
-                    if (info.offset.x > 20) {
-                      handleDecrease();
-                    } else if (info.offset.x < 20) {
-                      handleIncrease();
-                    }
-                    setIsDragging(false);
-                  }}
-                >
-                  {products.map((item, index) => {
-                    return (
-                      <ProductCard
-                        key={index}
-                        currentSlide={currentSlide}
-                        isDragging={isDragging}
-                        item={item}
-                        perPage={perPage}
-                        className="pr-4"
-                      ></ProductCard>
-                    );
-                  })}
-                </motion.div>
-              </AnimatePresence>
-            }
+            <Swiper
+              spaceBetween={16}
+              breakpoints={{
+                0: { spaceBetween: 20, slidesPerView: 1.5 },
+                750: { spaceBetween: 24, slidesPerView: 2 },
+                990: { spaceBetween: 24, slidesPerView: 4 },
+                1200: { spaceBetween: 24, slidesPerView: 6 },
+              }}
+              onSwiper={(swiper) => {
+                swiperRef.current = swiper;
+                const slidesPerView = swiper.params.slidesPerView;
+                setSlidesPerView(
+                  typeof slidesPerView === "number" ? slidesPerView : 1
+                );
+              }}
+              onSlideChange={(swiper) => {
+                setCurrentSlide(swiper.activeIndex);
+                const slidesPerView = swiper.params.slidesPerView;
+                setSlidesPerView(
+                  typeof slidesPerView === "number" ? slidesPerView : 1
+                );
+              }}
+            >
+              {products.map((item, index) => {
+                return (
+                  <SwiperSlide key={index} className="min-h-full">
+                    <ProductCard item={item}></ProductCard>
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
           </div>
         )}
         <div className="flex justify-center pb-8">
           <Link
             to={"collections/onsale"}
-            className="bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
+            className="flex min450:flex-row min450:gap-1 flex-col justify-center items-center bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
           >
-            XEM TẤT CẢ{" "}
+            <span>XEM TẤT CẢ </span>
             <span className="font-semibold">SẢN PHẨM KHUYẾN MÃI</span>
           </Link>
         </div>

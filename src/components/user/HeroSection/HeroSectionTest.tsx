@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Flex } from "antd";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
@@ -7,11 +7,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HeroSection as HeroSectionType } from "@/types/product";
 import { v4 as uuidv4 } from "uuid";
 import Loading from "@/components/common/Loading";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Pagination, Autoplay, Navigation } from "swiper/modules";
-import "swiper/css/navigation";
 
 const items: HeroSectionType[] = [
   {
@@ -74,32 +69,54 @@ const items: HeroSectionType[] = [
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const swiperRef = useRef<any>(null);
+  const [duration, setDuration] = useState(0.5);
+  const [isDragging, setIsDragging] = useState(false);
   const [heroSections, setHeroSections] = useState<HeroSectionType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const getHero = async () => {
       setIsLoading(true);
+
       setTimeout(() => {
         setHeroSections(items);
         setIsLoading(false);
       }, 100);
     };
+
     getHero();
   }, []);
+  const slideSize = heroSections.length;
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     handleIncrease();
+  //   }, 4000);
+  //   return () => clearTimeout(timer);
+  // }, [currentSlide]);
 
   const handleOnClickCircle = (index: number) => {
     setCurrentSlide(index);
-    swiperRef.current?.slideToLoop(index);
   };
 
-  if (isLoading) return <Loading />;
+  const [isHovered, setIsHovered] = useState(false);
+  const handleDecrease = () => {
+    if (currentSlide === 0) setDuration(-1000);
+    else setDuration(0.5);
+    setCurrentSlide((currentSlide - 1 + slideSize) % slideSize);
+  };
+
+  const handleIncrease = () => {
+    if (currentSlide === slideSize - 1) setDuration(0.2);
+    else setDuration(0.5);
+    setCurrentSlide((currentSlide + 1) % slideSize);
+  };
+
+  if (isLoading) return <Loading></Loading>;
 
   return (
-    <section className="section-home-slider mb-5 min850:mb-10 min1200:mb-20">
+    <section className="section-home-slider mb-20">
       <motion.div
         className="relative group overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
@@ -110,28 +127,62 @@ const HeroSection = () => {
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <AnimatePresence>
+          <motion.div
+            animate={{ x: `-${currentSlide * 100}%` }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: duration, ease: "easeInOut" }}
+            drag="x"
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={(event, info) => {
+              if (info.offset.x > 50) {
+                handleDecrease();
+              } else if (info.offset.x < -50) {
+                handleIncrease();
+              }
+              setIsDragging(false);
+            }}
+          >
+            <div className="flex flex-nowrap">
+              {heroSections.map((item, i) => (
+                <div className="basis-full flex-shrink-0" key={i}>
+                  <img
+                    src={item.image.image_url}
+                    key={i}
+                    className="w-full h-full object-cover cursor-pointer select-none"
+                    onClick={() => {
+                      if (!isDragging) navigate(item.hero_slug);
+                    }}
+                    draggable={false}
+                  ></img>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <AnimatePresence>
           {isHovered && (
             <>
               <motion.button
-                className="absolute z-10 left-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -40, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 aria-label="Previous slide"
-                onClick={() => swiperRef.current?.slidePrev()}
+                onClick={handleDecrease}
               >
                 <ChevronLeft size={"2em"} />
               </motion.button>
 
               <motion.button
-                className="absolute z-10 right-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 initial={{ x: 40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 40, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 aria-label="Next slide"
-                onClick={() => swiperRef.current?.slideNext()}
+                onClick={handleIncrease}
               >
                 <ChevronRight size={"2em"} />
               </motion.button>
@@ -139,53 +190,23 @@ const HeroSection = () => {
           )}
         </AnimatePresence>
 
-        <Swiper
-          modules={[Pagination, Autoplay, Navigation]}
-          spaceBetween={0}
-          slidesPerView={1}
-          loop={true}
-          onSwiper={(swiper) => {
-            swiperRef.current = swiper;
-          }}
-          onSlideChange={(swiper) => {
-            setCurrentSlide(swiper.realIndex);
-          }}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-          }}
-          className="w-full h-full"
-        >
-          {heroSections.map((item, i) => (
-            <SwiperSlide key={i}>
-              <div className="w-full h-full">
-                <img
-                  src={item.image.image_url}
-                  alt={item.hero_name}
-                  className="w-full h-full object-cover cursor-pointer select-none"
-                  onClick={() => navigate(item.hero_slug)}
-                  draggable={false}
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-
         <Flex
-          className="absolute z-10 w-full bottom-2"
+          className="absolute w-full bottom-2"
           justify="center"
           gap={"0.5rem"}
         >
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              className={cn(
-                "w-4 h-4 rounded-full bg-slate-300 opacity-40 cursor-pointer",
-                currentSlide === index ? "opacity-100 bg-[#ff0000]" : ""
-              )}
-              key={index}
-              onClick={() => handleOnClickCircle(index)}
-            />
-          ))}
+          {Array.from({ length: 4 }).map((_, index) => {
+            return (
+              <div
+                className={cn(
+                  "w-4 h-4 rounded-full bg-slate-300 opacity-40 cursor-pointer",
+                  currentSlide === index ? "opacity-100 bg-[#ff0000]" : ""
+                )}
+                key={index}
+                onClick={() => handleOnClickCircle(index)}
+              />
+            );
+          })}
         </Flex>
       </motion.div>
     </section>
