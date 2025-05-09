@@ -67,12 +67,12 @@ const Register = () => {
 
   return (
     <section className="login-section flex items-center justify-center">
-      <div className=" rounded-lg p-8 ">
-        <div className="flex justify-center mb-8">
+      <div className="rounded-lg p-8">
+        <div className="mb-8 flex justify-center">
           <button
             className={cn(
-              "text-2xl font-bold px-4 transition-all duration-300",
-              "text-gray-400 hover:text-[#000]"
+              "px-4 text-2xl font-bold transition-all duration-300",
+              "text-gray-400 hover:text-[#000]",
             )}
             onClick={() => navigate("/accounts/login")}
           >
@@ -81,8 +81,8 @@ const Register = () => {
           <span className="px-2 text-gray-300">|</span>
           <div
             className={cn(
-              "text-2xl font-bold px-4 transition-all duration-300",
-              "text-[#000]"
+              "px-4 text-2xl font-bold transition-all duration-300",
+              "text-[#000]",
             )}
           >
             Đăng ký
@@ -98,7 +98,7 @@ const Register = () => {
               <Input
                 size="large"
                 placeholder="Họ"
-                className="italic bg-gray-200"
+                className="bg-gray-200 italic"
               />
             </Form.Item>
 
@@ -109,7 +109,7 @@ const Register = () => {
               <Input
                 size="large"
                 placeholder="Tên"
-                className="italic bg-gray-200"
+                className="bg-gray-200 italic"
               />
             </Form.Item>
 
@@ -132,7 +132,7 @@ const Register = () => {
                 size="large"
                 placeholder="mm/dd/yyyy"
                 format="MM/DD/YYYY"
-                className="w-full italic bg-gray-200"
+                className="w-full bg-gray-200 italic"
               />
             </Form.Item>
 
@@ -147,7 +147,7 @@ const Register = () => {
               <Input
                 size="large"
                 placeholder="Email"
-                className="italic bg-gray-200"
+                className="bg-gray-200 italic"
               />
             </Form.Item>
 
@@ -158,7 +158,7 @@ const Register = () => {
               <Input.Password
                 size="large"
                 placeholder="Mật khẩu"
-                className="italic bg-gray-200"
+                className="bg-gray-200 italic"
               />
             </Form.Item>
 
@@ -173,7 +173,7 @@ const Register = () => {
                       return Promise.resolve();
                     }
                     return Promise.reject(
-                      new Error("Mật khẩu xác nhận không khớp")
+                      new Error("Mật khẩu xác nhận không khớp"),
                     );
                   },
                 }),
@@ -182,11 +182,11 @@ const Register = () => {
               <Input.Password
                 size="large"
                 placeholder="Xác nhận mật khẩu"
-                className="italic bg-gray-200"
+                className="bg-gray-200 italic"
               />
             </Form.Item>
 
-            <Text type="secondary" className="text-xs block mb-2">
+            <Text type="secondary" className="mb-2 block text-xs">
               This site is protected by reCAPTCHA and the Google{" "}
               <a
                 href="https://policies.google.com/privacy"
@@ -205,19 +205,19 @@ const Register = () => {
               </a>{" "}
               apply.
             </Text>
-            <div className="flex justify-center gap-8 mt-8 items-center">
+            <div className="mt-8 flex items-center justify-center gap-8">
               <div
-                className="cursor-pointer hover:text-shop-color-button-text text-[#000] font-semibold text-base px-4"
+                className="cursor-pointer px-4 text-base font-semibold text-[#000] hover:text-shop-color-button-text"
                 onClick={() => form.submit()}
               >
                 ĐĂNG KÝ
               </div>
-              <div className="text-sm text-gray-600 flex flex-col gap-2">
+              <div className="flex flex-col gap-2 text-sm text-gray-600">
                 <span>Bạn đã có tài khoản? </span>
                 <div
-                  className="text-blue-500 cursor-pointer"
+                  className="cursor-pointer text-blue-500"
                   onClick={() => {
-                    navigate("/login");
+                    navigate("/accounts/login");
                   }}
                 >
                   Đăng nhập
