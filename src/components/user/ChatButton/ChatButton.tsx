@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const ChatButton = () => {
@@ -41,6 +41,15 @@ const ChatButton = () => {
           ref={chatRef}
           className="fixed bottom-24 right-0 z-50 h-[500px] w-full overflow-hidden rounded-lg shadow-lg md:right-6 md:w-[400px]"
         >
+          <div className="absolute right-2 top-2 z-10">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-all hover:bg-gray-300"
+              title="Đóng chat"
+            >
+              <X size={16} />
+            </button>
+          </div>
           <iframe
             src="https://workflow.proptit.com/webhook/289f7a44-e1a7-4d46-b014-89e3e149f80c/chat"
             className="h-full w-full"
