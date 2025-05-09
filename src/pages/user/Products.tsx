@@ -109,9 +109,9 @@ const Products = () => {
       <section className="product-detail">
         <div className="container min-w-full">
           <ProductOptions product={product} />
-          <div className="my-12 flex w-full flex-col items-center justify-center px-20">
+          <div className="my-12 flex w-full flex-col items-center justify-center md:px-20">
             <h2 className="mb-4 text-2xl font-bold">Mô tả sản phẩm</h2>
-            <div className="relative w-full px-10">
+            <div className="relative w-full md:px-10">
               <div
                 className={`relative overflow-hidden transition-all ${
                   expanded ? "max-h-full" : "max-h-40"
@@ -236,12 +236,12 @@ const ProductOptions = (props: ProductOptionsProps) => {
           <div className="flex w-full items-center bg-[#fafafa] p-4">
             <span className="block min-w-16">Giá: </span>
             <span className="text-xl font-bold text-[#ff2c26]">
-              {product.sale_price && product.discount
+              {product.sale_price && product.discount > 0
                 ? product.sale_price.toLocaleString()
                 : product.base_price.toLocaleString()}
               ₫
             </span>
-            {product.discount && (
+            {product.discount > 0 && (
               <>
                 <span className="ml-4 text-sm text-[#9e9e9e] line-through">
                   {product.base_price.toLocaleString()}₫

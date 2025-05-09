@@ -23,7 +23,7 @@ const ProductModal = (props: ProductModalProps) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const [activeImageId, setActiveImageId] = useState(
-    product.variant_images[0].image_id
+    product.variant_images[0]?.image_id || "",
   );
 
   const { isOpenModal, setIsOpenModal } = props;
@@ -41,7 +41,7 @@ const ProductModal = (props: ProductModalProps) => {
     }
 
     const maxQuantity = product.variants.find(
-      (variant) => variant.size.size_id === idSelectedSize
+      (variant) => variant.size.size_id === idSelectedSize,
     )?.quantity;
 
     if (maxQuantity && quantity > maxQuantity) {
@@ -52,7 +52,7 @@ const ProductModal = (props: ProductModalProps) => {
     const item: CartItem = {
       cart_item_id: uuidv4(),
       variant: product.variants.filter(
-        (variant) => variant.size.size_id === idSelectedSize
+        (variant) => variant.size.size_id === idSelectedSize,
       )[0],
       quantity,
       created_at: new Date(),
@@ -75,7 +75,7 @@ const ProductModal = (props: ProductModalProps) => {
   const sizesArray = Array.from(uniqueSizesMap.values());
   const sizeOrder = ["S", "M", "L", "XL", "XXL"];
   sizesArray.sort(
-    (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code)
+    (a, b) => sizeOrder.indexOf(a.size_code) - sizeOrder.indexOf(b.size_code),
   );
 
   return (
@@ -92,13 +92,13 @@ const ProductModal = (props: ProductModalProps) => {
       footer={null}
       width={800}
     >
-      <div className="container h-full mx-auto grid md:grid-cols-2 gap-8 overflow-hidden">
+      <div className="container mx-auto grid h-full gap-8 overflow-hidden md:grid-cols-2">
         <div className="product-gallery flex flex-col justify-between pb-4">
-          <span className="flex justify-center items-center flex-1">
+          <span className="flex flex-1 items-center justify-center">
             <Image
               src={
                 product.variant_images.find(
-                  (item) => item.image_id === activeImageId
+                  (item) => item.image_id === activeImageId,
                 )?.image_url
               }
               className="w-full rounded-lg"
@@ -111,16 +111,16 @@ const ProductModal = (props: ProductModalProps) => {
           />
         </div>
         <div className="product-detail px-3 py-5">
-          <h2 className="text-xl font-bold mb-[10px]">{product.name}</h2>
-          <p className="text-sm text-gray-600 mb-2">
+          <h2 className="mb-[10px] text-xl font-bold">{product.name}</h2>
+          <p className="mb-2 text-sm text-gray-600">
             Mã sản phẩm: <strong>{product.product_code}</strong>
           </p>
-          <p className="text-sm text-gray-600 mb-5">
+          <p className="mb-5 text-sm text-gray-600">
             Thương hiệu: <strong>{product.brand_name}</strong>
           </p>
-          <div className="p-4 mb-5 bg-[#fafafa] w-full flex items-center">
-            <span className="min-w-16 block">Giá: </span>
-            <span className="text-xl text-[#ff2c26] font-bold">
+          <div className="mb-5 flex w-full items-center bg-[#fafafa] p-4">
+            <span className="block min-w-16">Giá: </span>
+            <span className="text-xl font-bold text-[#ff2c26]">
               {product.sale_price && product.discount
                 ? product.sale_price.toLocaleString()
                 : product.base_price.toLocaleString()}
@@ -128,10 +128,10 @@ const ProductModal = (props: ProductModalProps) => {
             </span>
             {product.discount > 0 && (
               <>
-                <span className="text-[#9e9e9e] text-sm line-through ml-4">
+                <span className="ml-4 text-sm text-[#9e9e9e] line-through">
                   {product.base_price.toLocaleString()}₫
                 </span>
-                <span className="ml-4 bg-[#ff0000] text-white px-2 py-1 text-[10px] rounded-2xl">
+                <span className="ml-4 rounded-2xl bg-[#ff0000] px-2 py-1 text-[10px] text-white">
                   -{product.discount}%
                 </span>
               </>
@@ -140,20 +140,20 @@ const ProductModal = (props: ProductModalProps) => {
 
           <div className="mt-4">
             <h3 className="font-medium">Màu sắc:</h3>
-            <div className="flex gap-2 mt-2 flex-wrap">
+            <div className="mt-2 flex flex-wrap gap-2">
               {colorsArray.map((color) => (
                 <button
                   key={color.color_id}
-                  className={`border px-2 py-2 rounded ${
+                  className={`rounded border px-2 py-2 ${
                     product.variants[0].color.color_id === color.color_id
-                      ? "border-red-500 border-2"
+                      ? "border-2 border-red-500"
                       : "border-gray-300"
                   }`}
                   onClick={() => {
                     setActiveImageId(
                       product.variants.filter(
-                        (variant) => variant.color.color_id === color.color_id
-                      )[0].image.image_id
+                        (variant) => variant.color.color_id === color.color_id,
+                      )[0].image.image_id,
                     );
                   }}
                 >
@@ -165,22 +165,22 @@ const ProductModal = (props: ProductModalProps) => {
 
           <div className="mt-4">
             <h3 className="font-medium">Kích thước:</h3>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {sizesArray.map((size) => {
                 const isVariantInStock = product.variants.some(
                   (variant) =>
                     variant.quantity > 0 &&
-                    variant.size.size_id === size.size_id
+                    variant.size.size_id === size.size_id,
                 );
 
                 return (
                   <button
                     key={size.size_id}
-                    className={`relative border px-4 py-2 rounded transition ${
+                    className={`relative rounded border px-4 py-2 transition ${
                       idSelectedSize === size.size_id
-                        ? "border-red-500 border-2"
+                        ? "border-2 border-red-500"
                         : "border-gray-300"
-                    } ${!isVariantInStock ? "opacity-50 cursor-not-allowed" : ""}`}
+                    } ${!isVariantInStock ? "cursor-not-allowed opacity-50" : ""}`}
                     onClick={() =>
                       isVariantInStock && setIdSelectedSize(size.size_id)
                     }
@@ -188,7 +188,7 @@ const ProductModal = (props: ProductModalProps) => {
                   >
                     {size.size_code}
                     {!isVariantInStock && (
-                      <X className="absolute inset-0 m-auto opacity-30 w-full h-full" />
+                      <X className="absolute inset-0 m-auto h-full w-full opacity-30" />
                     )}
                   </button>
                 );
@@ -197,16 +197,16 @@ const ProductModal = (props: ProductModalProps) => {
           </div>
 
           <div className="mt-4 flex items-center">
-            <h3 className="font-medium mr-4">Số lượng:</h3>
+            <h3 className="mr-4 font-medium">Số lượng:</h3>
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-1 border"
+              className="border px-3 py-1"
             >
               -
             </button>
             <input
               type="number"
-              className="w-16 text-center border border-white rounded-md focus:outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="w-16 rounded-md border border-white text-center focus:outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               value={quantity}
               onChange={(e) => {
                 const value = parseInt(e.target.value);
@@ -216,31 +216,31 @@ const ProductModal = (props: ProductModalProps) => {
 
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="px-3 py-1 border"
+              className="border px-3 py-1"
             >
               +
             </button>
           </div>
 
           <div className="relative">
-            <div className="absolute top-2 flex text-base items-center text-shop-color-main font-bold">
+            <div className="absolute top-2 flex items-center text-base font-bold text-shop-color-main">
               {errorMessage}
             </div>
           </div>
 
           <div
-            className="mt-10 bg-[#e70505] text-white py-3 px-7 text-base text-center cursor-pointer aspectRatio-[9/16] w-full"
+            className="aspectRatio-[9/16] mt-10 w-full cursor-pointer bg-[#e70505] px-7 py-3 text-center text-base text-white"
             onClick={handleAddToCart}
           >
             THÊM VÀO GIỎ
           </div>
 
-          <div className="mt-4 flex gap-4 justify-end">
+          <div className="mt-4 flex justify-end gap-4">
             <div className="text-base">Chia sẻ: </div>
-            <FaFacebookF className="text-xl cursor-pointer" />
-            <FaTwitter className="text-xl cursor-pointer" />
-            <FaPinterest className="text-xl cursor-pointer" />
-            <FaLink className="text-xl cursor-pointer" />
+            <FaFacebookF className="cursor-pointer text-xl" />
+            <FaTwitter className="cursor-pointer text-xl" />
+            <FaPinterest className="cursor-pointer text-xl" />
+            <FaLink className="cursor-pointer text-xl" />
           </div>
         </div>
       </div>
@@ -270,8 +270,8 @@ const GallerySlider = (props: GallerySliderProps) => {
   }, []);
 
   return (
-    <div className="flex flex-col mt-4">
-      <div className="title flex flex-col mb-2">
+    <div className="mt-4 flex flex-col">
+      <div className="title mb-2 flex flex-col">
         <div className="flex justify-between">
           <div className="text-xs" style={{ transition: "all .3s easeInOut" }}>
             <h2>Ảnh mô tả</h2>
@@ -290,18 +290,18 @@ const GallerySlider = (props: GallerySliderProps) => {
             {product_images.map((item, index) => {
               return (
                 <motion.div
-                  className={clsx("overflow-hidden flex-shrink-0")}
+                  className={clsx("flex-shrink-0 overflow-hidden")}
                   key={index}
                   style={{ flexBasis: `${100 / perPage}%` }}
                   transition={{ duration: 0, ease: "easeInOut" }}
                 >
-                  <div className="w-full overflow-hidden relative">
+                  <div className="relative w-full overflow-hidden">
                     <img
                       src={item.image_url}
                       className={cn(
-                        "object-cover cursor-pointer",
+                        "cursor-pointer object-cover",
                         activeImageId === item.image_id &&
-                          "border-2 border-red-500"
+                          "border-2 border-red-500",
                       )}
                       draggable={false}
                       style={{ transition: "all 0.1s ease-in-out" }}
