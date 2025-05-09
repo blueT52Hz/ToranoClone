@@ -10,7 +10,7 @@ const AppBreadcrumb = (props: AppBreadcrumbProps) => {
   const { items = [] } = props;
   return (
     <section className="breadcrumb">
-      <nav className="text-sm px-[50px] bg-[#f5f5f5] min-h-[40px] flex items-center">
+      <nav className="flex min-h-[40px] items-center overflow-hidden bg-[#f5f5f5] px-8 text-sm md:px-[50px]">
         <Breadcrumb items={items}></Breadcrumb>
       </nav>
     </section>

@@ -17,7 +17,7 @@ const ProfileEdit = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData({
@@ -56,15 +56,15 @@ const ProfileEdit = () => {
 
   return (
     <AccountLayout title="Chỉnh sửa hồ sơ">
-      <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto my-8">
+      <div className="mx-auto my-8 max-w-2xl rounded-lg bg-white p-6 shadow-md">
         {successMessage && (
-          <div className="bg-green-100 text-green-700 p-3 rounded mb-4">
+          <div className="mb-4 rounded bg-green-100 p-3 text-green-700">
             {successMessage}
           </div>
         )}
 
         {errorMessage && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+          <div className="mb-4 rounded bg-red-100 p-3 text-red-700">
             {errorMessage}
           </div>
         )}
@@ -73,7 +73,7 @@ const ProfileEdit = () => {
           <div>
             <label
               htmlFor="full_name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Họ và tên
             </label>
@@ -83,14 +83,14 @@ const ProfileEdit = () => {
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
             <label
               htmlFor="gender"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Giới tính
             </label>
@@ -99,7 +99,7 @@ const ProfileEdit = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
@@ -110,7 +110,7 @@ const ProfileEdit = () => {
           <div>
             <label
               htmlFor="date_of_birth"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Ngày sinh
             </label>
@@ -120,14 +120,14 @@ const ProfileEdit = () => {
               name="date_of_birth"
               value={formData.date_of_birth}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Email
             </label>
@@ -137,14 +137,14 @@ const ProfileEdit = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Lưu thông tin
             </button>

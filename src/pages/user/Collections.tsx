@@ -64,7 +64,7 @@ const Collections = () => {
             <Sidebar />
           </div>
           {isLoading ? (
-            <div className="main-container px-3 flex flex-col min850:col-span-3">
+            <div className="main-container px-3 flex flex-col min850:col-span-3 col-span-4">
               <Loading />
             </div>
           ) : (
@@ -79,7 +79,7 @@ const Collections = () => {
                     <span className="font-light"> sản phẩm</span>
                   </div>
                 </div>
-                <div className="product-filter-sort flex items-center justify-between text-sm">
+                <div className="product-filter-sort flex items-center justify-between flex-wrap gap-4 text-sm">
                   {isMobile && (
                     <>
                       <button
@@ -113,8 +113,8 @@ const Collections = () => {
                       </Drawer>
                     </>
                   )}
-                  <div className="flex gap-4 items-center">
-                    <div>Sắp xếp theo</div>
+                  <div className="flex gap-4 items-center flex-wrap">
+                    {!isMobile && <div>Sắp xếp theo</div>}
                     <DropdownMenu />
                   </div>
                 </div>

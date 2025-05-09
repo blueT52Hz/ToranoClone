@@ -14,7 +14,6 @@ import PromotionPage from "@/pages/user/Promotion";
 import Register from "@/pages/user/Register";
 import Search from "@/pages/user/Search";
 import StoreLocator from "@/pages/user/StoreLocator";
-import Test from "@/pages/user/Test";
 import { Route, Routes } from "react-router-dom";
 
 const UserRoutes = () => {
@@ -23,7 +22,6 @@ const UserRoutes = () => {
       <Routes>
         <Route element={<HomeLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/test" element={<Test />} />
           <Route path="/collections/:slug" element={<Collections />} />
           <Route path="/pages/he-thong-cua-hang" element={<StoreLocator />} />
           <Route path="/pages/tang-voucher-20-30" element={<PromotionPage />} />
