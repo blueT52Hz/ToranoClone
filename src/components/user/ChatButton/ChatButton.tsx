@@ -39,7 +39,7 @@ const ChatButton = () => {
       {isOpen && (
         <div
           ref={chatRef}
-          className="fixed bottom-24 right-6 z-50 h-[500px] w-[400px] overflow-hidden rounded-lg shadow-lg"
+          className="fixed bottom-24 right-0 z-50 h-[500px] w-full overflow-hidden rounded-lg shadow-lg md:right-6 md:w-[400px]"
         >
           <iframe
             src="https://workflow.proptit.com/webhook/289f7a44-e1a7-4d46-b014-89e3e149f80c/chat"
