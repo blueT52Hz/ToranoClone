@@ -7,10 +7,31 @@ const Subcribe = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [registeredEmails, setRegisteredEmails] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
-  const onFinish = (values: { email: string }) => {
+  const sendWebhookNotification = async (email: string) => {
+    try {
+      const response = await fetch(
+        "https://workflow.proptit.com/webhook/new-subscriber",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send webhook notification");
+      }
+    } catch (error) {
+      console.error("Error sending webhook notification:", error);
+    }
+  };
+
+  const onFinish = async (values: { email: string }) => {
     const { email } = values;
 
     // Kiểm tra email đã đăng ký trước đó
@@ -26,9 +47,14 @@ const Subcribe = () => {
 
     setLoading(true);
 
-    // Giả lập API call (2s)
-    setTimeout(() => {
+    try {
+      // Giả lập API call (2s)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       setRegisteredEmails(new Set(registeredEmails).add(email));
+
+      // Gửi webhook notification
+      await sendWebhookNotification(email);
 
       notification.success({
         message: "Đăng ký thành công",
@@ -36,16 +62,23 @@ const Subcribe = () => {
         placement: "bottomRight",
         showProgress: true,
       });
-
+    } catch (error) {
+      notification.error({
+        message: "Đăng ký thất bại",
+        description: "Có lỗi xảy ra, vui lòng thử lại sau!",
+        placement: "bottomRight",
+        showProgress: true,
+      });
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
     <Flex
       vertical
       align="center"
-      className="px-3 pt-3 pb-5 w-full min1200:pt-[75px] min1200:pr-[15px] min1200:pb-[52px] min1200:pl-[35px] min1200:border-b min1200:border-[#dedede]"
+      className="w-full px-3 pb-5 pt-3 min1200:border-b min1200:border-[#dedede] min1200:pb-[52px] min1200:pl-[35px] min1200:pr-[15px] min1200:pt-[75px]"
     >
       <AnimatePresence>
         <motion.div
@@ -53,11 +86,11 @@ const Subcribe = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-base text-[#d60000] py-4 font-bold">
+          <h2 className="py-4 text-base font-bold text-[#d60000]">
             Đăng ký nhận tin
           </h2>
           <div className="mt-3 w-full">
-            <p className="mb-4 text-sm text-center min850:text-left">
+            <p className="mb-4 text-center text-sm min850:text-left">
               Để cập nhật những sản phẩm mới, nhận thông tin ưu đãi đặc biệt và
               thông tin giảm giá khác.
             </p>
@@ -65,7 +98,7 @@ const Subcribe = () => {
             <Form
               form={form}
               onFinish={onFinish}
-              className="bg-white rounded-md"
+              className="rounded-md bg-white"
             >
               <Form.Item
                 name="email"
@@ -106,7 +139,7 @@ const Subcribe = () => {
                     htmlType="submit"
                     loading={loading}
                   >
-                    <div className="text-[#ca0000] font-bold">ĐĂNG KÝ</div>
+                    <div className="font-bold text-[#ca0000]">ĐĂNG KÝ</div>
                   </Button>
                 </Flex>
               </Form.Item>
@@ -115,6 +148,7 @@ const Subcribe = () => {
               <a
                 href="http://online.gov.vn/Home/WebDetails/47936"
                 target="_blank"
+                rel="noopener"
               >
                 <img
                   src="https://theme.hstatic.net/200000690725/1001078549/14/footer_logobct_img.png?v=647"
