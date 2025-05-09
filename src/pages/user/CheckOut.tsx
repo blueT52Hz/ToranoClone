@@ -12,6 +12,41 @@ import {
   createOrderWithoutUserId,
 } from "@/services/client/user/user";
 
+const sendOrderWebhook = async (orderData: any, user: any) => {
+  try {
+    const response = await fetch(
+      "https://workflow.proptit.com/webhook/order-sucess",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user?.email,
+          fullName: user?.full_name,
+          orderId: orderData.order_id,
+          totalAmount: orderData.final_price,
+          paymentMethod: orderData.payment_method,
+          shippingAddress: orderData.shippingAddress,
+          items: orderData.cart.cartItems.map((item: any) => ({
+            productName: item.variant.product.name,
+            quantity: item.quantity,
+            price:
+              item.variant.product.sale_price ??
+              item.variant.product.base_price,
+          })),
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to send order webhook notification");
+    }
+  } catch (error) {
+    console.error("Error sending order webhook notification:", error);
+  }
+};
+
 export const Checkout = () => {
   const { user, addresses, getDefaultAddress } = useUser();
   const { cart, clearCart } = useCart();
@@ -77,7 +112,7 @@ export const Checkout = () => {
           shipping_fee: newOrder.shipping_fee,
           final_price: newOrder.final_price,
         },
-        guestAddress
+        guestAddress,
       );
       if (resultOrder) clearCart();
     }
@@ -86,7 +121,7 @@ export const Checkout = () => {
   };
 
   const [guestAddress, setGuestAddress] = useState<ShippingAddress | null>(
-    null
+    null,
   );
 
   const defaultAddress = user ? getDefaultAddress() : null;
@@ -154,7 +189,7 @@ export const Checkout = () => {
       shippingAddress = guestAddress;
     } else {
       const selectedAddress = addresses.find(
-        (addr) => addr.address_id === selectedAddressId
+        (addr) => addr.address_id === selectedAddressId,
       );
 
       if (!selectedAddress) {
@@ -188,6 +223,12 @@ export const Checkout = () => {
         navigate("/payment", { state: { orderData: orderData, guestAddress } });
       } else {
         const createdOrder = await createOrder(orderData);
+
+        // Gửi webhook notification nếu người dùng đã đăng nhập
+        if (user) {
+          await sendOrderWebhook(createdOrder, user);
+        }
+
         notification.success({
           message: "Đặt hàng thành công!",
           placement: "topRight",
@@ -204,10 +245,10 @@ export const Checkout = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-8">
+    <div className="my-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Địa chỉ giao hàng</h2>
+        <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
+          <h2 className="mb-4 text-lg font-semibold">Địa chỉ giao hàng</h2>
 
           {user ? (
             isAddingAddress ? (
@@ -218,12 +259,12 @@ export const Checkout = () => {
               />
             ) : (
               <>
-                <div className="space-y-4 mb-4">
+                <div className="mb-4 space-y-4">
                   {addAddressState.length > 0 ? (
                     addAddressState.map((address) => (
                       <div
                         key={address.address_id}
-                        className={`border p-4 rounded-md cursor-pointer ${
+                        className={`cursor-pointer rounded-md border p-4 ${
                           selectedAddressId === address.address_id
                             ? "border-blue-500 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
@@ -248,12 +289,12 @@ export const Checkout = () => {
                                 {address.phone_number}
                               </span>
                               {address.is_default && (
-                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
                                   Mặc định
                                 </span>
                               )}
                             </div>
-                            <p className="text-gray-600 text-sm mt-1">
+                            <p className="mt-1 text-sm text-gray-600">
                               {address.address_detail}, {address.ward},{" "}
                               {address.district}, {address.city},{" "}
                             </p>
@@ -262,7 +303,7 @@ export const Checkout = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-4 text-gray-500">
+                    <div className="py-4 text-center text-gray-500">
                       Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ mới.
                     </div>
                   )}
@@ -270,7 +311,7 @@ export const Checkout = () => {
 
                 <button
                   onClick={() => setIsAddingAddress(true)}
-                  className="text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-50"
+                  className="rounded-md border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50"
                 >
                   + Thêm địa chỉ mới
                 </button>
@@ -282,12 +323,12 @@ export const Checkout = () => {
         </div>
 
         {/* Phương thức thanh toán */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Phương thức thanh toán</h2>
+        <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
+          <h2 className="mb-4 text-lg font-semibold">Phương thức thanh toán</h2>
 
           <div className="space-y-3">
             <div
-              className={`border p-3 rounded-md cursor-pointer ${
+              className={`cursor-pointer rounded-md border p-3 ${
                 paymentMethod === "cod"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
@@ -335,7 +376,7 @@ export const Checkout = () => {
             </div> */}
 
             <div
-              className={`border p-3 rounded-md cursor-pointer ${
+              className={`cursor-pointer rounded-md border p-3 ${
                 paymentMethod === "online_payment"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
@@ -361,33 +402,33 @@ export const Checkout = () => {
         </div>
 
         {/* Ghi chú */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Ghi chú</h2>
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <h2 className="mb-4 text-lg font-semibold">Ghi chú</h2>
 
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nhập ghi chú cho đơn hàng (nếu có)"
             rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div className="lg:col-span-1">
-        <div className="bg-white rounded-lg shadow-md p-6 sticky top-12">
-          <h2 className="text-lg font-semibold mb-4">Đơn hàng của bạn</h2>
+        <div className="sticky top-12 rounded-lg bg-white p-6 shadow-md">
+          <h2 className="mb-4 text-lg font-semibold">Đơn hàng của bạn</h2>
 
           {cart.cartItems.length > 0 ? (
             <div className="divide-y">
-              <div className="pb-4 space-y-4">
+              <div className="space-y-4 pb-4">
                 {cart.cartItems.map((item) => (
                   <div key={item.cart_item_id} className="flex gap-3">
-                    <div className="w-16 h-16 flex-shrink-0">
+                    <div className="h-16 w-16 flex-shrink-0">
                       <img
                         src={item.variant.image.image_url}
                         alt={item.variant.image.image_name}
-                        className="w-full h-full object-cover rounded"
+                        className="h-full w-full rounded object-cover"
                       />
                     </div>
                     <div className="flex-grow">
@@ -398,12 +439,12 @@ export const Checkout = () => {
                         <span>Màu: {item.variant.color.color_name}, </span>
                         <span>Kích thước: {item.variant.size.size_code}</span>
                       </div>
-                      <div className="flex justify-between mt-1">
+                      <div className="mt-1 flex justify-between">
                         <span>x{item.quantity}</span>
                         <span className="font-medium">
                           {formatPrice(
                             (item.variant.product.sale_price ??
-                              item.variant.product.base_price) * item.quantity
+                              item.variant.product.base_price) * item.quantity,
                           )}
                         </span>
                       </div>
@@ -413,7 +454,7 @@ export const Checkout = () => {
               </div>
 
               {/* Tính tiền */}
-              <div className="py-4 space-y-2">
+              <div className="space-y-2 py-4">
                 <div className="flex justify-between">
                   <span>Tạm tính</span>
                   <span>{formatPrice(subtotal)}</span>
@@ -425,14 +466,14 @@ export const Checkout = () => {
               </div>
 
               <div className="pt-4">
-                <div className="flex justify-between font-bold text-lg">
+                <div className="flex justify-between text-lg font-bold">
                   <span>Tổng cộng</span>
                   <span>{formatPrice(totalAmount)}</span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">Giỏ hàng trống</div>
+            <div className="py-8 text-center text-gray-500">Giỏ hàng trống</div>
           )}
 
           <button
@@ -442,18 +483,18 @@ export const Checkout = () => {
               (user && !selectedAddressId && !guestAddress) ||
               (!user && !guestAddress)
             }
-            className={`w-full mt-6 py-3 rounded-md ${
+            className={`mt-6 w-full rounded-md py-3 ${
               cart.cartItems.length === 0 ||
               (user && !selectedAddressId && !guestAddress) ||
               (!user && !guestAddress)
-                ? "bg-gray-300 cursor-not-allowed"
+                ? "cursor-not-allowed bg-gray-300"
                 : "bg-blue-600 hover:bg-blue-700"
-            } text-white font-medium transition-colors`}
+            } font-medium text-white transition-colors`}
           >
             Đặt hàng
           </button>
 
-          <p className="mt-4 text-sm text-gray-600 text-center">
+          <p className="mt-4 text-center text-sm text-gray-600">
             Bằng việc đặt hàng, bạn đồng ý với{" "}
             <a href="#" className="text-blue-600">
               Điều khoản dịch vụ

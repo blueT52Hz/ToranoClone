@@ -1,11 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { Input, Typography, Form, Radio, DatePicker, notification } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { User } from "@/types/user";
 import { format } from "date-fns";
 import { useUser } from "@/context/UserContext";
 import { registerUser } from "@/services/client/user/user";
+
+const sendRegisterWebhook = async (user: User) => {
+  try {
+    const response = await fetch(
+      "https://workflow.proptit.com/webhook/470d7d94-4b32-49b3-a716-9e5620711391",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          fullName: user.full_name,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to send register webhook notification");
+    }
+  } catch (error) {
+    console.error("Error sending register webhook notification:", error);
+  }
+};
 
 interface FormValues {
   lastName: string;
@@ -45,6 +69,7 @@ const Register = () => {
           const result = await registerUser(userRegister);
           if (result) {
             setUser(result);
+            await sendRegisterWebhook(result);
             notification.success({
               message: "Thông báo",
               description: "Đăng ký thành công",
@@ -191,6 +216,7 @@ const Register = () => {
               <a
                 href="https://policies.google.com/privacy"
                 target="_blank"
+                rel="noopener"
                 className="text-blue-500"
               >
                 Privacy Policy
@@ -200,6 +226,7 @@ const Register = () => {
                 href="https://policies.google.com/terms"
                 className="text-blue-500"
                 target="_blank"
+                rel="noopener"
               >
                 Terms of Service
               </a>{" "}
