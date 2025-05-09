@@ -5,164 +5,97 @@ import { ChevronDown, Circle, Dot, Minus, Plus, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const Sidebar = () => {
+export interface FilterState {
+  priceRange: [number, number];
+  sizes: string[];
+}
+
+interface SidebarProps {
+  onFilter: (filters: FilterState) => void;
+  filters: FilterState;
+}
+
+const Sidebar = ({ onFilter, filters }: SidebarProps) => {
   const { slug } = useParams();
-  const [tagFilter, setTagFilter] = useState(slug || "");
-  const sizeOrder = [
-    "S",
-    "M",
-    "L",
-    "XL",
-    "XXL",
-    "31",
-    "32",
-    "33",
-    "34",
-    "35",
-    "36",
-    "37",
-    "38",
-    "39",
-    "40",
-  ];
-  const [priceFilter, setPriceFilter] = useState<[number, number]>([
-    0, 3000000,
-  ]);
-  const sortSizes = (
-    sizes: (
-      | "S"
-      | "M"
-      | "L"
-      | "XL"
-      | "XXL"
-      | "31"
-      | "32"
-      | "33"
-      | "34"
-      | "35"
-      | "36"
-      | "37"
-      | "38"
-      | "39"
-      | "40"
-    )[]
-  ) => {
-    return sizes.sort((a, b) => {
-      const indexA = sizeOrder.indexOf(a);
-      const indexB = sizeOrder.indexOf(b);
-
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB;
-      } else if (indexA !== -1) {
-        return -1;
-      } else if (indexB !== -1) {
-        return 1;
-      } else {
-        return parseInt(a) - parseInt(b);
-      }
-    });
-  };
-  const [sizeFilter, setSizeFilter] = useState<
-    (
-      | "S"
-      | "M"
-      | "L"
-      | "XL"
-      | "XXL"
-      | "31"
-      | "32"
-      | "33"
-      | "34"
-      | "35"
-      | "36"
-      | "37"
-      | "38"
-      | "39"
-      | "40"
-    )[]
-  >([]);
-
-  const [isFilterActive, setIsFilterActive] = useState(false);
+  const [priceFilter, setPriceFilter] = useState<[number, number]>(
+    filters.priceRange,
+  );
+  const [sizeFilter, setSizeFilter] = useState<string[]>(filters.sizes);
 
   const clearPriceFilter = () => {
     setPriceFilter([0, 3000000]);
+    onFilter({ ...filters, priceRange: [0, 3000000] });
   };
 
   const clearSizeFilter = () => {
     setSizeFilter([]);
+    onFilter({ ...filters, sizes: [] });
   };
 
   const clearAllFilters = () => {
     setPriceFilter([0, 3000000]);
     setSizeFilter([]);
+    onFilter({ priceRange: [0, 3000000], sizes: [] });
   };
 
-  const handleClickSize = (
-    value:
-      | "S"
-      | "M"
-      | "L"
-      | "XL"
-      | "XXL"
-      | "31"
-      | "32"
-      | "33"
-      | "34"
-      | "35"
-      | "36"
-      | "37"
-      | "38"
-      | "39"
-      | "40"
-  ) => {
+  const handleClickSize = (value: string) => {
+    let updatedSizes: string[];
     if (sizeFilter.includes(value)) {
-      setSizeFilter(sizeFilter.filter((item) => item != value));
+      updatedSizes = sizeFilter.filter((item) => item !== value);
     } else {
-      const updatedSizes = [...sizeFilter, value];
-      setSizeFilter(sortSizes(updatedSizes));
+      updatedSizes = [...sizeFilter, value];
     }
+    setSizeFilter(updatedSizes);
+    onFilter({ ...filters, sizes: updatedSizes });
+  };
+
+  const handlePriceChange = (value: [number, number]) => {
+    setPriceFilter(value);
+    onFilter({ ...filters, priceRange: value });
   };
 
   return (
     <div className="left-sidebar min-h-full">
-      <div className="sticky-filter sticky top-[4.5rem] flex flex-col px-3 overflow-y-auto">
-        {true && (
+      <div className="sticky-filter sticky top-[4.5rem] flex flex-col overflow-y-auto px-3">
+        {(priceFilter[0] > 0 ||
+          priceFilter[1] < 3000000 ||
+          sizeFilter.length > 0) && (
           <div className="filter-current">
-            <div className="title text-[26px] font-bold mb-5">Bạn đang xem</div>
+            <div className="title mb-5 text-[26px] font-bold">Bạn đang xem</div>
             <div className="list-tags">
-              <div className="filter-tags price flex text-xs text-[#5d5d5d] items-center mb-4">
-                <X
-                  className="cursor-pointer mr-2 w-5 h-5"
-                  onClick={clearPriceFilter}
-                />
-                <div className="">Khoảng giá:</div>
-                <div className="font-bold text-sm ml-1">
-                  <span>{priceFilter[0].toLocaleString("en-US") + "đ"}</span>
-                  <span> - </span>
-                  <span>{priceFilter[1].toLocaleString("en-US") + "đ"}</span>
+              {(priceFilter[0] > 0 || priceFilter[1] < 3000000) && (
+                <div className="filter-tags price mb-4 flex items-center text-xs text-[#5d5d5d]">
+                  <X
+                    className="mr-2 h-5 w-5 cursor-pointer"
+                    onClick={clearPriceFilter}
+                  />
+                  <div className="">Khoảng giá:</div>
+                  <div className="ml-1 text-sm font-bold">
+                    <span>{priceFilter[0].toLocaleString("en-US") + "đ"}</span>
+                    <span> - </span>
+                    <span>{priceFilter[1].toLocaleString("en-US") + "đ"}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="filter-tags price flex text-xs text-[#5d5d5d] items-center mb-4">
-                <X
-                  className="cursor-pointer mr-2 w-5 h-5 shrink-0"
-                  onClick={clearSizeFilter}
-                />
-                <div className="shrink-0">Size: </div>
-                <div className="font-bold text-sm ml-1 line-clamp-1">
-                  {sizeFilter.length === 0 ? (
-                    <span>Tất cả</span>
-                  ) : (
-                    sizeFilter.map((item, index) => {
+              )}
+              {sizeFilter.length > 0 && (
+                <div className="filter-tags price mb-4 flex items-center text-xs text-[#5d5d5d]">
+                  <X
+                    className="mr-2 h-5 w-5 shrink-0 cursor-pointer"
+                    onClick={clearSizeFilter}
+                  />
+                  <div className="shrink-0">Size: </div>
+                  <div className="ml-1 line-clamp-1 text-sm font-bold">
+                    {sizeFilter.map((item, index) => {
                       const tmp =
                         index === sizeFilter.length - 1 ? item : item + ", ";
                       return <span key={index}>{tmp}</span>;
-                    })
-                  )}
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div
-                className="filter-tags remove-all text-shop-color-main cursor-pointer hover:underline text-sm mb-4"
+                className="filter-tags remove-all mb-4 cursor-pointer text-sm text-shop-color-main hover:underline"
                 onClick={clearAllFilters}
               >
                 Xóa hết
@@ -171,12 +104,12 @@ const Sidebar = () => {
           </div>
         )}
         <div className="filter-content">
-          <div className="filter-head text-[26px] font-bold mb-5">Bộ lọc</div>
+          <div className="filter-head mb-5 text-[26px] font-bold">Bộ lọc</div>
           <div className="filter-options">
             <PriceSlider
               priceFilter={priceFilter}
-              setPriceFilter={setPriceFilter}
-            ></PriceSlider>
+              setPriceFilter={handlePriceChange}
+            />
             <CategoryFilter />
             <SizeFilter
               handleClickSize={handleClickSize}
@@ -192,61 +125,12 @@ const Sidebar = () => {
 export default Sidebar;
 
 interface SizeFilterProps {
-  sizeFilter: (
-    | "S"
-    | "M"
-    | "L"
-    | "XL"
-    | "XXL"
-    | "31"
-    | "32"
-    | "33"
-    | "34"
-    | "35"
-    | "36"
-    | "37"
-    | "38"
-    | "39"
-    | "40"
-  )[];
-  handleClickSize: (
-    value:
-      | "S"
-      | "M"
-      | "L"
-      | "XL"
-      | "XXL"
-      | "31"
-      | "32"
-      | "33"
-      | "34"
-      | "35"
-      | "36"
-      | "37"
-      | "38"
-      | "39"
-      | "40"
-  ) => void;
+  sizeFilter: string[];
+  handleClickSize: (value: string) => void;
 }
 
 const SizeFilter = ({ handleClickSize, sizeFilter }: SizeFilterProps) => {
-  const value: (
-    | "S"
-    | "M"
-    | "L"
-    | "XL"
-    | "XXL"
-    | "31"
-    | "32"
-    | "33"
-    | "34"
-    | "35"
-    | "36"
-    | "37"
-    | "38"
-    | "39"
-    | "40"
-  )[] = [
+  const value: string[] = [
     "S",
     "M",
     "L",
@@ -265,17 +149,17 @@ const SizeFilter = ({ handleClickSize, sizeFilter }: SizeFilterProps) => {
   ];
   return (
     <OptionExpanseItem title="Size">
-      <div className="grid grid-cols-5 gap-4 mt-4">
+      <div className="mt-4 grid grid-cols-5 gap-4">
         {value.map((item, index) => {
           return (
             <div
               onClick={() => handleClickSize(item)}
               key={index}
               className={cn(
-                "p-2 border rounded-md transition-all duration-300 flex items-center justify-center cursor-pointer hover:bg-[#000]/60 ",
+                "flex cursor-pointer items-center justify-center rounded-md border p-2 transition-all duration-300 hover:bg-[#000]/60",
                 sizeFilter.includes(item)
                   ? "bg-[#000] text-[#fff]"
-                  : "hover:text-[#fff]"
+                  : "hover:text-[#fff]",
               )}
             >
               {item}
@@ -334,7 +218,7 @@ const CategoryFilter = () => {
           <Dot size={30} />
           <Link
             to={"/collections/new-1"}
-            className={cn("text-sm font-medium my-2")}
+            className={cn("my-2 text-sm font-medium")}
           >
             Sản phẩm mới
           </Link>
@@ -343,7 +227,7 @@ const CategoryFilter = () => {
           <Dot size={30} />
           <Link
             to={"/collections/onsale"}
-            className={cn("text-sm font-medium my-2")}
+            className={cn("my-2 text-sm font-medium")}
           >
             Sale
           </Link>
@@ -357,7 +241,7 @@ const CategoryFilter = () => {
                     <Link
                       key={subIndex}
                       to={"/collections/" + subItem.slug}
-                      className={"text-xs my-2 text-[#666666] hover:text-black"}
+                      className={"my-2 text-xs text-[#666666] hover:text-black"}
                     >
                       {subItem.name}
                     </Link>
@@ -374,17 +258,17 @@ const CategoryFilter = () => {
 
 interface PriceSliderProps {
   priceFilter: [number, number];
-  setPriceFilter: React.Dispatch<React.SetStateAction<[number, number]>>;
+  setPriceFilter: (value: [number, number]) => void;
 }
 
 const PriceSlider = (props: PriceSliderProps) => {
   const { priceFilter, setPriceFilter } = props;
   const marks: SliderSingleProps["marks"] = {
     0: {
-      label: <div className="mt-2 text-[#999999] text-sm">0đ</div>,
+      label: <div className="mt-2 text-sm text-[#999999]">0đ</div>,
     },
     3000000: {
-      label: <div className="mt-2 text-[#999999] text-sm">3,000,000đ</div>,
+      label: <div className="mt-2 text-sm text-[#999999]">3,000,000đ</div>,
     },
   };
 
@@ -394,16 +278,16 @@ const PriceSlider = (props: PriceSliderProps) => {
 
   return (
     <OptionExpanseItem title="Khoảng giá">
-      <div className="pt-10 pl-4 pr-10">
+      <div className="pl-4 pr-10 pt-10">
         <div className="relative">
           <div
-            className="border absolute bg-[#f2f2f2] text-black text-xs px-2 py-1 rounded-md transform -translate-x-1/2 -translate-y-full"
+            className="absolute -translate-x-1/2 -translate-y-full transform rounded-md border bg-[#f2f2f2] px-2 py-1 text-xs text-black"
             style={{ left: `calc(${(priceFilter[0] / 3000000) * 100}%)` }}
           >
             {priceFilter[0].toLocaleString("vi-VN")}đ
           </div>
           <div
-            className="border absolute bg-[#f2f2f2] text-black text-xs px-2 py-1 rounded-md transform -translate-x-1/2 -translate-y-full"
+            className="absolute -translate-x-1/2 -translate-y-full transform rounded-md border bg-[#f2f2f2] px-2 py-1 text-xs text-black"
             style={{
               left: `calc(${(priceFilter[1] / 3000000) * 100}% - 0px)`,
             }}
@@ -439,9 +323,9 @@ const SubOptionExpanseItem = (props: OptionExpanseItemProps) => {
   const { title, children } = props;
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-col my-2">
+    <div className="my-2 flex flex-col">
       <div
-        className="flex gap-4 items-center cursor-pointer"
+        className="flex cursor-pointer items-center gap-4"
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center justify-start">
@@ -452,7 +336,7 @@ const SubOptionExpanseItem = (props: OptionExpanseItemProps) => {
           size={"0.875rem"}
           className={cn(
             "transition-transform duration-1000",
-            open && "-rotate-180"
+            open && "-rotate-180",
           )}
         ></ChevronDown>
       </div>
@@ -477,9 +361,9 @@ const OptionExpanseItem = (props: OptionExpanseItemProps) => {
   const { title, children } = props;
   const [open, setOpen] = useState(true);
   return (
-    <div className="flex flex-col my-[10px]">
+    <div className="my-[10px] flex flex-col">
       <div
-        className="flex justify-between cursor-pointer"
+        className="flex cursor-pointer justify-between"
         onClick={() => setOpen(!open)}
       >
         <h2 className={cn("text-lg font-semibold")}>{title}</h2>

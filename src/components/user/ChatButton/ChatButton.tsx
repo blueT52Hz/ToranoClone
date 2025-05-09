@@ -6,6 +6,10 @@ const ChatButton = () => {
   const chatRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -14,7 +18,7 @@ const ChatButton = () => {
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        handleClose();
       }
     };
 
@@ -25,7 +29,7 @@ const ChatButton = () => {
   }, []);
 
   return (
-    <>
+    <div className="relative">
       <div className="fixed bottom-6 right-6 z-50">
         <button
           ref={buttonRef}
@@ -36,28 +40,28 @@ const ChatButton = () => {
           <MessageCircle size={24} />
         </button>
       </div>
-      {isOpen && (
-        <div
-          ref={chatRef}
-          className="fixed bottom-24 right-0 z-50 h-[500px] w-full overflow-hidden rounded-lg shadow-lg md:right-6 md:w-[400px]"
+      <div className="absolute -top-4 right-2 z-10">
+        <button
+          onClick={handleClose}
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-all hover:bg-gray-300"
+          title="Đóng chat"
         >
-          <div className="absolute right-2 top-2 z-10">
-            <button
-              onClick={() => setIsOpen(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-600 transition-all hover:bg-gray-300"
-              title="Đóng chat"
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <iframe
-            src="https://workflow.proptit.com/webhook/289f7a44-e1a7-4d46-b014-89e3e149f80c/chat"
-            className="h-full w-full"
-            title="Chat Support"
-          />
-        </div>
-      )}
-    </>
+          <X size={16} />
+        </button>
+      </div>
+      <div
+        ref={chatRef}
+        className={`fixed bottom-24 right-0 z-50 h-[500px] w-full overflow-hidden rounded-lg shadow-lg transition-all duration-300 md:right-6 md:w-[400px] ${
+          isOpen ? "visible opacity-100" : "invisible opacity-0"
+        }`}
+      >
+        <iframe
+          src="https://workflow.proptit.com/webhook/289f7a44-e1a7-4d46-b014-89e3e149f80c/chat"
+          className="h-full w-full"
+          title="Chat Support"
+        />
+      </div>
+    </div>
   );
 };
 

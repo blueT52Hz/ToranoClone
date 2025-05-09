@@ -1,23 +1,61 @@
 import Loading from "@/components/common/Loading";
 import Pagination from "@/components/user/Pagination";
 import ProductCard from "@/components/user/Product/ProductCard";
-import Sidebar from "@/components/user/SidebarFilter";
+import Sidebar, { FilterState } from "@/components/user/SidebarFilter";
 import { getProductsByCollectionSlug } from "@/services/client/product";
 import { supabase } from "@/services/supabaseClient";
 import { Product } from "@/types/product";
 import { cn } from "@/utils/cn";
-import { Flex, Drawer } from "antd";
+import { Flex, Drawer, Dropdown, Button } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, X, ListFilterPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+
+const sortOptions = [
+  {
+    label: "Giá: Tăng dần",
+    sortFn: (a: Product, b: Product) =>
+      (a.sale_price || a.base_price) - (b.sale_price || b.base_price),
+  },
+  {
+    label: "Giá: Giảm dần",
+    sortFn: (a: Product, b: Product) =>
+      (b.sale_price || b.base_price) - (a.sale_price || a.base_price),
+  },
+  {
+    label: "Tên: A-Z",
+    sortFn: (a: Product, b: Product) => a.name.localeCompare(b.name),
+  },
+  {
+    label: "Tên: Z-A",
+    sortFn: (a: Product, b: Product) => b.name.localeCompare(a.name),
+  },
+  {
+    label: "Cũ nhất",
+    sortFn: (a: Product, b: Product) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  },
+  {
+    label: "Mới nhất",
+    sortFn: (a: Product, b: Product) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  },
+];
 
 const Collections = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [collection, setCollection] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    priceRange: [0, 3000000],
+    sizes: [],
+  });
 
   const onToggleDrawer = () => {
     setOpenDrawer(!openDrawer);
@@ -30,22 +68,35 @@ const Collections = () => {
 
   useEffect(() => {
     const getProducts = async () => {
-      if (!slug) return;
+      if (!slug) {
+        navigate("/404");
+        return;
+      }
       setIsLoading(true);
-      const result = await getProductsByCollectionSlug(slug);
+      try {
+        const result = await getProductsByCollectionSlug(slug);
+        const { data, error } = await supabase
+          .from("collection")
+          .select("name")
+          .eq("slug", slug)
+          .single();
 
-      const { data } = await supabase
-        .from("collection")
-        .select("name")
-        .eq("slug", slug)
-        .single();
+        if (error || !data || result.length === 0) {
+          navigate("/404");
+          return;
+        }
 
-      setProducts(result);
-      setCollection(data?.name);
-      setIsLoading(false);
+        setProducts(result);
+        setFilteredProducts(result);
+        setCollection(data.name);
+      } catch (error) {
+        navigate("/404");
+      } finally {
+        setIsLoading(false);
+      }
     };
     getProducts();
-  }, [slug]);
+  }, [slug, navigate]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,34 +107,65 @@ const Collections = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const handleFilter = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    let filtered = [...products];
+
+    // Lọc theo khoảng giá
+    filtered = filtered.filter(
+      (product) =>
+        (product.sale_price || product.base_price) >=
+          newFilters.priceRange[0] &&
+        (product.sale_price || product.base_price) <= newFilters.priceRange[1],
+    );
+
+    // Lọc theo size
+    if (newFilters.sizes.length > 0) {
+      filtered = filtered.filter((product) =>
+        product.variants.some((variant) =>
+          newFilters.sizes.includes(variant.size.size_code),
+        ),
+      );
+    }
+
+    setFilteredProducts(filtered);
+  };
+
+  const handleSort = (index: number) => {
+    const sortedProducts = [...filteredProducts].sort(
+      sortOptions[index].sortFn,
+    );
+    setFilteredProducts(sortedProducts);
+  };
+
   return (
     <div className="container min-w-full px-4 min850:px-12">
       <section className="collection-section py-7">
         <div className="grid grid-cols-4">
-          <div className="hidden min850:block sidebar">
-            <Sidebar />
+          <div className="sidebar hidden min850:block">
+            <Sidebar onFilter={handleFilter} filters={filters} />
           </div>
           {isLoading ? (
-            <div className="main-container px-3 flex flex-col min850:col-span-3 col-span-4">
+            <div className="main-container col-span-4 flex flex-col px-3 min850:col-span-3">
               <Loading />
             </div>
           ) : (
-            <div className="main-container px-3 flex flex-col min850:col-span-3 col-span-4">
-              <div className="toolbar-main flex flex-col min850:flex-row justify-between mb-[30px]">
-                <div className="title-toolbar flex gap-4 items-center">
-                  <div className="title-collection text-shop-color-title font-bold text-[22px]">
+            <div className="main-container col-span-4 flex flex-col px-3 min850:col-span-3">
+              <div className="toolbar-main mb-[30px] flex flex-col justify-between min850:flex-row">
+                <div className="title-toolbar flex items-center gap-4">
+                  <div className="title-collection text-[22px] font-bold text-shop-color-title">
                     {collection}
                   </div>
                   <div className="product-count text-sm">
-                    <span className="font-bold">{products.length}</span>
+                    <span className="font-bold">{filteredProducts.length}</span>
                     <span className="font-light"> sản phẩm</span>
                   </div>
                 </div>
-                <div className="product-filter-sort flex items-center justify-between flex-wrap gap-4 text-sm">
+                <div className="product-filter-sort flex flex-wrap items-center justify-between gap-4 text-sm">
                   {isMobile && (
                     <>
                       <button
-                        className="px-4 py-2 rounded-md flex justify-between items-center border border-[#dde1ef] gap-2"
+                        className="flex items-center justify-between gap-2 rounded-md border border-[#dde1ef] px-4 py-2"
                         onClick={onToggleDrawer}
                       >
                         <span>Bộ lọc</span>
@@ -97,7 +179,7 @@ const Collections = () => {
                             align="flex-end"
                           >
                             <X
-                              className="text-slate-500 cursor-pointer"
+                              className="cursor-pointer text-slate-500"
                               onClick={onToggleDrawer}
                             />
                           </Flex>
@@ -107,28 +189,57 @@ const Collections = () => {
                         placement="left"
                         width={"20rem"}
                         closeIcon={null}
-                        className="overflow-auto scrollbar-hidden"
+                        className="scrollbar-hidden overflow-auto"
                       >
-                        <Sidebar />
+                        <Sidebar onFilter={handleFilter} filters={filters} />
                       </Drawer>
                     </>
                   )}
-                  <div className="flex gap-4 items-center flex-wrap">
+                  <div className="flex flex-wrap items-center gap-4">
                     {!isMobile && <div>Sắp xếp theo</div>}
-                    <DropdownMenu />
+                    <Dropdown
+                      menu={{
+                        items: sortOptions.map((option, index) => ({
+                          key: index,
+                          label: option.label,
+                          onClick: () => handleSort(index),
+                        })),
+                      }}
+                      trigger={["click"]}
+                    >
+                      <Button>
+                        Sắp xếp <DownOutlined />
+                      </Button>
+                    </Dropdown>
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 min850:grid-cols-4 min1200:grid-cols-5 min850:gap-4 gap-2">
-                {products.map((item, index) => {
-                  return (
-                    <div key={index}>
-                      <ProductCard item={item} />
+              <div className="grid grid-cols-2 gap-2 min850:grid-cols-4 min850:gap-4 min1200:grid-cols-5">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((item, index) => {
+                    return (
+                      <div key={index}>
+                        <ProductCard item={item} />
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full flex flex-col items-center justify-center py-12">
+                    <div className="mb-2 text-xl font-medium text-gray-500">
+                      Không tìm thấy sản phẩm phù hợp
                     </div>
-                  );
-                })}
+                    <div className="text-sm text-gray-400">
+                      Vui lòng thử lại với bộ lọc khác
+                    </div>
+                  </div>
+                )}
               </div>
-              <Pagination total={products.length} currentPage={currentPage} />
+              {filteredProducts.length > 0 && (
+                <Pagination
+                  total={filteredProducts.length}
+                  currentPage={currentPage}
+                />
+              )}
             </div>
           )}
         </div>
@@ -140,15 +251,15 @@ const Collections = () => {
 export default Collections;
 
 const items = [
-  "Sản phẩm nổi bật",
+  // "Sản phẩm nổi bật",
   "Giá: Tăng dần",
   "Giá: Giảm dần",
   "Tên: A-Z",
   "Tên: Z-A",
   "Cũ nhất",
   "Mới nhất",
-  "Bán chạy nhất",
-  "Tồn kho giảm dần",
+  // "Bán chạy nhất",
+  // "Tồn kho giảm dần",
 ];
 
 const DropdownMenu = () => {
@@ -171,7 +282,7 @@ const DropdownMenu = () => {
       onMouseLeave={() => setIsOpen(false)}
     >
       <button
-        className="px-4 py-2 rounded-md w-48 flex justify-between items-center border border-[#dde1ef]"
+        className="flex w-48 items-center justify-between rounded-md border border-[#dde1ef] px-4 py-2"
         onClick={() => {
           if (isMobile) setIsOpen(!isOpen);
         }}
@@ -189,12 +300,12 @@ const DropdownMenu = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute w-48 z-50 bg-white shadow-md rounded-md  border border-[#dde1ef]"
+            className="absolute z-50 w-48 rounded-md border border-[#dde1ef] bg-white shadow-md"
           >
             {items.map((item) => (
               <li
                 key={item}
-                className="px-4 py-2 hover:bg-gray-300 cursor-pointer"
+                className="cursor-pointer px-4 py-2 hover:bg-gray-300"
                 onClick={() => {
                   setSelected(item);
                   setIsOpen(false);

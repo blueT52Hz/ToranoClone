@@ -14,7 +14,8 @@ import PromotionPage from "@/pages/user/Promotion";
 import Register from "@/pages/user/Register";
 import Search from "@/pages/user/Search";
 import StoreLocator from "@/pages/user/StoreLocator";
-import { Route, Routes } from "react-router-dom";
+import NotFound from "@/pages/user/NotFound";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 const UserRoutes = () => {
   return (
@@ -36,6 +37,8 @@ const UserRoutes = () => {
           <Route path="account/address" element={<AddressManagement />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment" element={<Payment />} />
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Route>
       </Routes>
     </AppProvider>
