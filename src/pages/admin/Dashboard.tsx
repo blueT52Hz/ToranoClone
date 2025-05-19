@@ -11,7 +11,10 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { getTopSellingProducts } from "@/services/client/product/product";
+import {
+  getTopSellingProducts,
+  TopSellingProduct,
+} from "@/services/client/product/product";
 import Loading from "@/components/common/Loading";
 
 // Tạm thời comment phần Chart.js để tránh lỗi
@@ -56,7 +59,7 @@ interface Cart {
 
 export default function Dashboard() {
   const [timeframe, setTimeframe] = useState("weekly");
-  const [topProducts, setTopProducts] = useState<Product[]>([]);
+  const [topProducts, setTopProducts] = useState<TopSellingProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -422,6 +425,9 @@ export default function Dashboard() {
                           style: "currency",
                           currency: "VND",
                         })}
+                      </span>
+                      <span className="font-medium text-blue-600">
+                        Đã bán: {product.totalSold}
                       </span>
                     </div>
                   </div>
