@@ -1,5 +1,6 @@
 import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { Order } from "@/types/cart";
+import { Product } from "@/types/product";
 import {
   ArrowDown,
   ArrowUp,
@@ -9,7 +10,9 @@ import {
   ShoppingCart,
   UsersIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getTopSellingProducts } from "@/services/client/product/product";
+import Loading from "@/components/common/Loading";
 
 // Tạm thời comment phần Chart.js để tránh lỗi
 // import { Line } from "react-chartjs-2";
@@ -53,6 +56,23 @@ interface Cart {
 
 export default function Dashboard() {
   const [timeframe, setTimeframe] = useState("weekly");
+  const [topProducts, setTopProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      try {
+        const products = await getTopSellingProducts();
+        setTopProducts(products);
+      } catch (error) {
+        console.error("Error fetching top products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTopProducts();
+  }, []);
 
   // Mock data
   const stats = [
@@ -84,12 +104,6 @@ export default function Dashboard() {
       icon: UsersIcon,
       color: "blue",
     },
-  ];
-
-  const bestSellers = [
-    { name: "Áo thun nam", price: "₫125,000", sales: "950 sales" },
-    { name: "Áo khoác nữ", price: "₫350,000", sales: "850 sales" },
-    { name: "Quần jean", price: "₫250,000", sales: "750 sales" },
   ];
 
   const mockOrders: Order[] = [
@@ -300,33 +314,33 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">{stat.title}</p>
-                <h3 className="text-xl font-bold mt-1">{stat.value}</h3>
-                <div className="flex items-center mt-1">
+                <h3 className="mt-1 text-xl font-bold">{stat.value}</h3>
+                <div className="mt-1 flex items-center">
                   <span
                     className={`flex items-center text-xs ${stat.change >= 0 ? "text-green-600" : "text-red-600"}`}
                   >
                     {stat.change >= 0 ? (
-                      <ArrowUp className="h-3 w-3 mr-1" />
+                      <ArrowUp className="mr-1 h-3 w-3" />
                     ) : (
-                      <ArrowDown className="h-3 w-3 mr-1" />
+                      <ArrowDown className="mr-1 h-3 w-3" />
                     )}
                     {Math.abs(stat.change)}%
                   </span>
-                  <span className="text-xs text-gray-500 ml-2">
+                  <span className="ml-2 text-xs text-gray-500">
                     so với 30 ngày trước
                   </span>
                 </div>
               </div>
-              <div className={`p-2 rounded-full bg-blue-100 text-blue-600`}>
+              <div className={`rounded-full bg-blue-100 p-2 text-blue-600`}>
                 <stat.icon className="h-5 w-5" />
               </div>
             </div>
@@ -334,15 +348,15 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
         {/* Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 col-span-3">
-          <div className="flex justify-between items-center mb-4">
+        <div className="col-span-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Biểu đồ doanh thu</h2>
             <div className="flex space-x-2">
               <button
                 onClick={() => setTimeframe("weekly")}
-                className={`px-3 py-1 text-sm rounded-md ${
+                className={`rounded-md px-3 py-1 text-sm ${
                   timeframe === "weekly"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700"
@@ -352,7 +366,7 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => setTimeframe("monthly")}
-                className={`px-3 py-1 text-sm rounded-md ${
+                className={`rounded-md px-3 py-1 text-sm ${
                   timeframe === "monthly"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700"
@@ -362,7 +376,7 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => setTimeframe("yearly")}
-                className={`px-3 py-1 text-sm rounded-md ${
+                className={`rounded-md px-3 py-1 text-sm ${
                   timeframe === "yearly"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-200 text-gray-700"
@@ -372,37 +386,54 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-md">
+          <div className="flex h-64 items-center justify-center rounded-md bg-gray-50">
             <p className="text-gray-500">Biểu đồ doanh thu sẽ hiển thị ở đây</p>
           </div>
         </div>
+
         {/* Best Sellers */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 lg:col-span-1">
-          <div className="flex justify-between items-center mb-4">
+        <div className="col-span-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Sản phẩm bán chạy</h2>
           </div>
-          <div className="space-y-4">
-            {bestSellers.map((item, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-md"></div>
-                <div className="flex-1">
-                  <h3 className="font-medium">{item.name}</h3>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">{item.sales}</span>
-                    <span className="font-semibold">{item.price}</span>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="space-y-4">
+              {topProducts.map((product) => (
+                <div
+                  key={product.product_id}
+                  className="flex items-center gap-3"
+                >
+                  <div className="h-12 w-12 rounded-md bg-gray-200">
+                    {product.images?.[0] && (
+                      <img
+                        src={product.images[0].url}
+                        alt={product.name}
+                        className="h-full w-full rounded-md object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="line-clamp-1 font-medium">{product.name}</h3>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">
+                        {product.sale_price?.toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <button className="w-full mt-4 py-2 bg-blue-600 text-white rounded-md text-sm">
-            Xem thêm
-          </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex justify-between items-center mb-4">
+      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Đơn hàng gần đây</h2>
         </div>
         <OrderTable orders={mockOrders}></OrderTable>
