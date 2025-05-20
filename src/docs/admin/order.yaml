@@ -1,0 +1,418 @@
+paths:
+  /admin/orders:
+    get:
+      summary: Lấy danh sách đơn hàng (Admin)
+      tags:
+        - Order
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          description: Lọc theo trạng thái
+          schema:
+            type: string
+            enum: [pending_approval, processing, shipping, delivered, cancelled]
+        - name: payment_method
+          in: query
+          description: Lọc theo phương thức thanh toán
+          schema:
+            type: string
+            enum: [cod, payment_online]
+        - name: start_date
+          in: query
+          description: Ngày bắt đầu (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Ngày kết thúc (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          description: Tìm kiếm theo email, tên user hoặc ID đơn hàng
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      orders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            order_id:
+                              type: string
+                              format: uuid
+                            user:
+                              type: object
+                              properties:
+                                user_id:
+                                  type: string
+                                  format: uuid
+                                full_name:
+                                  type: string
+                                email:
+                                  type: string
+                                phone:
+                                  type: string
+                            status:
+                              type: string
+                            payment_method:
+                              type: string
+                            shipping_address:
+                              type: object
+                            items:
+                              type: array
+                              items:
+                                type: object
+                            subtotal:
+                              type: number
+                              format: float
+                            discount:
+                              type: number
+                              format: float
+                            shipping_fee:
+                              type: number
+                              format: float
+                            final_price:
+                              type: number
+                              format: float
+                            coupon:
+                              type: object
+                            note:
+                              type: string
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          total_pages:
+                            type: integer
+              example:
+                message: "Lấy danh sách đơn hàng thành công"
+                data:
+                  orders:
+                    - order_id: "123e4567-e89b-12d3-a456-426614174002"
+                      user:
+                        user_id: "123e4567-e89b-12d3-a456-426614174006"
+                        full_name: "Nguyễn Văn A"
+                        email: "nguyenvana@example.com"
+                        phone: "0987654321"
+                      status: "pending_approval"
+                      payment_method: "cod"
+                      shipping_address:
+                        address_id: "123e4567-e89b-12d3-a456-426614174001"
+                        full_name: "Nguyễn Văn A"
+                        phone_number: "0987654321"
+                        address_detail: "123 Đường ABC"
+                        city: "Hà Nội"
+                        district: "Cầu Giấy"
+                        ward: "Dịch Vọng"
+                      items:
+                        - product:
+                            product_id: "123e4567-e89b-12d3-a456-426614174003"
+                            product_name: "Áo thun nam"
+                            product_slug: "ao-thun-nam"
+                            price: 200000
+                            image: "http://example.com/image1.jpg"
+                          variant:
+                            size: "M"
+                            color: "Đỏ"
+                            color_code: "#FF0000"
+                          quantity: 1
+                          item_total: 200000
+                      subtotal: 200000
+                      discount: 20000
+                      shipping_fee: 30000
+                      final_price: 210000
+                      coupon:
+                        coupon_id: "123e4567-e89b-12d3-a456-426614174005"
+                        coupon_code: "SALE10"
+                        discount_type: "percentage"
+                        discount_value: 10
+                      note: "Giao hàng giờ hành chính"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                  pagination:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    total_pages: 1
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách đơn hàng"
+
+  /admin/orders/{user_id}:
+    get:
+      summary: Lấy danh sách đơn hàng của user (Admin)
+      tags:
+        - Order
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID user
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          description: Lọc theo trạng thái
+          schema:
+            type: string
+            enum: [pending_approval, processing, shipping, delivered, cancelled]
+        - name: payment_method
+          in: query
+          description: Lọc theo phương thức thanh toán
+          schema:
+            type: string
+            enum: [cod, payment_online]
+        - name: start_date
+          in: query
+          description: Ngày bắt đầu (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Ngày kết thúc (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      orders:
+                        type: array
+                        items:
+                          type: object
+                      pagination:
+                        type: object
+              example:
+                message: "Lấy danh sách đơn hàng của user thành công"
+                data:
+                  orders:
+                    - order_id: "123e4567-e89b-12d3-a456-426614174002"
+                      user:
+                        user_id: "123e4567-e89b-12d3-a456-426614174006"
+                        full_name: "Nguyễn Văn A"
+                        email: "nguyenvana@example.com"
+                        phone: "0987654321"
+                      status: "pending_approval"
+                      payment_method: "cod"
+                      shipping_address:
+                        address_id: "123e4567-e89b-12d3-a456-426614174001"
+                        full_name: "Nguyễn Văn A"
+                        phone_number: "0987654321"
+                        address_detail: "123 Đường ABC"
+                        city: "Hà Nội"
+                        district: "Cầu Giấy"
+                        ward: "Dịch Vọng"
+                      items:
+                        - product:
+                            product_id: "123e4567-e89b-12d3-a456-426614174003"
+                            product_name: "Áo thun nam"
+                            product_slug: "ao-thun-nam"
+                            price: 200000
+                            image: "http://example.com/image1.jpg"
+                          variant:
+                            size: "M"
+                            color: "Đỏ"
+                            color_code: "#FF0000"
+                          quantity: 1
+                          item_total: 200000
+                      subtotal: 200000
+                      discount: 20000
+                      shipping_fee: 30000
+                      final_price: 210000
+                      coupon:
+                        coupon_id: "123e4567-e89b-12d3-a456-426614174005"
+                        coupon_code: "SALE10"
+                        discount_type: "percentage"
+                        discount_value: 10
+                      note: "Giao hàng giờ hành chính"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                  pagination:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    total_pages: 1
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              example:
+                message: "Lỗi dữ liệu"
+                error: "Không tìm thấy user"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách đơn hàng"
+
+  /admin/orders/{order_id}/status:
+    put:
+      summary: Cập nhật trạng thái đơn hàng (Admin)
+      tags:
+        - Order
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID đơn hàng
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    [
+                      pending_approval,
+                      processing,
+                      shipping,
+                      delivered,
+                      cancelled,
+                    ]
+                  description: Trạng thái mới
+              example:
+                status: "processing"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+              example:
+                message: "Cập nhật trạng thái đơn hàng thành công"
+                data:
+                  order_id: "123e4567-e89b-12d3-a456-426614174002"
+                  status: "processing"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              examples:
+                missingStatus:
+                  value:
+                    message: "Lỗi dữ liệu"
+                    error: "Vui lòng cung cấp trạng thái mới"
+                invalidStatus:
+                  value:
+                    message: "Lỗi dữ liệu"
+                    error: "Trạng thái đơn hàng không hợp lệ"
+                cannotUpdate:
+                  value:
+                    message: "Lỗi dữ liệu"
+                    error: "Không thể thay đổi trạng thái của đơn hàng đã giao thành công"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi cập nhật trạng thái đơn hàng"

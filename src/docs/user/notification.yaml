@@ -1,0 +1,246 @@
+paths:
+  /notifications:
+    get:
+      tags: [Notification]
+      summary: Lấy danh sách thông báo
+      description: Lấy tất cả thông báo của người dùng đang đăng nhập
+      security:
+        - bearerAuthUser: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách thông báo thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        notification_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        subject:
+                          type: string
+                          example: "Thông báo mới"
+                        content:
+                          type: string
+                          example: "Bạn có đơn hàng mới #1234"
+                        notification_type:
+                          type: string
+                          enum:
+                            [
+                              discount,
+                              order_update,
+                              news,
+                              account_update,
+                              welcome_message,
+                            ]
+                          example: "order_update"
+                        status:
+                          type: string
+                          enum: [unread, read]
+                          example: "unread"
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+                        updated_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+                        admin:
+                          type: object
+                          properties:
+                            admin_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            admin_name:
+                              type: string
+                              example: "Quản trị viên"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi..."
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."
+
+  /notifications/{notification_id}/read:
+    put:
+      tags: [Notification]
+      summary: Đánh dấu đã đọc
+      description: Đánh dấu thông báo là đã đọc
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Đã đánh dấu thông báo là đã đọc"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy thông báo"
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."
+
+  /notifications/{notification_id}:
+    delete:
+      tags: [Notification]
+      summary: Xóa thông báo
+      description: Xóa thông báo của người dùng
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Đã xóa thông báo"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy thông báo"
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."
+
+components:
+  securitySchemes:
+    bearerAuthUser:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token của người dùng

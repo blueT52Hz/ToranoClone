@@ -1,0 +1,469 @@
+paths:
+  /admin/management:
+    get:
+      summary: Lấy danh sách tất cả admin (chỉ SuperAdmin)
+      tags:
+        - SuperAdmin
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      admins:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            admin_id:
+                              type: string
+                              format: uuid
+                            admin_name:
+                              type: string
+                            admin_username:
+                              type: string
+                            roles:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  role_id:
+                                    type: string
+                                    format: uuid
+                                  role_name:
+                                    type: string
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          totalPages:
+                            type: integer
+              example:
+                message: "Lấy danh sách admin thành công"
+                data:
+                  admins:
+                    - admin_id: "123e4567-e89b-12d3-a456-426614174000"
+                      admin_name: "Nguyễn Văn A"
+                      admin_username: "admin1"
+                      roles:
+                        - role_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                          role_name: "SuperAdmin"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                  pagination:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    totalPages: 1
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                message: "Chỉ SuperAdmin mới có quyền truy cập"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+  /admin/management/{admin_id}/reset-password:
+    post:
+      summary: Reset mật khẩu admin (chỉ SuperAdmin)
+      tags:
+        - SuperAdmin
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "b926d12c-4710-4796-b014-3cb039a41492"
+          description: ID của admin cần reset mật khẩu
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      admin_id:
+                        type: string
+                        format: uuid
+                      admin_name:
+                        type: string
+                      admin_username:
+                        type: string
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role_id:
+                              type: string
+                              format: uuid
+                            role_name:
+                              type: string
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Reset mật khẩu thành công"
+                data:
+                  admin_id: "123e4567-e89b-12d3-a456-426614174000"
+                  admin_name: "Nguyễn Văn A"
+                  admin_username: "admin1"
+                  roles:
+                    - role_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      role_name: "SuperAdmin"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                invalidToken:
+                  value:
+                    message: "Token không hợp lệ hoặc đã hết hạn"
+                notSuperAdmin:
+                  value:
+                    message: "Chỉ SuperAdmin mới có quyền reset mật khẩu"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy admin"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+  /admin/management/{admin_id}:
+    put:
+      summary: Cập nhật thông tin admin (chỉ SuperAdmin)
+      tags:
+        - SuperAdmin
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "b926d12c-4710-4796-b014-3cb039a41492"
+          description: ID của admin cần cập nhật
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - admin_name
+              properties:
+                admin_name:
+                  type: string
+                  description: Tên mới của admin
+              example:
+                admin_name: "Nguyễn Văn B"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      admin_id:
+                        type: string
+                        format: uuid
+                      admin_name:
+                        type: string
+                      admin_username:
+                        type: string
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role_id:
+                              type: string
+                              format: uuid
+                            role_name:
+                              type: string
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Cập nhật thông tin admin thành công"
+                data:
+                  admin_id: "123e4567-e89b-12d3-a456-426614174000"
+                  admin_name: "Nguyễn Văn B"
+                  admin_username: "admin1"
+                  roles:
+                    - role_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      role_name: "SuperAdmin"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Tên admin không được để trống"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                invalidToken:
+                  value:
+                    message: "Token không hợp lệ hoặc đã hết hạn"
+                notSuperAdmin:
+                  value:
+                    message: "Chỉ SuperAdmin mới có quyền cập nhật thông tin admin khác"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy admin"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+  /admin/changePassword:
+    put:
+      summary: Đổi mật khẩu admin
+      tags:
+        - Profile
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+                - confirm_password
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  description: Mật khẩu hiện tại
+                new_password:
+                  type: string
+                  format: password
+                  description: Mật khẩu mới
+                confirm_password:
+                  type: string
+                  format: password
+                  description: Xác nhận mật khẩu mới
+              example:
+                current_password: "oldPassword123"
+                new_password: "newPassword123"
+                confirm_password: "newPassword123"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Đổi mật khẩu thành công"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Mật khẩu mới không khớp"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                invalidToken:
+                  value:
+                    message: "Token không hợp lệ hoặc đã hết hạn"
+                invalidPassword:
+                  value:
+                    message: "Mật khẩu hiện tại không đúng"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy admin"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+  /admin/profile:
+    put:
+      summary: Cập nhật thông tin cá nhân admin
+      tags:
+        - Profile
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - admin_name
+              properties:
+                admin_name:
+                  type: string
+                  description: Tên mới của admin
+              example:
+                admin_name: "Nguyễn Văn C"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      admin_id:
+                        type: string
+                        format: uuid
+                      admin_name:
+                        type: string
+                      admin_username:
+                        type: string
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role_id:
+                              type: string
+                              format: uuid
+                            role_name:
+                              type: string
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Cập nhật thông tin thành công"
+                data:
+                  admin_id: "123e4567-e89b-12d3-a456-426614174000"
+                  admin_name: "Nguyễn Văn C"
+                  admin_username: "admin1"
+                  roles:
+                    - role_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      role_name: "SuperAdmin"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Tên admin không được để trống"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy admin"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"

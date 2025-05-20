@@ -1,0 +1,257 @@
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Đăng ký tài khoản
+      description: Tạo tài khoản người dùng mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: "Nguyễn Văn A"
+                  description: Họ và tên
+                gender:
+                  type: string
+                  enum: [Nam, Nữ, Khác]
+                  example: "Nam"
+                  description: Giới tính
+                date_of_birth:
+                  type: string
+                  format: date
+                  example: "1990-01-01"
+                  description: Ngày sinh (YYYY-MM-DD)
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                  description: Địa chỉ email
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+                  description: Mật khẩu (ít nhất 6 ký tự)
+              required:
+                - full_name
+                - gender
+                - date_of_birth
+                - email
+                - password
+      responses:
+        "201":
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Đăng ký thành công"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          user_id:
+                            type: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          full_name:
+                            type: string
+                            example: "Nguyễn Văn A"
+                          email:
+                            type: string
+                            example: "user@example.com"
+                          gender:
+                            type: string
+                            example: "male"
+                          date_of_birth:
+                            type: string
+                            format: date
+                            example: "1990-01-01"
+                          status:
+                            type: string
+                            example: "active"
+                      cart:
+                        type: object
+                        properties:
+                          cart_id:
+                            type: uuid
+                            example: 123e4567-e89b-12d3-a456-426614174000
+                          user_id:
+                            type: uuid
+                            example: 123e4567-e89b-12d3-a456-426614174001
+                      token:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Email đã được sử dụng"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Lỗi hệ thống"
+                  error:
+                    type: string
+                    example: "Error message"
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Đăng nhập
+      description: Đăng nhập vào hệ thống
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                  description: Địa chỉ email
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+                  description: Mật khẩu
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Đăng nhập thành công"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          user_id:
+                            type: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          full_name:
+                            type: string
+                            example: "Nguyễn Văn A"
+                          email:
+                            type: string
+                            example: "user@example.com"
+                          gender:
+                            type: string
+                            example: "male"
+                          date_of_birth:
+                            type: string
+                            format: date
+                            example: "1990-01-01"
+                          status:
+                            type: string
+                            example: "active"
+                      cart:
+                        type: object
+                        properties:
+                          cart_id:
+                            type: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          user_id:
+                            type: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                      token:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          description: Thiếu thông tin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Vui lòng nhập email và mật khẩu"
+        "401":
+          description: Xác thực thất bại
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Email hoặc mật khẩu không đúng"
+        "403":
+          description: Tài khoản bị khóa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Tài khoản đã bị khóa"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Lỗi hệ thống"
+                  error:
+                    type: string
+                    example: "Error message"

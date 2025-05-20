@@ -1,0 +1,417 @@
+paths:
+  /admin/size:
+    post:
+      summary: Tạo size mới
+      tags:
+        - Size
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - size_code
+              properties:
+                size_code:
+                  type: string
+                  description: Size code (e.g., 'S', 'M', 'L', 'XL')
+              example:
+                size_code: "XL"
+      responses:
+        "201":
+          description: Size created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      size_id:
+                        type: string
+                        format: uuid
+                      size_code:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Tạo kích thước thành công"
+                data:
+                  size_id: "123e4567-e89b-12d3-a456-426614174000"
+                  size_code: "XL"
+                  created_at: "2023-01-01T00:00:00Z"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingCode:
+                  value:
+                    message: "Mã kích thước không được để trống"
+                codeExists:
+                  value:
+                    message: "Mã kích thước đã tồn tại"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi tạo kích thước"
+
+    get:
+      summary: Lấy danh sách size
+      tags:
+        - Size
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Search term
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Field to sort by (size_code, created_at, updated_at)
+          schema:
+            type: string
+            default: created_at
+        - name: sortOrder
+          in: query
+          description: Sort order (ASC, DESC)
+          schema:
+            type: string
+            default: DESC
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      sizes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            size_id:
+                              type: string
+                              format: uuid
+                            size_code:
+                              type: string
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          totalPages:
+                            type: integer
+                      sort:
+                        type: object
+                        properties:
+                          sortBy:
+                            type: string
+                          sortOrder:
+                            type: string
+                      filter:
+                        type: object
+                        properties:
+                          search:
+                            type: string
+              example:
+                message: "Lấy danh sách kích thước thành công"
+                data:
+                  sizes:
+                    - size_id: "123e4567-e89b-12d3-a456-426614174000"
+                      size_code: "S"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                    - size_id: "123e4567-e89b-12d3-a456-426614174001"
+                      size_code: "M"
+                      created_at: "2023-01-02T00:00:00Z"
+                      updated_at: "2023-01-02T00:00:00Z"
+                  pagination:
+                    total: 2
+                    page: 1
+                    limit: 10
+                    totalPages: 1
+                  sort:
+                    sortBy: "created_at"
+                    sortOrder: "DESC"
+                  filter:
+                    search: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                invalidSortField:
+                  value:
+                    message: "Trường sắp xếp không hợp lệ"
+                invalidSortOrder:
+                  value:
+                    message: "Thứ tự sắp xếp không hợp lệ"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách kích thước"
+
+  /admin/size/{size_id}:
+    get:
+      summary: Lấy thông tin 1 size
+      tags:
+        - Size
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: size_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Size ID
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      size_id:
+                        type: string
+                        format: uuid
+                      size_code:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Lấy thông tin kích thước thành công"
+                data:
+                  size_id: "123e4567-e89b-12d3-a456-426614174000"
+                  size_code: "XL"
+                  created_at: "2023-01-01T00:00:00Z"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy kích thước"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy thông tin kích thước"
+
+    put:
+      summary: Cập nhật thông tin size
+      tags:
+        - Size
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: size_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Size ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - size_code
+              properties:
+                size_code:
+                  type: string
+                  description: New size code
+              example:
+                size_code: "XXL"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      size_id:
+                        type: string
+                        format: uuid
+                      size_code:
+                        type: string
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Cập nhật kích thước thành công"
+                data:
+                  size_id: "123e4567-e89b-12d3-a456-426614174000"
+                  size_code: "XXL"
+                  updated_at: "2023-01-02T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingCode:
+                  value:
+                    message: "Mã kích thước không được để trống"
+                codeExists:
+                  value:
+                    message: "Mã kích thước đã tồn tại"
+                notFound:
+                  value:
+                    message: "Không tìm thấy kích thước"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi cập nhật kích thước"
+
+    delete:
+      summary: Xóa 1 size
+      tags:
+        - Size
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: size_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Size ID
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      size_id:
+                        type: string
+                        format: uuid
+                      size_code:
+                        type: string
+                      deleted_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Xóa kích thước thành công"
+                data:
+                  size_id: "123e4567-e89b-12d3-a456-426614174000"
+                  size_code: "XL"
+                  deleted_at: "2023-01-03T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy kích thước"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi xóa kích thước"

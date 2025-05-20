@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { Input, Button, Typography, Divider, Form, message } from "antd";
+import { Input, Typography, Form, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
-import { useUser } from "@/context/UserContext";
+import { useMutation } from "@tanstack/react-query";
+import { authApi } from "@/apis/auth.api";
+import { useAuthStore } from "@/store/authStore";
+import { useUserStore } from "@/store/userStore";
+import { AxiosError } from "axios";
 const { Text } = Typography;
 
 type FieldType = {
@@ -13,25 +17,50 @@ type FieldType = {
 const Login = () => {
   const [isLoginTab, setIsLoginTab] = useState(true);
   const [form] = Form.useForm();
-  const { user, setUser, handleLogin } = useUser();
   const navigate = useNavigate();
-  if (user) navigate("/");
+  const { setToken } = useAuthStore();
+  const { setUser } = useUserStore();
+
+  const loginMutation = useMutation({
+    mutationFn: (values: FieldType) => authApi.login(values),
+  });
 
   const handleLoginButtonClicked = async (values: FieldType) => {
     const { email, password } = values;
-    await handleLogin(email, password);
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: (response) => {
+          console.log(response);
+          setToken(response.data.data.accessToken);
+          setUser(response.data.data.user);
+          notification.success({
+            message: "Đăng nhập thành công",
+            description: "Bạn đã đăng nhập thành công",
+          });
+          navigate("/");
+        },
+        onError: (error: unknown) => {
+          const axiosError = error as AxiosError<{ message: string }>;
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: axiosError.response?.data?.message || "Có lỗi xảy ra",
+          });
+        },
+      },
+    );
   };
 
   return (
-    <section className="login-section flex items-center justify-center my-24">
-      <div className=" rounded-lg p-8 ">
-        <div className="flex justify-center mb-8">
+    <section className="login-section my-24 flex items-center justify-center">
+      <div className="rounded-lg p-8">
+        <div className="mb-8 flex justify-center">
           <div
             className={cn(
-              "text-2xl font-bold px-4 transition-all duration-300",
+              "px-4 text-2xl font-bold transition-all duration-300",
               isLoginTab
                 ? "text-black"
-                : "text-gray-400 hover:text-[#000] cursor-pointer"
+                : "cursor-pointer text-gray-400 hover:text-[#000]",
             )}
             onClick={() => setIsLoginTab(true)}
           >
@@ -41,8 +70,8 @@ const Login = () => {
           <Link
             to={"/accounts/register"}
             className={cn(
-              "text-2xl font-bold px-4 transition-all duration-300",
-              "text-gray-400 hover:text-[#000]"
+              "px-4 text-2xl font-bold transition-all duration-300",
+              "text-gray-400 hover:text-[#000]",
             )}
             onClick={() => setIsLoginTab(false)}
           >
@@ -55,6 +84,10 @@ const Login = () => {
             form={form}
             autoComplete="off"
             onFinish={handleLoginButtonClicked}
+            initialValues={{
+              email: "t1@gmail.com",
+              password: "123456",
+            }}
           >
             <Form.Item<FieldType>
               name="email"
@@ -106,7 +139,7 @@ const Login = () => {
               </Form.Item>
             )}
 
-            <Text type="secondary" className="text-xs block mb-2">
+            <Text type="secondary" className="mb-2 block text-xs">
               This site is protected by reCAPTCHA and the Google{" "}
               <a
                 href="https://policies.google.com/privacy"
@@ -125,26 +158,26 @@ const Login = () => {
               </a>{" "}
               apply.
             </Text>
-            <div className="flex justify-center gap-8 mt-8 items-center">
+            <div className="mt-8 flex items-center justify-center gap-8">
               <div
-                className="cursor-pointer hover:text-shop-color-button-text text-[#000] font-semibold text-base px-4"
+                className="cursor-pointer px-4 text-base font-semibold text-[#000] hover:text-shop-color-button-text"
                 onClick={() => form.submit()}
               >
                 ĐĂNG NHẬP
               </div>
               <div className="flex flex-col gap-2">
-                <div className="text-sm text-gray-600 flex gap-2">
+                <div className="flex gap-2 text-sm text-gray-600">
                   Bạn chưa có tài khoản?{" "}
                   <Link to="/register" className="text-blue-500">
                     Đăng ký
                   </Link>
                 </div>
-                <div className="text-sm text-gray-600 flex gap-2">
+                <div className="flex gap-2 text-sm text-gray-600">
                   {isLoginTab ? (
                     <>
                       <span>Bạn quên mật khẩu? </span>
                       <div
-                        className="text-blue-500 cursor-pointer"
+                        className="cursor-pointer text-blue-500"
                         onClick={() => {
                           form.resetFields();
                           setIsLoginTab(false);
@@ -157,7 +190,7 @@ const Login = () => {
                     <>
                       <span>Bạn đã có tài khoản? </span>
                       <div
-                        className="text-blue-500 cursor-pointer"
+                        className="cursor-pointer text-blue-500"
                         onClick={() => {
                           form.resetFields();
                           setIsLoginTab(true);

@@ -1,0 +1,500 @@
+paths:
+  /admin/images/upload:
+    post:
+      summary: Upload hình ảnh mới
+      tags:
+        - Image
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+                - image_name
+                - image_alt
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: File hình ảnh (JPEG, PNG, GIF)
+                image_name:
+                  type: string
+                  description: Tên hình ảnh
+                image_alt:
+                  type: string
+                  description: Mô tả hình ảnh
+              example:
+                image_name: "Ảnh sản phẩm mẫu"
+                image_alt: "Mô tả cho ảnh sản phẩm"
+      responses:
+        "201":
+          description: Upload thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      image_id:
+                        type: string
+                        format: uuid
+                      image_name:
+                        type: string
+                      image_alt:
+                        type: string
+                      image_url:
+                        type: string
+              example:
+                message: "Upload ảnh thành công"
+                data:
+                  image_id: "123e4567-e89b-12d3-a456-426614174000"
+                  image_name: "Ảnh sản phẩm mẫu"
+                  image_alt: "Mô tả cho ảnh sản phẩm"
+                  image_url: "http://localhost:8080/uploads/image-sample-123456789.jpg"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              examples:
+                missingFile:
+                  value:
+                    message: "Vui lòng chọn file ảnh"
+                missingFields:
+                  value:
+                    message: "Tên ảnh và mô tả ảnh không được để trống"
+                invalidFileType:
+                  value:
+                    message: "Chỉ chấp nhận file ảnh (JPEG, PNG, GIF)"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi upload ảnh"
+
+  /admin/images:
+    get:
+      summary: Lấy danh sách hình ảnh đang hoạt động
+      tags:
+        - Image
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp (image_name, created_at, updated_at)
+          schema:
+            type: string
+            enum: [image_name, created_at, updated_at]
+            default: created_at
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp (ASC, DESC)
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      images:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            image_id:
+                              type: string
+                              format: uuid
+                            image_name:
+                              type: string
+                            image_alt:
+                              type: string
+                            image_url:
+                              type: string
+                            image_status:
+                              type: string
+                              enum: [active, deleted]
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          totalPages:
+                            type: integer
+                      sort:
+                        type: object
+                        properties:
+                          sortBy:
+                            type: string
+                          sortOrder:
+                            type: string
+                      filter:
+                        type: object
+                        properties:
+                          search:
+                            type: string
+              example:
+                message: "Lấy danh sách ảnh thành công"
+                data:
+                  images:
+                    - image_id: "123e4567-e89b-12d3-a456-426614174000"
+                      image_name: "Ảnh sản phẩm 1"
+                      image_alt: "Mô tả ảnh 1"
+                      image_url: "http://localhost:8080/uploads/image1.jpg"
+                      image_status: "active"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                  pagination:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    totalPages: 1
+                  sort:
+                    sortBy: "created_at"
+                    sortOrder: "DESC"
+                  filter:
+                    search: ""
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              examples:
+                invalidSort:
+                  value:
+                    message: "Trường sắp xếp không hợp lệ"
+                invalidOrder:
+                  value:
+                    message: "Thứ tự sắp xếp không hợp lệ"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách ảnh"
+
+  /admin/images/deleted:
+    get:
+      summary: Lấy danh sách hình ảnh đã xóa (chỉ SuperAdmin)
+      tags:
+        - Image
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp (image_name, created_at, updated_at, deleted_at)
+          schema:
+            type: string
+            default: created_at
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp (ASC, DESC)
+          schema:
+            type: string
+            default: DESC
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      images:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            image_id:
+                              type: string
+                              format: uuid
+                            image_name:
+                              type: string
+                            image_alt:
+                              type: string
+                            image_url:
+                              type: string
+                            image_status:
+                              type: string
+                            deleted_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          totalPages:
+                            type: integer
+              example:
+                message: "Lấy danh sách ảnh đã xóa thành công"
+                data:
+                  images:
+                    - image_id: "123e4567-e89b-12d3-a456-426614174001"
+                      image_name: "Ảnh đã xóa"
+                      image_alt: "Mô tả ảnh đã xóa"
+                      image_url: "http://localhost:8080/uploads/deleted-image.jpg"
+                      image_status: "deleted"
+                      deleted_at: "2023-01-02T00:00:00Z"
+                  pagination:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    totalPages: 1
+        "403":
+          description: Không có quyền truy cập
+          content:
+            application/json:
+              example:
+                message: "Chỉ SuperAdmin mới có quyền truy cập"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách ảnh đã xóa"
+
+  admin/images/{image_id}:
+    put:
+      summary: Cập nhật thông tin hình ảnh
+      tags:
+        - Image
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: image_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID hình ảnh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - image_name
+                - image_alt
+              properties:
+                image_name:
+                  type: string
+                  description: Tên mới của hình ảnh
+                image_alt:
+                  type: string
+                  description: Mô tả mới của hình ảnh
+              example:
+                image_name: "Ảnh sản phẩm cập nhật"
+                image_alt: "Mô tả mới cho ảnh sản phẩm"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      image_id:
+                        type: string
+                        format: uuid
+                      image_name:
+                        type: string
+                      image_alt:
+                        type: string
+                      image_url:
+                        type: string
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Cập nhật thông tin ảnh thành công"
+                data:
+                  image_id: "123e4567-e89b-12d3-a456-426614174000"
+                  image_name: "Ảnh sản phẩm cập nhật"
+                  image_alt: "Mô tả mới cho ảnh sản phẩm"
+                  image_url: "http://localhost:8080/uploads/image1.jpg"
+                  updated_at: "2023-01-03T00:00:00Z"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              examples:
+                missingFields:
+                  value:
+                    message: "Tên ảnh và mô tả ảnh không được để trống"
+                notFound:
+                  value:
+                    message: "Không tìm thấy ảnh"
+                deletedImage:
+                  value:
+                    message: "Không thể cập nhật ảnh đã bị xóa"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi cập nhật thông tin ảnh"
+
+    delete:
+      summary: Xóa hình ảnh (đánh dấu đã xóa)
+      tags:
+        - Image
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: image_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID hình ảnh
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      image_id:
+                        type: string
+                        format: uuid
+                      image_name:
+                        type: string
+                      image_status:
+                        type: string
+                      deleted_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Xóa ảnh thành công"
+                data:
+                  image_id: "123e4567-e89b-12d3-a456-426614174000"
+                  image_name: "Ảnh sản phẩm 1"
+                  image_status: "deleted"
+                  deleted_at: "2023-01-04T00:00:00Z"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              examples:
+                notFound:
+                  value:
+                    message: "Không tìm thấy ảnh"
+                alreadyDeleted:
+                  value:
+                    message: "Ảnh đã bị xóa trước đó"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi xóa ảnh"

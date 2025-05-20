@@ -1,0 +1,85 @@
+paths:
+  /admin/user:
+    get:
+      tags:
+        - User
+      summary: Lấy danh sách tất cả người dùng
+      description: Lấy danh sách tất cả người dùng trong hệ thống (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách người dùng thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        full_name:
+                          type: string
+                          example: "Nguyễn Văn A"
+                        gender:
+                          type: string
+                          enum: [Nam, Nữ, Khác]
+                          example: "Nam"
+                        date_of_birth:
+                          type: string
+                          format: date
+                          example: "1990-01-01"
+                        status:
+                          type: string
+                          enum: [active, inactive, banned]
+                          example: "active"
+                        email:
+                          type: string
+                          example: "user@example.com"
+                        last_login_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+                        updated_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+        "401":
+          description: Không có quyền truy cập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."

@@ -1,0 +1,144 @@
+paths:
+  /user/profile:
+    put:
+      tags:
+        - Profile
+      summary: Cập nhật thông tin cá nhân
+      description: Cập nhật thông tin cá nhân của người dùng
+      security:
+        - bearerAuthUser: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Nguyễn Văn B"
+                  description: Tên đầy đủ
+                email:
+                  type: string
+                  format: email
+                  example: "newemail@example.com"
+                  description: Email mới
+                phone:
+                  type: string
+                  example: "0987654321"
+                  description: Số điện thoại
+                address:
+                  type: string
+                  example: "123 Đường ABC, TP.HCM"
+                  description: Địa chỉ
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "Nguyễn Văn B"
+                  email:
+                    type: string
+                    example: "newemail@example.com"
+                  phone:
+                    type: string
+                    example: "0987654321"
+                  address:
+                    type: string
+                    example: "123 Đường ABC, TP.HCM"
+                  updated_at:
+                    type: string
+                    format: date-time
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email đã được sử dụng"
+        "401":
+          description: Chưa xác thực
+        "500":
+          description: Lỗi server
+
+  /user/changePassword:
+    put:
+      tags:
+        - Profile
+      summary: Đổi mật khẩu
+      description: Thay đổi mật khẩu của người dùng
+      security:
+        - bearerAuthUser: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  example: "oldPassword123"
+                  description: Mật khẩu hiện tại
+                new_password:
+                  type: string
+                  format: password
+                  example: "newPassword123"
+                  description: Mật khẩu mới
+                confirm_password:
+                  type: string
+                  format: password
+                  example: "newPassword123"
+                  description: Xác nhận mật khẩu mới
+              required:
+                - current_password
+                - new_password
+                - confirm_password
+      responses:
+        "200":
+          description: Đổi mật khẩu thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Đổi mật khẩu thành công"
+                  updated_at:
+                    type: string
+                    format: date-time
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Mật khẩu mới không khớp"
+        "401":
+          description: Chưa xác thực hoặc mật khẩu hiện tại không đúng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Mật khẩu hiện tại không đúng"
+        "500":
+          description: Lỗi server

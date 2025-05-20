@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from "react";
 import { Input, Typography, Form, Radio, DatePicker, notification } from "antd";
+import { User } from "@/types/user";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
-import { User } from "@/types/user";
 import { format } from "date-fns";
-import { useUser } from "@/context/UserContext";
-import { registerUser } from "@/services/client/user/user";
+import { useMutation } from "@tanstack/react-query";
+import { authApi } from "@/apis/auth.api";
+import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
+import dayjs from "dayjs";
+import { AxiosError } from "axios";
 
 const sendRegisterWebhook = async (user: User) => {
   try {
@@ -40,55 +43,52 @@ interface FormValues {
   password: string;
 }
 
+interface RegisterData {
+  full_name: string;
+  gender: "Nam" | "Nữ" | "Khác";
+  date_of_birth: string;
+  email: string;
+  password: string;
+}
+
 const { Text } = Typography;
 
 const Register = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
   const navigate = useNavigate();
   const [form] = Form.useForm<FormValues>();
-  const { setUser } = useUser();
-  const [userRegister, setUserRegister] = useState<User | null>(null);
+  const { setUser } = useUserStore();
+  const { setToken } = useAuthStore();
+  const registerMutation = useMutation({
+    mutationFn: (user: RegisterData) => authApi.register(user),
+  });
+
   const onFinish = (values: FormValues) => {
     const { lastName, firstName, gender, dob, email, password } = values;
-    setUserRegister({
-      user_id: "",
+    const registerData: RegisterData = {
       full_name: firstName + " " + lastName,
       gender,
       date_of_birth: format(dob, "yyyy-MM-dd"),
       email,
       password,
-      created_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
-      updated_at: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+    };
+    registerMutation.mutate(registerData, {
+      onSuccess: (response) => {
+        console.log(response);
+        setUser(response.data.data.user);
+        setToken(response.data.data.accessToken);
+        sendRegisterWebhook(response.data.data.user);
+        navigate("/");
+      },
+      onError: (error: unknown) => {
+        const axiosError = error as AxiosError<{ message: string }>;
+        notification.error({
+          message: "Đăng ký thất bại",
+          description: axiosError.response?.data?.message || "Có lỗi xảy ra",
+        });
+      },
     });
   };
-
-  useEffect(() => {
-    const handleRegister = async () => {
-      if (userRegister) {
-        try {
-          const result = await registerUser(userRegister);
-          if (result) {
-            setUser(result);
-            await sendRegisterWebhook(result);
-            notification.success({
-              message: "Thông báo",
-              description: "Đăng ký thành công",
-              placement: "topRight",
-            });
-          }
-          navigate("/");
-        } catch (error) {
-          notification.error({
-            message: "Cảnh báo!",
-            description: String(error),
-            placement: "topRight",
-          });
-        }
-      }
-    };
-
-    handleRegister();
-  }, [userRegister]);
 
   return (
     <section className="login-section flex items-center justify-center">
@@ -115,7 +115,20 @@ const Register = () => {
         </div>
 
         <div className="">
-          <Form form={form} autoComplete="off" onFinish={onFinish}>
+          <Form
+            form={form}
+            autoComplete="off"
+            onFinish={onFinish}
+            initialValues={{
+              firstName: "Nguyễn",
+              lastName: "Văn A",
+              gender: "Nam",
+              dob: dayjs("2000-01-01"),
+              email: "test@gmail.com",
+              password: "123456",
+              confirmPassword: "123456",
+            }}
+          >
             <Form.Item
               name="firstName"
               rules={[{ required: true, message: "Vui lòng nhập họ" }]}

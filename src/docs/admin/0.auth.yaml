@@ -1,0 +1,178 @@
+paths:
+  /admin/auth/login:
+    post:
+      summary: Đăng nhập admin
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - admin_username
+                - admin_password
+              properties:
+                admin_username:
+                  type: string
+                  description: Tên đăng nhập
+                admin_password:
+                  type: string
+                  format: password
+                  description: Mật khẩu
+              example:
+                admin_username: "admin"
+                admin_password: "admin123"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  admin:
+                    type: object
+                    properties:
+                      admin_id:
+                        type: string
+                        format: uuid
+                      admin_username:
+                        type: string
+                      admin_name:
+                        type: string
+                      roles:
+                        type: array
+                        items:
+                          type: string
+              example:
+                message: "Đăng nhập thành công"
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                admin:
+                  admin_id: "123e4567-e89b-12d3-a456-426614174000"
+                  admin_username: "admin1"
+                  admin_name: "Nguyễn Văn A"
+                  roles: ["SuperAdmin"]
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Vui lòng nhập đầy đủ thông tin đăng nhập"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Tên đăng nhập hoặc mật khẩu không đúng"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Lỗi server"
+
+  /admin/auth/create:
+    post:
+      summary: Tạo admin mới (chỉ SuperAdmin)
+      tags:
+        - Auth
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - admin_username
+                - admin_password
+                - admin_name
+                - role_id
+              properties:
+                admin_username:
+                  type: string
+                  description: Tên đăng nhập
+                admin_password:
+                  type: string
+                  format: password
+                  description: Mật khẩu
+                admin_name:
+                  type: string
+                  description: Tên hiển thị
+                role_id:
+                  type: string
+                  format: uuid
+                  description: ID của role
+              example:
+                admin_username: "newadmin"
+                admin_password: "StrongPass123!"
+                admin_name: "Nguyễn Văn B"
+                role_id: "c584978d-0c81-4bb9-82a0-6dd1f92ce556"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  admin:
+                    type: object
+                    properties:
+                      admin_id:
+                        type: string
+                        format: uuid
+                      admin_username:
+                        type: string
+                      admin_name:
+                        type: string
+                      role:
+                        type: string
+              example:
+                message: "Tạo admin thành công"
+                admin:
+                  admin_id: "123e4567-e89b-12d3-a456-426614174001"
+                  admin_username: "newadmin"
+                  admin_name: "Nguyễn Văn B"
+                  role: "Admin"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingFields:
+                  value:
+                    message: "Vui lòng nhập đầy đủ thông tin"
+                usernameExists:
+                  value:
+                    message: "Tên đăng nhập đã tồn tại"
+                invalidRole:
+                  value:
+                    message: "Role không tồn tại"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                message: "Chỉ SuperAdmin mới có quyền tạo admin mới"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Lỗi server"

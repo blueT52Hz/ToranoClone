@@ -1,0 +1,325 @@
+paths:
+  /cart/{cart_id}:
+    get:
+      tags: [Cart]
+      summary: Lấy thông tin giỏ hàng theo ID
+      description: Lấy thông tin chi tiết của giỏ hàng theo cart_id
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: cart_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: 4acd1baf-9cbb-4a7d-bf80-0e81b37cc768
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy thông tin giỏ hàng thành công"
+                  data:
+                    type: object
+                    properties:
+                      cart_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      user_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            cart_item_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            quantity:
+                              type: integer
+                              example: 2
+                            product:
+                              type: object
+                              properties:
+                                product_id:
+                                  type: string
+                                  format: uuid
+                                  example: "123e4567-e89b-12d3-a456-426614174000"
+                                name:
+                                  type: string
+                                  example: "Áo thun nam"
+                                price:
+                                  type: number
+                                  format: float
+                                  example: 199000
+                                image:
+                                  type: string
+                                  example: "https://example.com/image.jpg"
+                            variant:
+                              type: object
+                              properties:
+                                variant_id:
+                                  type: string
+                                  format: uuid
+                                  example: "123e4567-e89b-12d3-a456-426614174000"
+                                size:
+                                  type: string
+                                  example: "M"
+                                color:
+                                  type: string
+                                  example: "Đen"
+                                color_code:
+                                  type: string
+                                  example: "#000000"
+                            item_total:
+                              type: number
+                              format: float
+                              example: 398000
+                      total_items:
+                        type: integer
+                        example: 2
+                      total_amount:
+                        type: number
+                        format: float
+                        example: 398000
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2024-03-20T10:00:00Z"
+                      updated_at:
+                        type: string
+                        format: date-time
+                        example: "2024-03-20T10:00:00Z"
+        "401":
+          description: Chưa đăng nhập
+        "404":
+          description: Không tìm thấy giỏ hàng
+        "500":
+          description: Lỗi server
+
+  /cart/{cart_id}/items:
+    post:
+      tags: [Cart]
+      summary: Thêm sản phẩm vào giỏ hàng theo ID
+      description: Thêm sản phẩm vào giỏ hàng cụ thể theo cart_id
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: cart_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "4acd1baf-9cbb-4a7d-bf80-0e81b37cc768"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variant_id:
+                  type: string
+                  format: uuid
+                  example: "0467a75b-58ba-46ea-8f37-632b3ceabeff"
+                  description: ID biến thể sản phẩm
+                quantity:
+                  type: integer
+                  example: 1
+                  description: Số lượng sản phẩm
+              required:
+                - variant_id
+                - quantity
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Thêm vào giỏ hàng thành công"
+                  data:
+                    type: object
+                    properties:
+                      cart_item_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      cart_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      quantity:
+                        type: integer
+                        example: 2
+                      product:
+                        type: object
+                        properties:
+                          product_id:
+                            type: string
+                            format: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          name:
+                            type: string
+                            example: "Áo thun nam"
+                          price:
+                            type: number
+                            format: float
+                            example: 199000
+                          image:
+                            type: string
+                            example: "https://example.com/image.jpg"
+                      variant:
+                        type: object
+                        properties:
+                          variant_id:
+                            type: string
+                            format: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          size:
+                            type: string
+                            example: "M"
+                          color:
+                            type: string
+                            example: "Đen"
+                          color_code:
+                            type: string
+                            example: "#000000"
+                      item_total:
+                        type: number
+                        format: float
+                        example: 398000
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Số lượng sản phẩm không hợp lệ"
+                  error:
+                    type: string
+                    example: "Số lượng sản phẩm trong kho không đủ"
+        "401":
+          description: Chưa đăng nhập
+        "404":
+          description: Không tìm thấy giỏ hàng hoặc sản phẩm
+        "500":
+          description: Lỗi server
+
+  /cart/{cart_item_id}:
+    put:
+      tags: [Cart]
+      summary: Cập nhật số lượng sản phẩm
+      description: Cập nhật số lượng sản phẩm trong giỏ hàng
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: cart_item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "0467a75b-58ba-46ea-8f37-632b3ceabeff"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 3
+                  description: Số lượng mới
+              required:
+                - quantity
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cập nhật giỏ hàng thành công"
+                  data:
+                    type: object
+                    properties:
+                      cart_item_id:
+                        type: string
+                        format: uuid
+                        example: "0467a75b-58ba-46ea-8f37-632b3ceabeff"
+                      quantity:
+                        type: integer
+                        example: 3
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Số lượng sản phẩm không hợp lệ"
+                  error:
+                    type: string
+                    example: "Số lượng sản phẩm trong kho không đủ"
+        "401":
+          description: Chưa đăng nhập
+        "404":
+          description: Không tìm thấy sản phẩm trong giỏ hàng
+        "500":
+          description: Lỗi server
+
+    delete:
+      tags: [Cart]
+      summary: Xóa sản phẩm khỏi giỏ hàng
+      description: Xóa sản phẩm khỏi giỏ hàng của người dùng
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: cart_item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "0467a75b-58ba-46ea-8f37-632b3ceabeff"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa sản phẩm khỏi giỏ hàng thành công"
+        "401":
+          description: Chưa đăng nhập
+        "404":
+          description: Không tìm thấy sản phẩm trong giỏ hàng
+        "500":
+          description: Lỗi server

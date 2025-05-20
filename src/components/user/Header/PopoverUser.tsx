@@ -1,5 +1,17 @@
-import { useUser } from "@/context/UserContext";
-import { Button, Divider, Flex, Form, Input, message, Popover } from "antd";
+import { authApi } from "@/apis/auth.api";
+import { useAuthStore } from "@/store/authStore";
+import { useUserStore } from "@/store/userStore";
+import { useMutation } from "@tanstack/react-query";
+import {
+  Button,
+  Divider,
+  Flex,
+  Form,
+  Input,
+  notification,
+  Popover,
+} from "antd";
+import { AxiosError } from "axios";
 import { User, X } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,13 +25,47 @@ const PopoverUser = () => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
   const [password, setPassword] = useState("");
-  const { user, setUser, handleLogOut, handleLogin } = useUser();
   const navigate = useNavigate();
+  const { user, setUser, logout } = useUserStore();
+  const { setToken } = useAuthStore();
+  const loginMutation = useMutation({
+    mutationFn: (values: FieldType) => authApi.login(values),
+  });
   const handleLoginButtonClicked = (values: FieldType) => {
     const { email, password } = values;
-    handleLogin(email, password);
-    setOpen(false);
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: (response) => {
+          setOpen(false);
+          setUser(response.data.data.user);
+          setToken(response.data.data.accessToken);
+          notification.success({
+            message: "Đăng nhập thành công",
+            description: "Bạn đã đăng nhập thành công",
+          });
+        },
+        onError: (error: unknown) => {
+          const axiosError = error as AxiosError<{ message: string }>;
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: axiosError.response?.data?.message || "Có lỗi xảy ra",
+          });
+        },
+      },
+    );
   };
+
+  const handleLogOut = () => {
+    logout();
+    setToken("");
+    notification.success({
+      message: "Đăng xuất thành công",
+      description: "Bạn đã đăng xuất thành công",
+    });
+    navigate("/");
+  };
+
   return (
     <>
       <Popover
@@ -27,11 +73,11 @@ const PopoverUser = () => {
         title={
           <Flex vertical justify="center" className="w-full" align="center">
             {user ? (
-              <div className="font-medium text-base">THÔNG TIN TÀI KHOẢN</div>
+              <div className="text-base font-medium">THÔNG TIN TÀI KHOẢN</div>
             ) : (
               <>
-                <div className="font-medium text-base">ĐĂNG NHẬP TÀI KHOẢN</div>
-                <div className="font-light text-sm mt-1">
+                <div className="text-base font-medium">ĐĂNG NHẬP TÀI KHOẢN</div>
+                <div className="mt-1 text-sm font-light">
                   Nhập email và mật khẩu của bạn:
                 </div>
               </>
@@ -44,12 +90,12 @@ const PopoverUser = () => {
         onOpenChange={setOpen}
         content={
           user ? (
-            <div className="w-[95vw] min850:w-[20vw] px-3 min850:h-auto">
-              <div className="text-center text-lg mb-4">{user.full_name}</div>
-              <ul className="list-disc pl-8 my-4 space-y-2">
+            <div className="w-[95vw] px-3 min850:h-auto min850:w-[20vw]">
+              <div className="mb-4 text-center text-lg">{user.full_name}</div>
+              <ul className="my-4 list-disc space-y-2 pl-8">
                 <li>
                   <div
-                    className="text-base cursor-pointer"
+                    className="cursor-pointer text-base"
                     onClick={() => {
                       navigate("/account/profile");
                       setOpen(false);
@@ -60,7 +106,7 @@ const PopoverUser = () => {
                 </li>
                 <li>
                   <div
-                    className="text-base cursor-pointer"
+                    className="cursor-pointer text-base"
                     onClick={() => {
                       navigate("/account/address");
                       setOpen(false);
@@ -71,7 +117,7 @@ const PopoverUser = () => {
                 </li>
                 <li>
                   <div
-                    className="text-base cursor-pointer hover:text-red-500"
+                    className="cursor-pointer text-base hover:text-red-500"
                     onClick={() => {
                       setOpen(false);
                       handleLogOut();
@@ -96,11 +142,15 @@ const PopoverUser = () => {
               </Button> */}
             </div>
           ) : (
-            <div className="w-[95vw] min850:w-[25vw] px-3 min850:h-auto">
+            <div className="w-[95vw] px-3 min850:h-auto min850:w-[25vw]">
               <Form
                 form={form}
                 autoComplete="off"
                 onFinish={handleLoginButtonClicked}
+                initialValues={{
+                  email: "t1@gmail.com",
+                  password: "123456",
+                }}
               >
                 <Form.Item<FieldType>
                   name="email"
@@ -152,7 +202,7 @@ const PopoverUser = () => {
                     onPressEnter={() => form.submit()}
                   ></Input.Password>
                 </Form.Item>
-                <div className="text-sm text-[#9e9e9e] mb-6">
+                <div className="mb-6 text-sm text-[#9e9e9e]">
                   This site is protected by reCAPTCHA and the Google{" "}
                   <a
                     href="https://policies.google.com/privacy"
@@ -174,7 +224,7 @@ const PopoverUser = () => {
                   apply.
                 </div>
                 <Button
-                  className="w-full mb-6"
+                  className="mb-6 w-full"
                   type="text"
                   color="primary"
                   variant="solid"
@@ -182,7 +232,7 @@ const PopoverUser = () => {
                 >
                   ĐĂNG NHẬP
                 </Button>
-                <Flex className="text-xs text-[#9e9e9e] mb-2" gap={"0.25rem"}>
+                <Flex className="mb-2 text-xs text-[#9e9e9e]" gap={"0.25rem"}>
                   <div>Khách hàng mới?</div>
                   <Link
                     to="/accounts/register"
@@ -192,7 +242,7 @@ const PopoverUser = () => {
                     Tạo tài khoản
                   </Link>
                 </Flex>
-                <Flex className="text-xs text-[#9e9e9e] mb-3" gap={"0.25rem"}>
+                <Flex className="mb-3 text-xs text-[#9e9e9e]" gap={"0.25rem"}>
                   <div>Quên mật khẩu?</div>
                   <Link
                     to="/"

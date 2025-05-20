@@ -1,0 +1,424 @@
+paths:
+  /shipping-addresses:
+    get:
+      tags: [Shipping Address]
+      summary: Lấy danh sách địa chỉ
+      description: Lấy tất cả địa chỉ giao hàng của người dùng đang đăng nhập
+      security:
+        - bearerAuthUser: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách địa chỉ thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        user_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        full_name:
+                          type: string
+                          example: "Nguyễn Văn A"
+                        phone_number:
+                          type: string
+                          example: "0987654321"
+                        address_detail:
+                          type: string
+                          example: "Số 1 Đường ABC"
+                        city:
+                          type: string
+                          example: "Hà Nội"
+                        district:
+                          type: string
+                          example: "Quận Cầu Giấy"
+                        ward:
+                          type: string
+                          example: "Phường Dịch Vọng"
+                        is_default:
+                          type: boolean
+                          example: true
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+                        updated_at:
+                          type: string
+                          format: date-time
+                          example: "2024-03-20T10:00:00Z"
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."
+
+    post:
+      tags: [Shipping Address]
+      summary: Thêm địa chỉ mới
+      description: Thêm địa chỉ giao hàng mới
+      security:
+        - bearerAuthUser: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: "Nguyễn Văn A"
+                  description: Tên người nhận
+                phone_number:
+                  type: string
+                  example: "0987654321"
+                  description: Số điện thoại
+                address_detail:
+                  type: string
+                  example: "Số 1 Đường ABC"
+                  description: Địa chỉ chi tiết
+                city:
+                  type: string
+                  example: "Hà Nội"
+                  description: Tỉnh/Thành phố
+                district:
+                  type: string
+                  example: "Quận Cầu Giấy"
+                  description: Quận/Huyện
+                ward:
+                  type: string
+                  example: "Phường Dịch Vọng"
+                  description: Phường/Xã
+                is_default:
+                  type: boolean
+                  example: true
+                  description: Có phải địa chỉ mặc định không
+              required:
+                - full_name
+                - phone_number
+                - address_detail
+                - city
+                - district
+                - ward
+      responses:
+        "201":
+          description: Thêm thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Thêm địa chỉ thành công"
+                  address:
+                    type: object
+                    properties:
+                      address_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      user_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      full_name:
+                        type: string
+                        example: "Nguyễn Văn A"
+                      phone_number:
+                        type: string
+                        example: "0987654321"
+                      address_detail:
+                        type: string
+                        example: "Số 1 Đường ABC"
+                      city:
+                        type: string
+                        example: "Hà Nội"
+                      district:
+                        type: string
+                        example: "Quận Cầu Giấy"
+                      ward:
+                        type: string
+                        example: "Phường Dịch Vọng"
+                      is_default:
+                        type: boolean
+                        example: true
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: "2024-03-20T10:00:00Z"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi..."
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."
+
+  /shipping-addresses/{address_id}:
+    put:
+      tags: [Shipping Address]
+      summary: Cập nhật địa chỉ
+      description: Cập nhật thông tin địa chỉ giao hàng
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: address_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: "Nguyễn Văn A"
+                phone_number:
+                  type: string
+                  example: "0987654321"
+                address_detail:
+                  type: string
+                  example: "Số 1 Đường ABC"
+                city:
+                  type: string
+                  example: "Hà Nội"
+                district:
+                  type: string
+                  example: "Quận Cầu Giấy"
+                ward:
+                  type: string
+                  example: "Phường Dịch Vọng"
+                is_default:
+                  type: boolean
+                  example: true
+              required:
+                - full_name
+                - phone_number
+                - address_detail
+                - city
+                - district
+                - ward
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cập nhật địa chỉ thành công"
+                  address:
+                    type: object
+                    properties:
+                      address_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      user_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      full_name:
+                        type: string
+                        example: "Nguyễn Văn A"
+                      phone_number:
+                        type: string
+                        example: "0987654321"
+                      address_detail:
+                        type: string
+                        example: "Số 1 Đường ABC"
+                      city:
+                        type: string
+                        example: "Hà Nội"
+                      district:
+                        type: string
+                        example: "Quận Cầu Giấy"
+                      ward:
+                        type: string
+                        example: "Phường Dịch Vọng"
+                      is_default:
+                        type: boolean
+                        example: true
+                      updated_at:
+                        type: string
+                        format: date-time
+                        example: "2024-03-20T10:00:00Z"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy địa chỉ"
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."
+
+    delete:
+      tags: [Shipping Address]
+      summary: Xóa địa chỉ
+      description: Xóa địa chỉ giao hàng
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: address_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa địa chỉ thành công"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy địa chỉ"
+        "401":
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."

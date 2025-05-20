@@ -1,0 +1,263 @@
+paths:
+  /admin/reviews/user/{user_id}:
+    get:
+      tags:
+        - Review
+      summary: Lấy danh sách đánh giá của người dùng
+      description: Admin có thể xem tất cả đánh giá của một người dùng cụ thể
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID của người dùng
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách đánh giá thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        review_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        rating:
+                          type: integer
+                          example: 5
+                        comment:
+                          type: string
+                          example: "Sản phẩm rất tốt"
+                        created_at:
+                          type: string
+                          format: date-time
+                        Product:
+                          type: object
+                          properties:
+                            product_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            product_name:
+                              type: string
+                              example: "Áo thun nam"
+                            product_slug:
+                              type: string
+                              example: "ao-thun-nam"
+        "400":
+          description: Lỗi request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy người dùng"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server
+
+  /admin/reviews/admin/{review_id}:
+    delete:
+      tags:
+        - Review
+      summary: Xóa đánh giá (Admin)
+      description: Admin có quyền xóa bất kỳ đánh giá nào
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          description: ID của đánh giá cần xóa
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa đánh giá thành công"
+        "400":
+          description: Lỗi request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Không tìm thấy đánh giá"
+        "401":
+          description: Không có quyền truy cập
+        "403":
+          description: Không đủ quyền
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Bạn không có quyền xóa đánh giá này"
+        "500":
+          description: Lỗi server
+
+  /admin/reviews/product/{product_id}:
+    get:
+      tags:
+        - Review
+      summary: Lấy danh sách đánh giá của sản phẩm (Admin)
+      description: Admin có thể xem tất cả đánh giá của một sản phẩm cụ thể
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          description: ID của sản phẩm
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách đánh giá thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        review_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        rating:
+                          type: integer
+                          example: 5
+                        comment:
+                          type: string
+                          example: "Sản phẩm rất tốt"
+                        created_at:
+                          type: string
+                          format: date-time
+                        User:
+                          type: object
+                          properties:
+                            user_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            full_name:
+                              type: string
+                              example: "Nguyễn Văn A"
+                            email:
+                              type: string
+                              example: "user@example.com"
+                        Product:
+                          type: object
+                          properties:
+                            product_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            product_name:
+                              type: string
+                              example: "Áo thun nam"
+                            product_slug:
+                              type: string
+                              example: "ao-thun-nam"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Error message"
+
+  /admin/reviews/{review_id}:
+    delete:
+      tags:
+        - Review
+      summary: Xóa đánh giá (Admin)
+      description: Admin có quyền xóa bất kỳ đánh giá nào
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          description: ID của đánh giá cần xóa
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa đánh giá thành công"
+        "400":
+          description: Lỗi request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy đánh giá"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server

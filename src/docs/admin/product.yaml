@@ -1,0 +1,698 @@
+paths:
+  /admin/product:
+    post:
+      tags:
+        - Product
+      summary: Tạo sản phẩm mới
+      description: Tạo một sản phẩm mới (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name:
+                  type: string
+                  example: "Áo Thun Cổ Tròn Basic Unisex"
+                  description: Tên sản phẩm
+                product_description:
+                  type: string
+                  example: "Áo thun cổ tròn chất liệu cotton 100% thoáng mát, co giãn tốt. Thiết kế đơn giản dễ phối đồ, phù hợp cho cả nam và nữ."
+                  description: Mô tả sản phẩm
+                product_code:
+                  type: string
+                  example: "ATCT001"
+                  description: Mã sản phẩm
+                product_status:
+                  type: string
+                  enum: [draft, published]
+                  default: "draft"
+                  example: "published"
+                  description: Trạng thái sản phẩm
+                base_price:
+                  type: number
+                  format: float
+                  example: 250000
+                  description: Giá gốc
+                sale_price:
+                  type: number
+                  format: float
+                  example: 200000
+                  description: Giá bán
+                discount:
+                  type: number
+                  format: float
+                  example: 20
+                  description: Phần trăm giảm giá
+                brand_name:
+                  type: string
+                  example: "SimpleWear"
+                  description: Tên thương hiệu
+                category_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: "eb1cc788-85ba-41b8-9221-94808d931338"
+                  description: Danh sách ID danh mục
+                outfit_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: "44ef8a51-f775-474f-8202-949ea0cc7e1a"
+                  description: Danh sách ID bộ sưu tập
+                image_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: "32d6f9a9-1eb2-46b3-920d-97c00c71b409"
+                  minItems: 2
+                  description: Danh sách ID ảnh (ít nhất 2 ảnh)
+                variants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      size_id:
+                        type: string
+                        format: uuid
+                        example: "36b09ea0-452d-4132-becd-312636d2a0a0"
+                        description: ID kích thước
+                      color_id:
+                        type: string
+                        format: uuid
+                        example: "0c6fe469-67af-4b57-abe6-26b9549c52a3"
+                        description: ID màu sắc
+                      quantity:
+                        type: integer
+                        example: 100
+                        description: Số lượng tồn kho
+                      image_ids:
+                        type: array
+                        items:
+                          type: string
+                          format: uuid
+                          example: "32d6f9a9-1eb2-46b3-920d-97c00c71b409"
+                        description: Danh sách ID ảnh của biến thể
+                  description: Danh sách biến thể sản phẩm
+              required:
+                - product_name
+                - product_description
+                - product_code
+                - base_price
+                - brand_name
+                - image_ids
+                - variants
+      responses:
+        "201":
+          description: Tạo sản phẩm thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tạo sản phẩm thành công"
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      product_name:
+                        type: string
+                        example: "Sách Lập Trình Node.js 7"
+                      product_slug:
+                        type: string
+                        example: "sach-lap-trinh-nodejs-7"
+                      created_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Tên sản phẩm đã tồn tại"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server
+
+    get:
+      tags:
+        - Product
+      summary: Lấy danh sách sản phẩm
+      description: Lấy danh sách sản phẩm với phân trang và bộ lọc
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số lượng bản ghi mỗi trang
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp
+          required: false
+          schema:
+            type: string
+            enum:
+              [
+                product_name,
+                base_price,
+                sale_price,
+                discount,
+                average_rating,
+                quantity_sold,
+                created_at,
+                updated_at,
+              ]
+            default: "created_at"
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp
+          required: false
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: "DESC"
+        - name: status
+          in: query
+          description: Trạng thái sản phẩm
+          required: false
+          schema:
+            type: string
+            enum: [all, draft, published]
+            default: "all"
+        - name: minPrice
+          in: query
+          description: Giá tối thiểu
+          required: false
+          schema:
+            type: number
+            format: float
+            default: 0
+        - name: maxPrice
+          in: query
+          description: Giá tối đa
+          required: false
+          schema:
+            type: number
+            format: float
+            default: 999999999
+        - name: category_id
+          in: query
+          description: ID danh mục
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: outfit_id
+          in: query
+          description: ID bộ sưu tập
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách sản phẩm thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        product_name:
+                          type: string
+                          example: "Áo thun nam cổ tròn"
+                        product_slug:
+                          type: string
+                          example: "ao-thun-nam-co-tron"
+                        base_price:
+                          type: number
+                          format: float
+                          example: 200000
+                        sale_price:
+                          type: number
+                          format: float
+                          example: 150000
+                        discount:
+                          type: number
+                          format: float
+                          example: 25
+                        product_status:
+                          type: string
+                          enum: [draft, published]
+                          example: "published"
+                        average_rating:
+                          type: number
+                          format: float
+                          example: 4.5
+                        quantity_sold:
+                          type: integer
+                          example: 100
+                        created_at:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 100
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      totalPages:
+                        type: integer
+                        example: 10
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server
+
+  /admin/product/{product_id}:
+    get:
+      tags:
+        - Product
+      summary: Lấy thông tin chi tiết sản phẩm
+      description: Lấy thông tin chi tiết của một sản phẩm theo ID
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          description: ID sản phẩm
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy thông tin sản phẩm thành công"
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      product_name:
+                        type: string
+                        example: "Áo thun nam cổ tròn"
+                      product_slug:
+                        type: string
+                        example: "ao-thun-nam-co-tron"
+                      product_description:
+                        type: string
+                        example: "Áo thun nam chất liệu cotton 100%"
+                      product_code:
+                        type: string
+                        example: "SP001"
+                      product_status:
+                        type: string
+                        enum: [draft, published]
+                        example: "published"
+                      base_price:
+                        type: number
+                        format: float
+                        example: 200000
+                      sale_price:
+                        type: number
+                        format: float
+                        example: 150000
+                      discount:
+                        type: number
+                        format: float
+                        example: 25
+                      brand_name:
+                        type: string
+                        example: "FashionVN"
+                      average_rating:
+                        type: number
+                        format: float
+                        example: 4.5
+                      quantity_sold:
+                        type: integer
+                        example: 100
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+                      Categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            category_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            category_name:
+                              type: string
+                              example: "Áo thun"
+                      Outfits:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            outfit_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            outfit_name:
+                              type: string
+                              example: "Bộ sưu tập mùa hè"
+                      Images:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            image_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            image_url:
+                              type: string
+                              example: "https://example.com/image.jpg"
+                      Variants:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            variant_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            size:
+                              type: string
+                              example: "M"
+                            color:
+                              type: string
+                              example: "Đen"
+                            quantity:
+                              type: integer
+                              example: 100
+                            price:
+                              type: number
+                              format: float
+                              example: 150000
+        "404":
+          description: Không tìm thấy sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy sản phẩm"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server
+
+    put:
+      tags:
+        - Product
+      summary: Cập nhật sản phẩm
+      description: Cập nhật thông tin sản phẩm (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          description: ID sản phẩm cần cập nhật
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name:
+                  type: string
+                  example: "Áo thun nam cổ tròn"
+                  description: Tên sản phẩm
+                product_description:
+                  type: string
+                  example: "Áo thun nam chất liệu cotton 100%"
+                  description: Mô tả sản phẩm
+                product_code:
+                  type: string
+                  example: "SP001"
+                  description: Mã sản phẩm
+                product_status:
+                  type: string
+                  enum: [draft, published]
+                  description: Trạng thái sản phẩm
+                base_price:
+                  type: number
+                  format: float
+                  example: 200000
+                  description: Giá gốc
+                sale_price:
+                  type: number
+                  format: float
+                  example: 150000
+                  description: Giá bán
+                discount:
+                  type: number
+                  format: float
+                  example: 25
+                  description: Phần trăm giảm giá
+                brand_name:
+                  type: string
+                  example: "FashionVN"
+                  description: Tên thương hiệu
+                category_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+                  description: Danh sách ID danh mục
+                outfit_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+                  description: Danh sách ID bộ sưu tập
+                image_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: "123e4567-e89b-12d3-a456-426614174000"
+                  minItems: 2
+                  description: Danh sách ID ảnh (ít nhất 2 ảnh)
+                variants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      size:
+                        type: string
+                        example: "M"
+                      color:
+                        type: string
+                        example: "Đen"
+                      quantity:
+                        type: integer
+                        example: 100
+                      price:
+                        type: number
+                        format: float
+                        example: 150000
+                  description: Danh sách biến thể sản phẩm
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cập nhật sản phẩm thành công"
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      product_name:
+                        type: string
+                        example: "Áo thun nam cổ tròn"
+                      updated_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Tên sản phẩm đã tồn tại"
+        "401":
+          description: Không có quyền truy cập
+        "404":
+          description: Không tìm thấy sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy sản phẩm"
+        "500":
+          description: Lỗi server
+
+    delete:
+      tags:
+        - Product
+      summary: Xóa sản phẩm
+      description: Xóa một sản phẩm (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          description: ID sản phẩm cần xóa
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa sản phẩm thành công"
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      product_name:
+                        type: string
+                        example: "Áo thun nam cổ tròn"
+                      deleted_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không thể xóa sản phẩm đã có đơn hàng"
+        "401":
+          description: Không có quyền truy cập
+        "404":
+          description: Không tìm thấy sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy sản phẩm"
+        "500":
+          description: Lỗi server

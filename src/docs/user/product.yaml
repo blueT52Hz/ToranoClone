@@ -1,0 +1,374 @@
+paths:
+  /product/{product_slug}:
+    get:
+      tags: [Product]
+      summary: Lấy thông tin sản phẩm theo slug
+      description: Lấy thông tin chi tiết sản phẩm bằng slug
+      parameters:
+        - name: product_slug
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "ao-thun-nam"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy thông tin sản phẩm thành công"
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                        example: 1
+                      product_name:
+                        type: string
+                        example: "Áo thun nam"
+                      product_description:
+                        type: string
+                        example: "Áo thun nam chất liệu cotton 100%"
+                      product_slug:
+                        type: string
+                        example: "ao-thun-nam"
+                      product_code:
+                        type: string
+                        example: "SP001"
+                      base_price:
+                        type: number
+                        format: float
+                        example: 200000
+                      sale_price:
+                        type: number
+                        format: float
+                        example: 150000
+                      discount:
+                        type: number
+                        format: float
+                        example: 25
+                      brand_name:
+                        type: string
+                        example: "FashionVN"
+                      product_status:
+                        type: string
+                        example: "published"
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            category_id:
+                              type: integer
+                              example: 1
+                            category_name:
+                              type: string
+                              example: "Áo thun"
+                            category_slug:
+                              type: string
+                              example: "ao-thun"
+                      outfits:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            outfit_id:
+                              type: integer
+                              example: 1
+                            outfit_name:
+                              type: string
+                              example: "Bộ sưu tập Hè 2023"
+                      images:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            image_id:
+                              type: integer
+                              example: 1
+                            image_url:
+                              type: string
+                              example: "https://example.com/image1.jpg"
+                            image_alt:
+                              type: string
+                              example: "Áo thun nam màu trắng"
+                      variants:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            variant_id:
+                              type: integer
+                              example: 1
+                            size:
+                              type: object
+                              properties:
+                                size_id:
+                                  type: integer
+                                  example: 1
+                                size_code:
+                                  type: string
+                                  example: "M"
+                            color:
+                              type: object
+                              properties:
+                                color_id:
+                                  type: integer
+                                  example: 1
+                                color_name:
+                                  type: string
+                                  example: "Trắng"
+                                color_code:
+                                  type: string
+                                  example: "#FFFFFF"
+                            quantity:
+                              type: integer
+                              example: 100
+                            sku:
+                              type: string
+                              example: "SP001_M-TRANG"
+                            images:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  image_id:
+                                    type: integer
+                                    example: 1
+                                  image_url:
+                                    type: string
+                                    example: "https://example.com/image1.jpg"
+                                  image_alt:
+                                    type: string
+                                    example: "Áo thun nam màu trắng size M"
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+        "404":
+          description: Không tìm thấy sản phẩm
+        "500":
+          description: Lỗi server
+
+  /product/category/{category_slug}:
+    get:
+      tags: [Product]
+      summary: Lấy danh sách sản phẩm theo danh mục
+      description: Lấy danh sách sản phẩm thuộc danh mục với phân trang và bộ lọc
+      parameters:
+        - name: category_slug
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "ao-thun"
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số lượng bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp
+          schema:
+            type: string
+            enum:
+              [
+                "product_name",
+                "base_price",
+                "sale_price",
+                "discount",
+                "average_rating",
+                "quantity_sold",
+                "created_at",
+                "updated_at",
+              ]
+            default: "created_at"
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp
+          schema:
+            type: string
+            enum: ["ASC", "DESC"]
+            default: "DESC"
+        - name: minPrice
+          in: query
+          description: Giá tối thiểu
+          schema:
+            type: number
+            format: float
+            default: 0
+        - name: maxPrice
+          in: query
+          description: Giá tối đa
+          schema:
+            type: number
+            format: float
+            default: 999999999
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách sản phẩm thành công"
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            product_id:
+                              type: integer
+                              example: 1
+                            product_name:
+                              type: string
+                              example: "Áo thun nam"
+                            product_description:
+                              type: string
+                              example: "Áo thun nam chất liệu cotton 100%"
+                            product_slug:
+                              type: string
+                              example: "ao-thun-nam"
+                            product_code:
+                              type: string
+                              example: "SP001"
+                            base_price:
+                              type: number
+                              format: float
+                              example: 200000
+                            sale_price:
+                              type: number
+                              format: float
+                              example: 150000
+                            discount:
+                              type: number
+                              format: float
+                              example: 25
+                            brand_name:
+                              type: string
+                              example: "FashionVN"
+                            product_status:
+                              type: string
+                              example: "published"
+                            average_rating:
+                              type: number
+                              format: float
+                              example: 4.5
+                            quantity_sold:
+                              type: integer
+                              example: 150
+                            categories:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  category_id:
+                                    type: integer
+                                    example: 1
+                                  category_name:
+                                    type: string
+                                    example: "Áo thun"
+                                  category_slug:
+                                    type: string
+                                    example: "ao-thun"
+                            outfits:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  outfit_id:
+                                    type: integer
+                                    example: 1
+                                  outfit_name:
+                                    type: string
+                                    example: "Bộ sưu tập Hè 2023"
+                            images:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  image_id:
+                                    type: integer
+                                    example: 1
+                                  image_url:
+                                    type: string
+                                    example: "https://example.com/image1.jpg"
+                                  image_alt:
+                                    type: string
+                                    example: "Áo thun nam màu trắng"
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 50
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+                          totalPages:
+                            type: integer
+                            example: 5
+                      sort:
+                        type: object
+                        properties:
+                          sortBy:
+                            type: string
+                            example: "created_at"
+                          sortOrder:
+                            type: string
+                            example: "DESC"
+                      filter:
+                        type: object
+                        properties:
+                          minPrice:
+                            type: number
+                            format: float
+                            example: 100000
+                          maxPrice:
+                            type: number
+                            format: float
+                            example: 300000
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Trường sắp xếp không hợp lệ"
+        "404":
+          description: Không tìm thấy danh mục
+        "500":
+          description: Lỗi server

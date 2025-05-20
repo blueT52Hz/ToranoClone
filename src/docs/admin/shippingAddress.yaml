@@ -1,0 +1,133 @@
+paths:
+  /admin/shipping-addresses/user/{user_id}:
+    get:
+      tags:
+        - User
+      summary: Lấy thông tin địa chỉ của user
+      description: Admin có thể xem thông tin chi tiết về user và danh sách địa chỉ giao hàng của user đó
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID của người dùng
+          schema:
+            type: string
+            format: uuid
+            example: "cd3fbc29-11ef-4d45-a746-3f7df01eab2e"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy thông tin địa chỉ thành công"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          user_id:
+                            type: string
+                            format: uuid
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          full_name:
+                            type: string
+                            example: "Nguyễn Văn A"
+                          email:
+                            type: string
+                            example: "user@example.com"
+                          phone_number:
+                            type: string
+                            example: "0987654321"
+                          status:
+                            type: string
+                            enum: [active, inactive, banned]
+                            example: "active"
+                          created_at:
+                            type: string
+                            format: date-time
+                            example: "2024-03-20T10:00:00Z"
+                      addresses:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            address_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            full_name:
+                              type: string
+                              example: "Nguyễn Văn A"
+                            phone_number:
+                              type: string
+                              example: "0987654321"
+                            address_detail:
+                              type: string
+                              example: "Số 1 Đường ABC"
+                            city:
+                              type: string
+                              example: "Hà Nội"
+                            district:
+                              type: string
+                              example: "Quận Cầu Giấy"
+                            ward:
+                              type: string
+                              example: "Phường Dịch Vọng"
+                            is_default:
+                              type: boolean
+                              example: true
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2024-03-20T10:00:00Z"
+                            updated_at:
+                              type: string
+                              format: date-time
+                              example: "2024-03-20T10:00:00Z"
+        "404":
+          description: Không tìm thấy user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Không tìm thấy user"
+                  error:
+                    type: string
+                    example: "Không tìm thấy user"
+        "401":
+          description: Không có quyền truy cập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Chưa đăng nhập"
+                  error:
+                    type: string
+                    example: "Vui lòng đăng nhập để tiếp tục"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+                  error:
+                    type: string
+                    example: "Chi tiết lỗi server..."

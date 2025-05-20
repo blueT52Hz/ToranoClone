@@ -1,0 +1,337 @@
+paths:
+  /reviews:
+    post:
+      tags:
+        - Review
+      summary: Tạo đánh giá mới
+      description: Tạo đánh giá cho sản phẩm (yêu cầu đăng nhập)
+      security:
+        - bearerAuthUser: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                  description: ID sản phẩm
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 5
+                  description: Điểm đánh giá (1-5 sao)
+                comment:
+                  type: string
+                  example: "Sản phẩm rất tốt"
+                  description: Nội dung đánh giá
+              required:
+                - product_id
+                - rating
+                - comment
+      responses:
+        "201":
+          description: Tạo đánh giá thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Đánh giá sản phẩm thành công"
+                  review:
+                    type: object
+                    properties:
+                      review_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      product_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      user_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      rating:
+                        type: integer
+                        example: 5
+                      comment:
+                        type: string
+                        example: "Sản phẩm rất tốt"
+                      created_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Bạn cần mua sản phẩm này trước khi đánh giá"
+        "401":
+          description: Chưa đăng nhập
+        "500":
+          description: Lỗi server
+
+  /reviews/product/{product_id}:
+    get:
+      tags:
+        - Review
+      summary: Lấy danh sách đánh giá sản phẩm
+      description: Lấy tất cả đánh giá của một sản phẩm (public)
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách đánh giá thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        review_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        rating:
+                          type: integer
+                          example: 5
+                        comment:
+                          type: string
+                          example: "Sản phẩm rất tốt"
+                        created_at:
+                          type: string
+                          format: date-time
+                        User:
+                          type: object
+                          properties:
+                            user_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            full_name:
+                              type: string
+                              example: "Nguyễn Văn A"
+        "404":
+          description: Không tìm thấy sản phẩm
+        "500":
+          description: Lỗi server
+
+  /reviews/my-reviews:
+    get:
+      tags:
+        - Review
+      summary: Lấy danh sách đánh giá của tôi
+      description: Lấy tất cả đánh giá của người dùng đang đăng nhập
+      security:
+        - bearerAuthUser: []
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách đánh giá thành công"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        review_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        product_id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174000"
+                        rating:
+                          type: integer
+                          example: 5
+                        comment:
+                          type: string
+                          example: "Sản phẩm rất tốt"
+                        created_at:
+                          type: string
+                          format: date-time
+                        Product:
+                          type: object
+                          properties:
+                            product_id:
+                              type: string
+                              format: uuid
+                              example: "123e4567-e89b-12d3-a456-426614174000"
+                            product_name:
+                              type: string
+                              example: "Áo thun nam"
+                            product_slug:
+                              type: string
+                              example: "ao-thun-nam"
+        "401":
+          description: Chưa đăng nhập
+        "500":
+          description: Lỗi server
+
+  /reviews/{review_id}:
+    put:
+      tags:
+        - Review
+      summary: Cập nhật đánh giá
+      description: Cập nhật đánh giá của người dùng đang đăng nhập
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 4
+                  description: Điểm đánh giá mới
+                comment:
+                  type: string
+                  example: "Sản phẩm tốt"
+                  description: Nội dung đánh giá mới
+              required:
+                - rating
+                - comment
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cập nhật đánh giá thành công"
+                  review:
+                    type: object
+                    properties:
+                      review_id:
+                        type: string
+                        format: uuid
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      rating:
+                        type: integer
+                        example: 4
+                      comment:
+                        type: string
+                        example: "Sản phẩm tốt"
+                      updated_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Đánh giá phải từ 1 đến 5 sao"
+        "401":
+          description: Chưa đăng nhập
+        "403":
+          description: Không có quyền chỉnh sửa
+        "404":
+          description: Không tìm thấy đánh giá
+        "500":
+          description: Lỗi server
+
+    delete:
+      tags:
+        - Review
+      summary: Xóa đánh giá
+      description: Xóa đánh giá của người dùng đang đăng nhập
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: review_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa đánh giá thành công"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không tìm thấy đánh giá"
+        "401":
+          description: Chưa đăng nhập
+        "403":
+          description: Không có quyền xóa
+        "404":
+          description: Không tìm thấy đánh giá
+        "500":
+          description: Lỗi server

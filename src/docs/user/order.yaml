@@ -1,0 +1,414 @@
+paths:
+  /order:
+    post:
+      tags: [Order]
+      summary: Tạo đơn hàng mới
+      description: Tạo đơn hàng mới từ giỏ hàng của người dùng
+      security:
+        - bearerAuthUser: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart_id:
+                  type: uuid
+                  example: "0467a75b-58ba-46ea-8f37-632b3ceabeff"
+                  description: ID giỏ hàng
+                address_id:
+                  type: uuid
+                  example: "0467a75b-58ba-46ea-8f37-632b3ceabeff"
+                  description: ID địa chỉ giao hàng
+                payment_method:
+                  type: string
+                  enum: [cod, payment_online]
+                  example: "cod"
+                  description: Phương thức thanh toán
+                note:
+                  type: string
+                  example: "Giao hàng giờ hành chính"
+                  description: Ghi chú đơn hàng
+                coupon_code:
+                  type: string
+                  description: Mã giảm giá (nếu có)
+              required:
+                - cart_id
+                - address_id
+                - payment_method
+      responses:
+        "201":
+          description: Tạo đơn hàng thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tạo đơn hàng thành công"
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: integer
+                        example: 1
+                      final_price:
+                        type: number
+                        format: float
+                        example: 500000
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Giỏ hàng trống"
+        "401":
+          description: Chưa đăng nhập
+        "500":
+          description: Lỗi server
+
+    get:
+      tags: [Order]
+      summary: Lấy danh sách đơn hàng
+      description: Lấy danh sách đơn hàng của người dùng với phân trang
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số lượng bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách đơn hàng thành công"
+                  data:
+                    type: object
+                    properties:
+                      orders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            order_id:
+                              type: integer
+                              example: 1
+                            status:
+                              type: string
+                              example: "pending_approval"
+                            payment_method:
+                              type: string
+                              example: "cod"
+                            shipping_address:
+                              type: object
+                              properties:
+                                full_name:
+                                  type: string
+                                  example: "Nguyễn Văn A"
+                                phone_number:
+                                  type: string
+                                  example: "0987654321"
+                                address_detail:
+                                  type: string
+                                  example: "Số 1 Đường ABC"
+                                city:
+                                  type: string
+                                  example: "Hà Nội"
+                                district:
+                                  type: string
+                                  example: "Quận Cầu Giấy"
+                                ward:
+                                  type: string
+                                  example: "Phường Dịch Vọng"
+                            items:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  product:
+                                    type: object
+                                    properties:
+                                      product_id:
+                                        type: integer
+                                        example: 1
+                                      product_name:
+                                        type: string
+                                        example: "Áo thun nam"
+                                      product_slug:
+                                        type: string
+                                        example: "ao-thun-nam"
+                                      price:
+                                        type: number
+                                        format: float
+                                        example: 199000
+                                      image:
+                                        type: string
+                                        example: "https://example.com/image.jpg"
+                                  variant:
+                                    type: object
+                                    properties:
+                                      size:
+                                        type: string
+                                        example: "M"
+                                      color:
+                                        type: string
+                                        example: "Đen"
+                                      color_code:
+                                        type: string
+                                        example: "#000000"
+                                  quantity:
+                                    type: integer
+                                    example: 2
+                                  item_total:
+                                    type: number
+                                    format: float
+                                    example: 398000
+                            subtotal:
+                              type: number
+                              format: float
+                              example: 500000
+                            discount:
+                              type: number
+                              format: float
+                              example: 50000
+                            shipping_fee:
+                              type: number
+                              format: float
+                              example: 30000
+                            final_price:
+                              type: number
+                              format: float
+                              example: 480000
+                            created_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 5
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+                          total_pages:
+                            type: integer
+                            example: 1
+        "401":
+          description: Chưa đăng nhập
+        "500":
+          description: Lỗi server
+
+  /order/{order_id}:
+    get:
+      tags: [Order]
+      summary: Lấy chi tiết đơn hàng
+      description: Lấy thông tin chi tiết của một đơn hàng
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy thông tin đơn hàng thành công"
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: integer
+                        example: 1
+                      status:
+                        type: string
+                        example: "pending_approval"
+                      payment_method:
+                        type: string
+                        example: "cod"
+                      shipping_address:
+                        type: object
+                        properties:
+                          full_name:
+                            type: string
+                            example: "Nguyễn Văn A"
+                          phone_number:
+                            type: string
+                            example: "0987654321"
+                          address_detail:
+                            type: string
+                            example: "Số 1 Đường ABC"
+                          city:
+                            type: string
+                            example: "Hà Nội"
+                          district:
+                            type: string
+                            example: "Quận Cầu Giấy"
+                          ward:
+                            type: string
+                            example: "Phường Dịch Vọng"
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            product:
+                              type: object
+                              properties:
+                                product_id:
+                                  type: integer
+                                  example: 1
+                                product_name:
+                                  type: string
+                                  example: "Áo thun nam"
+                                product_slug:
+                                  type: string
+                                  example: "ao-thun-nam"
+                                price:
+                                  type: number
+                                  format: float
+                                  example: 199000
+                                image:
+                                  type: string
+                                  example: "https://example.com/image.jpg"
+                            variant:
+                              type: object
+                              properties:
+                                size:
+                                  type: string
+                                  example: "M"
+                                color:
+                                  type: string
+                                  example: "Đen"
+                                color_code:
+                                  type: string
+                                  example: "#000000"
+                            quantity:
+                              type: integer
+                              example: 2
+                            item_total:
+                              type: number
+                              format: float
+                              example: 398000
+                      subtotal:
+                        type: number
+                        format: float
+                        example: 500000
+                      discount:
+                        type: number
+                        format: float
+                        example: 50000
+                      shipping_fee:
+                        type: number
+                        format: float
+                        example: 30000
+                      final_price:
+                        type: number
+                        format: float
+                        example: 480000
+                      coupon:
+                        type: object
+                        properties:
+                          coupon_code:
+                            type: string
+                            example: "DISCOUNT10"
+                          discount_type:
+                            type: string
+                            example: "percentage"
+                          discount_value:
+                            type: number
+                            format: float
+                            example: 10
+                      note:
+                        type: string
+                        example: "Giao hàng giờ hành chính"
+                      created_at:
+                        type: string
+                        format: date-time
+        "401":
+          description: Chưa đăng nhập
+        "404":
+          description: Không tìm thấy đơn hàng
+        "500":
+          description: Lỗi server
+
+    put:
+      tags: [Order]
+      summary: Hủy đơn hàng
+      description: Hủy đơn hàng (chỉ hủy được khi đơn hàng ở trạng thái chờ xử lý)
+      security:
+        - bearerAuthUser: []
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hủy đơn hàng thành công"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lỗi dữ liệu"
+                  error:
+                    type: string
+                    example: "Không thể hủy đơn hàng ở trạng thái này"
+        "401":
+          description: Chưa đăng nhập
+        "404":
+          description: Không tìm thấy đơn hàng
+        "500":
+          description: Lỗi server

@@ -1,0 +1,398 @@
+paths:
+  /admin/notifications:
+    get:
+      tags:
+        - Notification
+      summary: Lấy danh sách tất cả thông báo (Admin)
+      description: Lấy danh sách thông báo với các bộ lọc và phân trang
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: type
+          in: query
+          description: Loại thông báo cần lọc
+          schema:
+            type: string
+            enum:
+              [
+                "discount",
+                "order_update",
+                "news",
+                "account_update",
+                "welcome_message",
+                "all",
+              ]
+            default: all
+        - name: admin_id
+          in: query
+          description: ID của admin tạo thông báo
+          schema:
+            type: string
+            format: uuid
+        - name: sort_by
+          in: query
+          description: Trường sắp xếp
+          schema:
+            type: string
+            enum: [created_at, updated_at]
+        - name: sort_order
+          in: query
+          description: Thứ tự sắp xếp
+          schema:
+            type: string
+            enum: [ASC, DESC]
+        - name: page
+          in: query
+          description: Số trang
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi trên mỗi trang
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        "200":
+          description: Lấy danh sách thông báo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách thông báo thành công"
+                  data:
+                    type: object
+                    properties:
+                      notifications:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            notification_id:
+                              type: string
+                              format: uuid
+                              example: "550e8400-e29b-41d4-a716-446655440000"
+                            subject:
+                              type: string
+                              example: "Thông báo hệ thống"
+                            content:
+                              type: string
+                              example: "Hệ thống sẽ bảo trì vào ngày mai"
+                            notification_type:
+                              type: string
+                              example: "system"
+                            created_at:
+                              type: string
+                              format: date-time
+                              example: "2023-05-01T10:00:00Z"
+                            updated_at:
+                              type: string
+                              format: date-time
+                              example: "2023-05-01T10:00:00Z"
+                            admin:
+                              type: object
+                              properties:
+                                admin_id:
+                                  type: string
+                                  format: uuid
+                                  example: "550e8400-e29b-41d4-a716-446655440001"
+                                admin_name:
+                                  type: string
+                                  example: "Admin"
+                                admin_username:
+                                  type: string
+                                  example: "admin"
+                            users:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  user_id:
+                                    type: string
+                                    format: uuid
+                                    example: "550e8400-e29b-41d4-a716-446655440002"
+                                  user_name:
+                                    type: string
+                                    example: "Nguyễn Văn A"
+                                  user_email:
+                                    type: string
+                                    example: "user@example.com"
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 100
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+                          totalPages:
+                            type: integer
+                            example: 10
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Có lỗi xảy ra trong quá trình xử lý"
+    post:
+      summary: Tạo thông báo mới (Admin)
+      tags:
+        - Notification
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subject
+                - content
+                - notification_type
+                - user_ids
+              properties:
+                subject:
+                  type: string
+                  description: Tiêu đề thông báo
+                content:
+                  type: string
+                  description: Nội dung thông báo
+                notification_type:
+                  type: string
+                  enum: [system, promotion, order]
+                  description: Loại thông báo
+                user_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: Danh sách ID người dùng nhận thông báo
+              example:
+                subject: "Thông báo hệ thống"
+                content: "Hệ thống sẽ bảo trì vào ngày mai"
+                notification_type: "news"
+                user_ids:
+                  [
+                    "123e4567-e89b-12d3-a456-426614174000",
+                    "123e4567-e89b-12d3-a456-426614174001",
+                  ]
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  notification:
+                    type: object
+                    properties:
+                      notification_id:
+                        type: string
+                        format: uuid
+                      subject:
+                        type: string
+                      content:
+                        type: string
+                      notification_type:
+                        type: string
+                      sender_id:
+                        type: string
+                        format: uuid
+                      created_at:
+                        type: string
+                        format: date-time
+                  userNotifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_notification_id:
+                          type: string
+                          format: uuid
+                        notification_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        status:
+                          type: string
+                          enum: [unread, read, deleted]
+                        created_at:
+                          type: string
+                          format: date-time
+              example:
+                message: "Tạo thông báo thành công"
+                notification:
+                  notification_id: "123e4567-e89b-12d3-a456-426614174002"
+                  subject: "Thông báo hệ thống"
+                  content: "Hệ thống sẽ bảo trì vào ngày mai"
+                  notification_type: "system"
+                  sender_id: "123e4567-e89b-12d3-a456-426614174003"
+                  created_at: "2023-01-01T00:00:00Z"
+                userNotifications:
+                  - user_notification_id: "123e4567-e89b-12d3-a456-426614174004"
+                    notification_id: "123e4567-e89b-12d3-a456-426614174002"
+                    user_id: "123e4567-e89b-12d3-a456-426614174000"
+                    status: "unread"
+                    created_at: "2023-01-01T00:00:00Z"
+                  - user_notification_id: "123e4567-e89b-12d3-a456-426614174005"
+                    notification_id: "123e4567-e89b-12d3-a456-426614174002"
+                    user_id: "123e4567-e89b-12d3-a456-426614174001"
+                    status: "unread"
+                    created_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              example:
+                message: "Thiếu các trường bắt buộc: subject, content, notification_type, user_ids"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi tạo thông báo"
+
+  admin/notifications/user/{user_id}:
+    get:
+      summary: Xem thông báo của một user (Admin)
+      tags:
+        - Notification
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của user
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      user_id:
+                        type: string
+                        format: uuid
+                      full_name:
+                        type: string
+                      email:
+                        type: string
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_notification_id:
+                          type: string
+                          format: uuid
+                        notification_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        status:
+                          type: string
+                          enum: [unread, read, deleted]
+                        created_at:
+                          type: string
+                          format: date-time
+                        Notification:
+                          type: object
+                          properties:
+                            notification_id:
+                              type: string
+                              format: uuid
+                            subject:
+                              type: string
+                            content:
+                              type: string
+                            notification_type:
+                              type: string
+                            sender_id:
+                              type: string
+                              format: uuid
+                            created_at:
+                              type: string
+                              format: date-time
+                            Admin:
+                              type: object
+                              properties:
+                                admin_id:
+                                  type: string
+                                  format: uuid
+                                full_name:
+                                  type: string
+              example:
+                user:
+                  user_id: "123e4567-e89b-12d3-a456-426614174000"
+                  full_name: "Nguyễn Văn A"
+                  email: "nguyenvana@example.com"
+                notifications:
+                  - user_notification_id: "123e4567-e89b-12d3-a456-426614174004"
+                    notification_id: "123e4567-e89b-12d3-a456-426614174002"
+                    user_id: "123e4567-e89b-12d3-a456-426614174000"
+                    status: "unread"
+                    created_at: "2023-01-01T00:00:00Z"
+                    Notification:
+                      notification_id: "123e4567-e89b-12d3-a456-426614174002"
+                      subject: "Thông báo hệ thống"
+                      content: "Hệ thống sẽ bảo trì vào ngày mai"
+                      notification_type: "system"
+                      sender_id: "123e4567-e89b-12d3-a456-426614174003"
+                      created_at: "2023-01-01T00:00:00Z"
+                      Admin:
+                        admin_id: "123e4567-e89b-12d3-a456-426614174003"
+                        full_name: "Admin Quản trị"
+        "400":
+          description: Lỗi dữ liệu
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy user"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách thông báo"

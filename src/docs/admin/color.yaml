@@ -1,0 +1,467 @@
+paths:
+  /admin/color:
+    post:
+      summary: Tạo màu mới
+      tags:
+        - Color
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - color_name
+                - color_code
+              properties:
+                color_name:
+                  type: string
+                  description: Tên màu sắc
+                color_code:
+                  type: string
+                  description: Mã màu (hex, rgb, hoặc tên màu)
+              example:
+                color_name: "Đỏ"
+                color_code: "#FF0000"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      color_id:
+                        type: string
+                        format: uuid
+                      color_name:
+                        type: string
+                      color_code:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Tạo màu thành công"
+                data:
+                  color_id: "123e4567-e89b-12d3-a456-426614174000"
+                  color_name: "Đỏ"
+                  color_code: "#FF0000"
+                  created_at: "2023-01-01T00:00:00Z"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingField:
+                  value:
+                    message: "Tên màu không được để trống"
+                nameExists:
+                  value:
+                    message: "Tên màu đã tồn tại"
+                codeExists:
+                  value:
+                    message: "Mã màu đã tồn tại"
+                validationError:
+                  value:
+                    message: "Lỗi validation"
+                    errors:
+                      - field: "color_name"
+                        message: "Tên màu không được để trống"
+                        value: null
+                uniqueError:
+                  value:
+                    message: "Lỗi trùng lặp dữ liệu"
+                    errors:
+                      - field: "color_code"
+                        message: "color_code must be unique"
+                        value: "#FF0000"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+    get:
+      summary: Lấy danh sách màu sắc
+      tags:
+        - Color
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp (color_name, color_code, created_at, updated_at)
+          schema:
+            type: string
+            enum: [color_name, color_code, created_at, updated_at]
+            default: created_at
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp (ASC, DESC)
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      colors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            color_id:
+                              type: string
+                              format: uuid
+                            color_name:
+                              type: string
+                            color_code:
+                              type: string
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          totalPages:
+                            type: integer
+                      sort:
+                        type: object
+                        properties:
+                          sortBy:
+                            type: string
+                          sortOrder:
+                            type: string
+                      filter:
+                        type: object
+                        properties:
+                          search:
+                            type: string
+              example:
+                message: "Lấy danh sách màu thành công"
+                data:
+                  colors:
+                    - color_id: "123e4567-e89b-12d3-a456-426614174000"
+                      color_name: "Đỏ"
+                      color_code: "#FF0000"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                    - color_id: "123e4567-e89b-12d3-a456-426614174001"
+                      color_name: "Xanh lá"
+                      color_code: "#00FF00"
+                      created_at: "2023-01-02T00:00:00Z"
+                      updated_at: "2023-01-02T00:00:00Z"
+                  pagination:
+                    total: 2
+                    page: 1
+                    limit: 10
+                    totalPages: 1
+                  sort:
+                    sortBy: "created_at"
+                    sortOrder: "DESC"
+                  filter:
+                    search: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                invalidSortField:
+                  value:
+                    message: "Trường sắp xếp không hợp lệ"
+                invalidSortOrder:
+                  value:
+                    message: "Thứ tự sắp xếp không hợp lệ"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+  /admin/color/{color_id}:
+    get:
+      summary: Lấy thông tin chi tiết màu
+      tags:
+        - Color
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: color_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của màu
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      color_id:
+                        type: string
+                        format: uuid
+                      color_name:
+                        type: string
+                      color_code:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Lấy thông tin màu thành công"
+                data:
+                  color_id: "123e4567-e89b-12d3-a456-426614174000"
+                  color_name: "Đỏ"
+                  color_code: "#FF0000"
+                  created_at: "2023-01-01T00:00:00Z"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy màu"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+    put:
+      summary: Cập nhật thông tin màu
+      tags:
+        - Color
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: color_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của màu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - color_name
+                - color_code
+              properties:
+                color_name:
+                  type: string
+                  description: Tên màu sắc
+                color_code:
+                  type: string
+                  description: Mã màu (hex, rgb, hoặc tên màu)
+              example:
+                color_name: "Đỏ đậm"
+                color_code: "#CC0000"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      color_id:
+                        type: string
+                        format: uuid
+                      color_name:
+                        type: string
+                      color_code:
+                        type: string
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Cập nhật màu thành công"
+                data:
+                  color_id: "123e4567-e89b-12d3-a456-426614174000"
+                  color_name: "Đỏ đậm"
+                  color_code: "#CC0000"
+                  updated_at: "2023-01-02T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingField:
+                  value:
+                    message: "Tên màu không được để trống"
+                nameExists:
+                  value:
+                    message: "Tên màu đã tồn tại"
+                codeExists:
+                  value:
+                    message: "Mã màu đã tồn tại"
+                notFound:
+                  value:
+                    message: "Không tìm thấy màu"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"
+
+    delete:
+      summary: Xóa màu
+      tags:
+        - Color
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: color_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của màu
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      color_id:
+                        type: string
+                        format: uuid
+                      color_name:
+                        type: string
+                      deleted_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Xóa màu thành công"
+                data:
+                  color_id: "123e4567-e89b-12d3-a456-426614174000"
+                  color_name: "Đỏ"
+                  deleted_at: "2023-01-03T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy màu"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra trong quá trình xử lý"
+                error: "Internal Server Error"

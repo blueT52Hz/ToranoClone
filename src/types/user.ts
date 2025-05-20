@@ -1,14 +1,21 @@
-import { v4 as uuidv4 } from "uuid";
+// export interface User {
+//   user_id: string;
+//   full_name: string;
+//   gender: "Nam" | "Nữ" | "Khác";
+//   date_of_birth: string;
+//   email: string;
+//   password: string;
+//   created_at: string;
+//   updated_at: string;
+// }
 
 export interface User {
-  user_id: string;
-  full_name: string;
-  gender: "Nam" | "Nữ" | "Khác";
   date_of_birth: string;
   email: string;
-  password: string;
-  created_at: string;
-  updated_at: string;
+  full_name: string;
+  gender: "Nam" | "Nữ" | "Khác";
+  status: "active" | "inactive" | "banned";
+  user_id: string;
 }
 
 export interface ShippingAddress {

@@ -1,0 +1,409 @@
+paths:
+  /admin/outfit:
+    post:
+      tags:
+        - Outfit
+      summary: Tạo bộ sưu tập mới
+      description: Tạo một bộ sưu tập mới (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outfit_name:
+                  type: string
+                  example: "Bộ sưu tập Xuân Hè 2023"
+                  description: Tên bộ sưu tập
+                image_id:
+                  type: integer
+                  example: 1
+                  description: ID của ảnh đại diện
+              required:
+                - outfit_name
+                - image_id
+      responses:
+        "201":
+          description: Tạo bộ sưu tập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tạo bộ sưu tập thành công"
+                  data:
+                    type: object
+                    properties:
+                      outfit_id:
+                        type: integer
+                        example: 1
+                      outfit_name:
+                        type: string
+                        example: "Bộ sưu tập Xuân Hè 2023"
+                      image:
+                        type: object
+                        properties:
+                          image_id:
+                            type: integer
+                            example: 1
+                          image_url:
+                            type: string
+                            example: "https://example.com/image1.jpg"
+                          image_alt:
+                            type: string
+                            example: "Ảnh bộ sưu tập Xuân Hè"
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi khi tạo bộ sưu tập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tên bộ sưu tập đã tồn tại"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server
+
+    get:
+      tags:
+        - Outfit
+      summary: Lấy danh sách bộ sưu tập
+      description: Lấy danh sách tất cả bộ sưu tập với phân trang và tìm kiếm
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số lượng bản ghi mỗi trang
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm theo tên bộ sưu tập
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp (outfit_name, created_at, updated_at)
+          required: false
+          schema:
+            type: string
+            default: "created_at"
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp (ASC, DESC)
+          required: false
+          schema:
+            type: string
+            default: "DESC"
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy danh sách bộ sưu tập thành công"
+                  data:
+                    type: object
+                    properties:
+                      outfits:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            outfit_id:
+                              type: integer
+                              example: 1
+                            outfit_name:
+                              type: string
+                              example: "Bộ sưu tập Xuân Hè 2023"
+                            image:
+                              type: object
+                              properties:
+                                image_id:
+                                  type: integer
+                                  example: 1
+                                image_url:
+                                  type: string
+                                  example: "https://example.com/image1.jpg"
+                                image_alt:
+                                  type: string
+                                  example: "Ảnh bộ sưu tập Xuân Hè"
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 15
+                          page:
+                            type: integer
+                            example: 1
+                          limit:
+                            type: integer
+                            example: 10
+                          totalPages:
+                            type: integer
+                            example: 2
+                      sort:
+                        type: object
+                        properties:
+                          sortBy:
+                            type: string
+                            example: "created_at"
+                          sortOrder:
+                            type: string
+                            example: "DESC"
+                      filter:
+                        type: object
+                        properties:
+                          search:
+                            type: string
+                            example: "Xuân Hè"
+        "400":
+          description: Lỗi request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Trường sắp xếp không hợp lệ"
+        "500":
+          description: Lỗi server
+
+  /admin/outfit/{outfit_id}:
+    get:
+      tags:
+        - Outfit
+      summary: Lấy thông tin chi tiết bộ sưu tập
+      description: Lấy thông tin chi tiết của một bộ sưu tập theo ID
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: outfit_id
+          in: path
+          required: true
+          description: ID của bộ sưu tập
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Lấy thông tin bộ sưu tập thành công"
+                  data:
+                    type: object
+                    properties:
+                      outfit_id:
+                        type: integer
+                        example: 1
+                      outfit_name:
+                        type: string
+                        example: "Bộ sưu tập Xuân Hè 2023"
+                      image:
+                        type: object
+                        properties:
+                          image_id:
+                            type: integer
+                            example: 1
+                          image_url:
+                            type: string
+                            example: "https://example.com/image1.jpg"
+                          image_alt:
+                            type: string
+                            example: "Ảnh bộ sưu tập Xuân Hè"
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Không tìm thấy bộ sưu tập
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Không tìm thấy bộ sưu tập"
+        "500":
+          description: Lỗi server
+
+    put:
+      tags:
+        - Outfit
+      summary: Cập nhật bộ sưu tập
+      description: Cập nhật thông tin của một bộ sưu tập (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: outfit_id
+          in: path
+          required: true
+          description: ID của bộ sưu tập cần cập nhật
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outfit_name:
+                  type: string
+                  example: "Bộ sưu tập Xuân Hè 2023 (Cập nhật)"
+                  description: Tên mới của bộ sưu tập
+                image_id:
+                  type: integer
+                  example: 2
+                  description: ID mới của ảnh đại diện
+              required:
+                - outfit_name
+                - image_id
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cập nhật bộ sưu tập thành công"
+                  data:
+                    type: object
+                    properties:
+                      outfit_id:
+                        type: integer
+                        example: 1
+                      outfit_name:
+                        type: string
+                        example: "Bộ sưu tập Xuân Hè 2023 (Cập nhật)"
+                      image:
+                        type: object
+                        properties:
+                          image_id:
+                            type: integer
+                            example: 2
+                          image_url:
+                            type: string
+                            example: "https://example.com/image2.jpg"
+                          image_alt:
+                            type: string
+                            example: "Ảnh bộ sưu tập Xuân Hè mới"
+                      updated_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi khi cập nhật
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tên bộ sưu tập đã tồn tại"
+        "401":
+          description: Không có quyền truy cập
+        "404":
+          description: Không tìm thấy bộ sưu tập
+        "500":
+          description: Lỗi server
+
+    delete:
+      tags:
+        - Outfit
+      summary: Xóa bộ sưu tập
+      description: Xóa một bộ sưu tập theo ID (yêu cầu quyền admin)
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: outfit_id
+          in: path
+          required: true
+          description: ID của bộ sưu tập cần xóa
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Xóa bộ sưu tập thành công"
+                  data:
+                    type: object
+                    properties:
+                      outfit_id:
+                        type: integer
+                        example: 1
+                      outfit_name:
+                        type: string
+                        example: "Bộ sưu tập Xuân Hè 2023"
+                      deleted_at:
+                        type: string
+                        format: date-time
+        "400":
+          description: Lỗi khi xóa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Không tìm thấy bộ sưu tập"
+        "401":
+          description: Không có quyền truy cập
+        "500":
+          description: Lỗi server

@@ -1,0 +1,510 @@
+paths:
+  /admin/category:
+    post:
+      summary: Tạo danh mục mới
+      tags:
+        - Category
+      security:
+        - bearerAuthAdmin: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_name
+              properties:
+                category_name:
+                  type: string
+                  description: Tên danh mục
+                image_id:
+                  type: string
+                  format: uuid
+                  description: ID của ảnh đại diện
+                category_slug:
+                  type: string
+                  description: Slug của danh mục (nếu không có sẽ tự tạo từ category_name)
+                product_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: Danh sách ID sản phẩm thuộc danh mục
+              example:
+                category_name: "Áo thun"
+                image_id: "08225c2c-44be-440a-a893-f9c73d726b0b"
+                product_ids:
+                  [
+                    "e2a6a443-0343-4352-aa70-3f89f743c87e",
+                    "e2a6a443-0343-4352-aa70-3f89f743c87e",
+                  ]
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      category_id:
+                        type: string
+                        format: uuid
+                      category_name:
+                        type: string
+                      category_slug:
+                        type: string
+                      image_id:
+                        type: string
+                        format: uuid
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Tạo danh mục thành công"
+                data:
+                  category_id: "123e4567-e89b-12d3-a456-426614174000"
+                  category_name: "Áo thun"
+                  category_slug: "ao-thun"
+                  image_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  created_at: "2023-01-01T00:00:00Z"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingName:
+                  value:
+                    message: "Tên danh mục không được để trống"
+                nameExists:
+                  value:
+                    message: "Tên danh mục đã tồn tại"
+                imageNotFound:
+                  value:
+                    message: "Không tìm thấy ảnh"
+                productNotFound:
+                  value:
+                    message: "Một số sản phẩm không tồn tại"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi tạo danh mục"
+
+    get:
+      summary: Lấy danh sách danh mục
+      tags:
+        - Category
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: page
+          in: query
+          description: Trang hiện tại
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Số bản ghi mỗi trang
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          description: Từ khóa tìm kiếm
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Trường sắp xếp (category_name, created_at, updated_at)
+          schema:
+            type: string
+            enum: [category_name, created_at, updated_at]
+            default: created_at
+        - name: sortOrder
+          in: query
+          description: Thứ tự sắp xếp (ASC, DESC)
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            category_id:
+                              type: string
+                              format: uuid
+                            category_name:
+                              type: string
+                            category_slug:
+                              type: string
+                            image:
+                              type: object
+                              properties:
+                                image_id:
+                                  type: string
+                                  format: uuid
+                                image_url:
+                                  type: string
+                                image_alt:
+                                  type: string
+                            created_at:
+                              type: string
+                              format: date-time
+                            updated_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          totalPages:
+                            type: integer
+                      sort:
+                        type: object
+                        properties:
+                          sortBy:
+                            type: string
+                          sortOrder:
+                            type: string
+                      filter:
+                        type: object
+                        properties:
+                          search:
+                            type: string
+              example:
+                message: "Lấy danh sách danh mục thành công"
+                data:
+                  categories:
+                    - category_id: "123e4567-e89b-12d3-a456-426614174000"
+                      category_name: "Áo thun"
+                      category_slug: "ao-thun"
+                      image:
+                        image_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                        image_url: "https://example.com/image.jpg"
+                        image_alt: "Áo thun"
+                      created_at: "2023-01-01T00:00:00Z"
+                      updated_at: "2023-01-01T00:00:00Z"
+                  pagination:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    totalPages: 1
+                  sort:
+                    sortBy: "created_at"
+                    sortOrder: "DESC"
+                  filter:
+                    search: ""
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                invalidSortField:
+                  value:
+                    message: "Trường sắp xếp không hợp lệ"
+                invalidSortOrder:
+                  value:
+                    message: "Thứ tự sắp xếp không hợp lệ"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy danh sách danh mục"
+
+  /admin/category/{category_id}:
+    get:
+      summary: Lấy thông tin chi tiết danh mục
+      tags:
+        - Category
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: category_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của danh mục
+      responses:
+        "200":
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      category_id:
+                        type: string
+                        format: uuid
+                      category_name:
+                        type: string
+                      category_slug:
+                        type: string
+                      image:
+                        type: object
+                        properties:
+                          image_id:
+                            type: string
+                            format: uuid
+                          image_url:
+                            type: string
+                          image_alt:
+                            type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Lấy thông tin danh mục thành công"
+                data:
+                  category_id: "123e4567-e89b-12d3-a456-426614174000"
+                  category_name: "Áo thun"
+                  category_slug: "ao-thun"
+                  image:
+                    image_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    image_url: "https://example.com/image.jpg"
+                    image_alt: "Áo thun"
+                  created_at: "2023-01-01T00:00:00Z"
+                  updated_at: "2023-01-01T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy danh mục"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi lấy thông tin danh mục"
+
+    put:
+      summary: Cập nhật thông tin danh mục
+      tags:
+        - Category
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: category_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của danh mục
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_name
+              properties:
+                category_name:
+                  type: string
+                  description: Tên danh mục
+                image_id:
+                  type: string
+                  format: uuid
+                  description: ID của ảnh đại diện
+                category_slug:
+                  type: string
+                  description: Slug của danh mục
+                product_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: Danh sách ID sản phẩm thuộc danh mục
+              example:
+                category_name: "Áo thun mới"
+                image_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                product_ids:
+                  [
+                    "123e4567-e89b-12d3-a456-426614174000",
+                    "123e4567-e89b-12d3-a456-426614174002",
+                  ]
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      category_id:
+                        type: string
+                        format: uuid
+                      category_name:
+                        type: string
+                      category_slug:
+                        type: string
+                      image_id:
+                        type: string
+                        format: uuid
+                      updated_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Cập nhật danh mục thành công"
+                data:
+                  category_id: "123e4567-e89b-12d3-a456-426614174000"
+                  category_name: "Áo thun mới"
+                  category_slug: "ao-thun-moi"
+                  image_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  updated_at: "2023-01-02T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              examples:
+                missingName:
+                  value:
+                    message: "Tên danh mục không được để trống"
+                nameExists:
+                  value:
+                    message: "Tên danh mục đã tồn tại"
+                imageNotFound:
+                  value:
+                    message: "Không tìm thấy ảnh"
+                productNotFound:
+                  value:
+                    message: "Một số sản phẩm không tồn tại"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi cập nhật danh mục"
+
+    delete:
+      summary: Xóa danh mục
+      tags:
+        - Category
+      security:
+        - bearerAuthAdmin: []
+      parameters:
+        - name: category_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID của danh mục
+      responses:
+        "200":
+          description: Xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      category_id:
+                        type: string
+                        format: uuid
+                      category_name:
+                        type: string
+                      deleted_at:
+                        type: string
+                        format: date-time
+              example:
+                message: "Xóa danh mục thành công"
+                data:
+                  category_id: "123e4567-e89b-12d3-a456-426614174000"
+                  category_name: "Áo thun"
+                  deleted_at: "2023-01-03T00:00:00Z"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Không tìm thấy danh mục"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Token không hợp lệ hoặc đã hết hạn"
+        "500":
+          description: Lỗi server
+          content:
+            application/json:
+              example:
+                message: "Có lỗi xảy ra khi xóa danh mục"
