@@ -1,4 +1,4 @@
-import { Cart, CartItem } from "@/types/cart";
+import { Cart, CartItem } from "@/types/cart.type";
 import { supabase } from "../../supabaseClient";
 
 export const createCart = async (userId: string) => {
@@ -124,7 +124,7 @@ export const getCartByUserId = async (userId: string): Promise<Cart> => {
       };
 
       return cartItem;
-    })
+    }),
   );
 
   // Tạo đối tượng Cart hoàn chỉnh

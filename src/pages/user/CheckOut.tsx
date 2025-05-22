@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useCart, useUser } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
-import { Order } from "@/types/cart";
+import { Order } from "@/types/cart.type";
 import { ShippingAddress } from "@/types/user";
 import AddressForm from "@/components/user/AddressForm";
 import GuestAddressForm from "@/components/user/GuestAddressForm";

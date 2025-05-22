@@ -1,5 +1,4 @@
 import { ShippingAddress } from "@/types/user";
-import { Product, ProductVariant } from "./product";
 
 export interface Order {
   order_id: string;
@@ -21,12 +20,28 @@ export interface Order {
 
 export interface Cart {
   cart_id: string;
-  cartItems: CartItem[];
+  cart_items: CartItem[];
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CartItem {
-  created_at: Date;
   cart_item_id: string;
-  variant: ProductVariant;
+  product: {
+    product_id: string;
+    product_name: string;
+    product_slug: string;
+    base_price: number;
+    sale_price: number | null;
+    discount: number;
+  };
+  variant: {
+    variant_id: string;
+    size: string;
+    color: string;
+    color_code: string;
+    image: string;
+  };
   quantity: number;
+  created_at: Date;
 }

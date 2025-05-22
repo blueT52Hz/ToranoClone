@@ -1,5 +1,7 @@
 import { authApi } from "@/apis/auth.api";
+import { shippingAddressApi } from "@/apis/shippingAddress.api";
 import { useAuthStore } from "@/store/authStore";
+import { useShippingAddressStore } from "@/store/shippingAddressStrore";
 import { useUserStore } from "@/store/userStore";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -28,18 +30,27 @@ const PopoverUser = () => {
   const navigate = useNavigate();
   const { user, setUser, logout } = useUserStore();
   const { setToken } = useAuthStore();
+  const { setShippingAddresses } = useShippingAddressStore();
   const loginMutation = useMutation({
     mutationFn: (values: FieldType) => authApi.login(values),
   });
-  const handleLoginButtonClicked = (values: FieldType) => {
+  const handleLoginButtonClicked = async (values: FieldType) => {
     const { email, password } = values;
     loginMutation.mutate(
       { email, password },
       {
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
           setOpen(false);
           setUser(response.data.data.user);
           setToken(response.data.data.accessToken);
+          try {
+            const addressResponse =
+              await shippingAddressApi.getShippingAddresses();
+            console.log(addressResponse);
+            setShippingAddresses(addressResponse.data.data);
+          } catch (error) {
+            console.error("Error fetching addresses:", error);
+          }
           notification.success({
             message: "Đăng nhập thành công",
             description: "Bạn đã đăng nhập thành công",
@@ -207,7 +218,7 @@ const PopoverUser = () => {
                   <a
                     href="https://policies.google.com/privacy"
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                     className="text-cyan-600 hover:text-cyan-600"
                   >
                     Privacy Policy{" "}
@@ -216,7 +227,7 @@ const PopoverUser = () => {
                   <a
                     href="https://policies.google.com/terms"
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noreferrer noopener"
                     className="text-cyan-600 hover:text-cyan-600"
                   >
                     Terms of Service

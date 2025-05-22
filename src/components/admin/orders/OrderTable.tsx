@@ -1,4 +1,4 @@
-import { Order } from "@/types/cart";
+import { Order } from "@/types/cart.type";
 import { ShippingAddress } from "@/types/user";
 import {
   ArrowDown,
@@ -101,12 +101,12 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
   // Get sort icon
   const getSortIcon = (field: SortField) => {
     if (field !== sortField) {
-      return <ArrowUpDown className="ml-1 h-4 w-4 inline" />;
+      return <ArrowUpDown className="ml-1 inline h-4 w-4" />;
     }
     return sortDirection === "asc" ? (
-      <ArrowUp className="ml-1 h-4 w-4 inline text-indigo-600" />
+      <ArrowUp className="ml-1 inline h-4 w-4 text-indigo-600" />
     ) : (
-      <ArrowDown className="ml-1 h-4 w-4 inline text-indigo-600" />
+      <ArrowDown className="ml-1 inline h-4 w-4 text-indigo-600" />
     );
   };
 
@@ -128,7 +128,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
           order.order_id,
           order.shippingAddress.full_name,
           order.shippingAddress.phone_number,
-        ].some((field) => field.toLowerCase().includes(normalizedSearchTerm))
+        ].some((field) => field.toLowerCase().includes(normalizedSearchTerm)),
       );
     }
 
@@ -185,15 +185,15 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-      <div className="flex justify-between items-center mb-4 gap-3 border-b border-gray-200">
-        <div className="py-4 flex-1">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="mb-4 flex items-center justify-between gap-3 border-b border-gray-200">
+        <div className="flex-1 py-4">
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <input
               type="search"
               placeholder="Tìm kiếm đơn hàng..."
-              className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
+              className="w-full rounded-lg bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -202,16 +202,16 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
 
         {/* Status filter */}
         <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium text-gray-700 flex items-center">
+          <label className="flex items-center text-sm font-medium text-gray-700">
             <Filter className="mr-1 h-4 w-4" /> Lọc theo trạng thái:
           </label>
           <div
-            className={`${getStatusSelectColor(statusFilter)} rounded-md px-2 py-1 cursor-pointer`}
+            className={`${getStatusSelectColor(statusFilter)} cursor-pointer rounded-md px-2 py-1`}
           >
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              className={`text-sm rounded-md shadow-sm cursor-pointer focus:outline-none transition-all ${getStatusSelectColor(statusFilter)}`}
+              className={`cursor-pointer rounded-md text-sm shadow-sm transition-all focus:outline-none ${getStatusSelectColor(statusFilter)}`}
             >
               <option value="all" className="bg-white text-[#000]">
                 Tất cả
@@ -240,13 +240,13 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
           <thead>
             <tr className="border-b">
               <th
-                className="py-2 text-left font-medium text-gray-600 cursor-pointer hover:text-indigo-600"
+                className="cursor-pointer py-2 text-left font-medium text-gray-600 hover:text-indigo-600"
                 onClick={() => handleSort("order_id")}
               >
                 Mã đơn hàng {getSortIcon("order_id")}
               </th>
               <th
-                className="py-2 text-left font-medium text-gray-600 cursor-pointer hover:text-indigo-600"
+                className="cursor-pointer py-2 text-left font-medium text-gray-600 hover:text-indigo-600"
                 onClick={() => handleSort("created_at")}
               >
                 Ngày đặt {getSortIcon("created_at")}
@@ -261,7 +261,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                 Trạng thái
               </th>
               <th
-                className="pr-8 text-right font-medium text-gray-600 cursor-pointer hover:text-indigo-600"
+                className="cursor-pointer pr-8 text-right font-medium text-gray-600 hover:text-indigo-600"
                 onClick={() => handleSort("final_price")}
               >
                 Tổng tiền {getSortIcon("final_price")}
@@ -282,7 +282,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                   <td className="py-3">
                     <div className="flex items-center">
                       <span
-                        className="truncate max-w-[120px]"
+                        className="max-w-[120px] truncate"
                         title={order.shippingAddress.full_name}
                       >
                         {order.shippingAddress.full_name}
@@ -291,7 +291,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                   </td>
                   <td className="py-3 text-gray-900">
                     <div
-                      className="truncate max-w-[200px]"
+                      className="max-w-[200px] truncate"
                       title={formatAddress(order.shippingAddress)}
                     >
                       {formatAddress(order.shippingAddress)}
@@ -299,7 +299,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                   </td>
                   <td className="py-3">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}
+                      className={`inline-flex rounded-full px-2 py-1 text-xs ${getStatusColor(order.status)}`}
                     >
                       {getStatusText(order.status)}
                     </span>
@@ -308,12 +308,12 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                     {formatCurrency(order.final_price)}
                   </td>
                   <td className="py-3 text-center">
-                    <div className="flex jutify-center items-center">
+                    <div className="jutify-center flex items-center">
                       <Link
                         to={`/admin/orders/${order.order_id}`}
-                        className="p-1 text-blue-600 hover:text-blue-800 mx-auto"
+                        className="mx-auto p-1 text-blue-600 hover:text-blue-800"
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="h-4 w-4" />
                       </Link>
                     </div>
                   </td>
@@ -346,7 +346,7 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="ml-1 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="ml-1 rounded border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 <option value={5}>5 / trang</option>
                 <option value={10}>10 / trang</option>
@@ -360,9 +360,9 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
             <button
               onClick={goToFirstPage}
               disabled={currentPage === 1}
-              className={`p-1 rounded ${
+              className={`rounded p-1 ${
                 currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
+                  ? "cursor-not-allowed text-gray-400"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               title="Trang đầu"
@@ -372,9 +372,9 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
             <button
               onClick={goToPreviousPage}
               disabled={currentPage === 1}
-              className={`p-1 rounded ${
+              className={`rounded p-1 ${
                 currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
+                  ? "cursor-not-allowed text-gray-400"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               title="Trang trước"
@@ -409,10 +409,10 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
                   <button
                     key={pageNum}
                     onClick={() => goToPage(pageNum)}
-                    className={`px-3 py-1 rounded text-sm ${
+                    className={`rounded px-3 py-1 text-sm ${
                       currentPage === pageNum
                         ? "bg-indigo-600 text-white"
-                        : "hover:bg-gray-100 text-gray-700"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     {pageNum}
@@ -424,9 +424,9 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
             <button
               onClick={goToNextPage}
               disabled={currentPage === totalPages}
-              className={`p-1 rounded ${
+              className={`rounded p-1 ${
                 currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
+                  ? "cursor-not-allowed text-gray-400"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               title="Trang sau"
@@ -436,9 +436,9 @@ export const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
             <button
               onClick={goToLastPage}
               disabled={currentPage === totalPages}
-              className={`p-1 rounded ${
+              className={`rounded p-1 ${
                 currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
+                  ? "cursor-not-allowed text-gray-400"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               title="Trang cuối"

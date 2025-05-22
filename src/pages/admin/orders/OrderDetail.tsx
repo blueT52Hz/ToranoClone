@@ -1,7 +1,7 @@
 import Loading from "@/components/common/Loading";
 import { getOrderById } from "@/services/admin/order";
 import { supabase } from "@/services/supabaseClient";
-import { Order } from "@/types/cart";
+import { Order } from "@/types/cart.type";
 import { notification } from "antd";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -74,7 +74,7 @@ export const OrderDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [editedStatus, setEditedStatus] = useState<Order["status"] | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -132,32 +132,32 @@ export const OrderDetail = () => {
   }
 
   return (
-    <div className="w-full mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="mx-auto w-full overflow-hidden rounded-lg bg-white shadow-md">
       {/* Order Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+      <div className="border-b border-gray-200 p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
               Chi tiết đơn hàng
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="mt-1 text-gray-600">
               Mã đơn hàng: <span className="font-medium">{order.order_id}</span>
             </p>
             <p className="text-gray-600">
               Ngày đặt: {formatDate(order.created_at)}
             </p>
           </div>
-          <div className="mt-4 md:mt-0 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-3 md:mt-0">
             {!isEditingStatus ? (
               <>
                 <span
-                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}
+                  className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(order.status)}`}
                 >
                   {getStatusText(order.status)}
                 </span>
                 <button
                   onClick={() => setIsEditingStatus(true)}
-                  className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Chỉnh sửa trạng thái
                 </button>
@@ -178,13 +178,13 @@ export const OrderDetail = () => {
                 </select>
                 <button
                   onClick={handleSaveStatus}
-                  className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  className="rounded-md bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
                   Lưu
                 </button>
                 <button
                   onClick={() => setIsEditingStatus(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  className="rounded-md bg-gray-200 px-4 py-2 font-medium text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   Hủy
                 </button>
@@ -195,9 +195,9 @@ export const OrderDetail = () => {
       </div>
 
       {/* Customer and Shipping Info */}
-      <div className="p-6 border-b border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 border-b border-gray-200 p-6 md:grid-cols-2">
         <div>
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
+          <h2 className="mb-3 text-lg font-semibold text-gray-800">
             Thông tin giao hàng
           </h2>
           <div className="text-gray-700">
@@ -211,7 +211,7 @@ export const OrderDetail = () => {
           </div>
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-gray-800 mb-3">
+          <h2 className="mb-3 text-lg font-semibold text-gray-800">
             Phương thức thanh toán
           </h2>
           <p className="text-gray-700">
@@ -221,22 +221,22 @@ export const OrderDetail = () => {
       </div>
 
       {/* Order Items */}
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Sản phẩm</h2>
+      <div className="border-b border-gray-200 p-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">Sản phẩm</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50">
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Sản phẩm
                 </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Đơn giá
                 </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Số lượng
                 </th>
-                <th className="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                   Thành tiền
                 </th>
               </tr>
@@ -250,7 +250,7 @@ export const OrderDetail = () => {
 
                 return (
                   <tr key={item.cart_item_id}>
-                    <td className="py-4 px-4">
+                    <td className="px-4 py-4">
                       <div className="flex items-center">
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                           <img
@@ -267,7 +267,7 @@ export const OrderDetail = () => {
                           </div>
                           <div className="text-sm text-gray-500">
                             <span
-                              className="inline-block w-3 h-3 rounded-full mr-1"
+                              className="mr-1 inline-block h-3 w-3 rounded-full"
                               style={{
                                 backgroundColor: item.variant.color.color_code,
                               }}
@@ -281,18 +281,18 @@ export const OrderDetail = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-500">
+                    <td className="px-4 py-4 text-sm text-gray-500">
                       {formatCurrency(price)}
                       {item.variant.product.sale_price && (
-                        <span className="line-through text-gray-400 ml-2">
+                        <span className="ml-2 text-gray-400 line-through">
                           {formatCurrency(item.variant.product.base_price)}
                         </span>
                       )}
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-500">
+                    <td className="px-4 py-4 text-sm text-gray-500">
                       {item.quantity}
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-900 text-right font-medium">
+                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
                       {formatCurrency(totalPrice)}
                     </td>
                   </tr>
@@ -304,11 +304,11 @@ export const OrderDetail = () => {
       </div>
 
       {/* Order Summary */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200 p-6">
         <div className="flex flex-col space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Tạm tính:</span>
-            <span className="text-gray-900 font-medium">
+            <span className="font-medium text-gray-900">
               {formatCurrency(
                 order.cart.cartItems.reduce(
                   (total, cartItem) =>
@@ -316,24 +316,24 @@ export const OrderDetail = () => {
                     cartItem.quantity *
                       (cartItem.variant.product.sale_price ||
                         cartItem.variant.product.base_price),
-                  0
-                )
+                  0,
+                ),
               )}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Phí vận chuyển:</span>
-            <span className="text-gray-900 font-medium">
+            <span className="font-medium text-gray-900">
               {formatCurrency(order.shipping_fee)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Giảm giá:</span>
-            <span className="text-green-600 font-medium">
+            <span className="font-medium text-green-600">
               -{formatCurrency(order.discount || 0)}
             </span>
           </div>
-          <div className="border-t border-gray-200 pt-3 mt-3">
+          <div className="mt-3 border-t border-gray-200 pt-3">
             <div className="flex justify-between">
               <span className="text-lg font-semibold text-gray-900">
                 Tổng cộng:
@@ -347,18 +347,18 @@ export const OrderDetail = () => {
       </div>
 
       {/* Order Notes */}
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Ghi chú</h2>
+      <div className="border-b border-gray-200 p-6">
+        <h2 className="mb-2 text-lg font-semibold text-gray-800">Ghi chú</h2>
         <p className="text-gray-700">{order.note || "Không có ghi chú"}</p>
       </div>
 
       {/* Actions */}
-      <div className="p-6 bg-gray-50 border-t border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-          <button className="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+      <div className="border-t border-gray-200 bg-gray-50 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <button className="rounded-md bg-gray-200 px-4 py-2 font-medium text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
             In đơn hàng
           </button>
-          <button className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          <button className="rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             Liên hệ hỗ trợ
           </button>
         </div>

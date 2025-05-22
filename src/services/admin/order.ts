@@ -1,4 +1,4 @@
-import { CartItem, Order } from "@/types/cart";
+import { CartItem, Order } from "@/types/cart.type";
 import { supabase } from "../supabaseClient";
 
 export async function getAllOrders(): Promise<Order[]> {
@@ -109,7 +109,7 @@ export async function getAllOrders(): Promise<Order[]> {
           };
 
           return formattedCartItem;
-        })
+        }),
       );
 
       const formattedOrder: Order = {
@@ -141,7 +141,7 @@ export async function getAllOrders(): Promise<Order[]> {
       };
 
       return formattedOrder;
-    })
+    }),
   );
 
   return formattedOrders;
@@ -296,7 +296,7 @@ export async function getOrderById(orderId: string): Promise<Order> {
       };
 
       return formattedCartItem;
-    })
+    }),
   );
 
   // Format the order

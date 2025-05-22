@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Order } from "@/types/cart";
+import { Order } from "@/types/cart.type";
 import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { supabase } from "@/services/supabaseClient";
 import { getAllOrders } from "@/services/admin/order";

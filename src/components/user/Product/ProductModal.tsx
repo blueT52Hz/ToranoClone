@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { Color, Product, Image as ImageType, Size } from "@/types/product";
-import { Form, Image, Modal } from "antd";
+import { Form, Image, Modal, notification } from "antd";
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaLink, FaPinterest, FaTwitter } from "react-icons/fa";
@@ -8,9 +8,11 @@ import "@/components/user/Product/style.css";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { cn } from "@/utils/cn";
-import { CartItem } from "@/types/cart";
-import { useCart } from "@/context/UserContext";
-
+import { CartItem } from "@/types/cart.type";
+import { useCartStore } from "@/store/cartStore";
+import { useMutation } from "@tanstack/react-query";
+import { cartApi } from "@/apis/cart.api";
+import { useAuthStore } from "@/store/authStore";
 interface ProductModalProps {
   product: Product;
   isOpenModal: boolean;
@@ -30,7 +32,22 @@ const ProductModal = (props: ProductModalProps) => {
   const [idSelectedSize, setIdSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [form] = Form.useForm();
-  const { addToCart } = useCart();
+  const { addToCart } = useCartStore();
+  const { token } = useAuthStore();
+
+  const addToCartMutation = useMutation({
+    mutationFn: ({
+      variant_id,
+      quantity,
+    }: {
+      variant_id: string;
+      quantity: number;
+    }) =>
+      cartApi.addToCart({
+        variant_id,
+        quantity,
+      }),
+  });
 
   const handleAddToCart = () => {
     form.submit();
@@ -49,15 +66,68 @@ const ProductModal = (props: ProductModalProps) => {
       return;
     }
 
-    const item: CartItem = {
-      cart_item_id: uuidv4(),
-      variant: product.variants.filter(
+    if (token) {
+      addToCartMutation.mutate(
+        {
+          variant_id: product.variants.filter(
+            (variant) => variant.size.size_id === idSelectedSize,
+          )[0].variant_id,
+          quantity,
+        },
+        {
+          onSuccess: (data) => {
+            console.log(data);
+            addToCart(
+              data.data.data.variant.variant_id,
+              data.data.data.quantity,
+            );
+          },
+          onError: (error) => {
+            console.log(error);
+          },
+        },
+      );
+    } else {
+      const { cart } = useCartStore.getState();
+      const cartItems = cart.cart_items;
+      const variant = product.variants.filter(
         (variant) => variant.size.size_id === idSelectedSize,
-      )[0],
-      quantity,
-      created_at: new Date(),
-    };
-    addToCart(item);
+      )[0];
+      const existingItemIndex = cartItems.findIndex(
+        (item: CartItem) => item.variant.variant_id === variant.variant_id,
+      );
+
+      if (existingItemIndex !== -1) {
+        cartItems[existingItemIndex].quantity += quantity;
+      } else {
+        cartItems.push({
+          cart_item_id: uuidv4(),
+          quantity: quantity,
+          created_at: new Date(),
+          product: {
+            product_id: product.product_id,
+            product_name: product.name,
+            product_slug: product.slug,
+            base_price: product.base_price,
+            sale_price: product.sale_price,
+            discount: product.discount,
+          },
+          variant: {
+            variant_id: variant.variant_id,
+            size: "",
+            color: "",
+            color_code: "",
+            image: "",
+          },
+        });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      notification.success({
+        message: "Thêm vào giỏ hàng thành công",
+        description: "Sản phẩm đã được thêm vào giỏ hàng",
+      });
+    }
     setIsOpenModal(false);
   };
 

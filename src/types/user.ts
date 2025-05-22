@@ -24,12 +24,12 @@ export interface ShippingAddress {
   full_name: string;
   phone_number: string;
   address_detail: string;
-  ward: string;
-  district: string;
   city: string;
+  district: string;
+  ward: string;
   is_default: boolean;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Province {

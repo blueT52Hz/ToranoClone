@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { CartItem } from "@/types/cart";
+import { CartItem } from "@/types/cart.type";
 import { useCart } from "@/context/UserContext";
 import { Image } from "antd";
 
@@ -19,21 +19,21 @@ const CartItemComponent = ({ item }: CartItemProps) => {
   }, [item]);
 
   return (
-    <div className="flex items-center py-3 w-full overflow-y-auto">
+    <div className="flex w-full items-center overflow-y-auto py-3">
       <div className="mr-4">
         <Image
           src={item.variant.image.image_url}
-          className="object-cover rounded-md"
+          className="rounded-md object-cover"
           width={"4.5rem"}
           height={"4.5rem"}
         />
       </div>
-      <div className="flex flex-col w-full">
+      <div className="flex w-full flex-col">
         <div className="flex justify-between">
-          <h3 className="font-semibold text-sm flex-1">
+          <h3 className="flex-1 text-sm font-semibold">
             {item.variant.product.name}
           </h3>
-          <button className=" text-gray-500 hover:text-black">
+          <button className="text-gray-500 hover:text-black">
             <X
               size={20}
               onClick={() => removeItemFromCart(item.variant.variant_id)}
@@ -41,23 +41,23 @@ const CartItemComponent = ({ item }: CartItemProps) => {
           </button>
         </div>
         <div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             {item.variant.color.color_name}/{item.variant.size.size_code}
           </p>
 
           <div className="flex justify-between">
-            <div className="flex items-center mt-1">
+            <div className="mt-1 flex items-center">
               <button
                 onClick={() => {
                   setQuantity(Math.max(1, quantity - 1));
                 }}
-                className="h-6 w-6 bg-slate-100 rounded"
+                className="h-6 w-6 rounded bg-slate-100"
               >
                 −
               </button>
               <input
                 type="number"
-                className="w-10 text-center mx-2 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none focus:outline-none"
+                className="mx-2 w-10 text-center focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 value={quantity}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -68,7 +68,7 @@ const CartItemComponent = ({ item }: CartItemProps) => {
                 onClick={() => {
                   setQuantity(quantity + 1);
                 }}
-                className="h-6 w-6 bg-slate-100 rounded"
+                className="h-6 w-6 rounded bg-slate-100"
               >
                 +
               </button>
@@ -82,7 +82,7 @@ const CartItemComponent = ({ item }: CartItemProps) => {
                 ₫
               </p>
               {item.variant.product.sale_price && (
-                <p className="text-gray-400 text-sm line-through">
+                <p className="text-sm text-gray-400 line-through">
                   {(
                     quantity * item.variant.product.base_price
                   ).toLocaleString()}

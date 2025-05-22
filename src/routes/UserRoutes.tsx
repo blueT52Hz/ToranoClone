@@ -9,13 +9,15 @@ import Login from "@/pages/user/Login";
 import OutFit from "@/pages/user/OutFit";
 import Payment from "@/pages/user/Payment";
 import Products from "@/pages/user/Products";
-import ProfileEdit from "@/pages/user/ProfileEdit";
+import UserProfile from "@/pages/user/UserProfile";
 import PromotionPage from "@/pages/user/Promotion";
 import Register from "@/pages/user/Register";
 import Search from "@/pages/user/Search";
 import StoreLocator from "@/pages/user/StoreLocator";
 import NotFound from "@/pages/user/NotFound";
 import { Routes, Route, Navigate } from "react-router-dom";
+import EditProfile from "@/pages/user/EditProfile";
+import ChangePassword from "@/pages/user/ChangePassword";
 
 const UserRoutes = () => {
   return (
@@ -33,7 +35,12 @@ const UserRoutes = () => {
           <Route path="/accounts/login" element={<Login />} />
           <Route path="/accounts/register" element={<Register />} />
           {/* <Route path="/accounts/user/:userId" element={<UserDetailPage />} /> */}
-          <Route path="/account/profile" element={<ProfileEdit />} />
+          <Route path="/account/profile" element={<UserProfile />} />
+          <Route path="/account/profile/edit" element={<EditProfile />} />
+          <Route
+            path="/account/profile/change-password"
+            element={<ChangePassword />}
+          />
           <Route path="account/address" element={<AddressManagement />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment" element={<Payment />} />

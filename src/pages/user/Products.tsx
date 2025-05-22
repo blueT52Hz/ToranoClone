@@ -6,7 +6,7 @@ import {
   getProductByProductSlug,
   getProductsByCollectionSlug,
 } from "@/services/client/product";
-import { CartItem } from "@/types/cart";
+import { CartItem } from "@/types/cart.type";
 import { Color, Product, Image, Size } from "@/types/product";
 import { cn } from "@/utils/cn";
 import { Form, Image as ImageComponent } from "antd";

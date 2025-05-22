@@ -7,7 +7,7 @@ import {
 } from "react";
 import { User } from "@/types/user";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
-import { Cart, CartItem } from "@/types/cart";
+import { Cart, CartItem } from "@/types/cart.type";
 import { message, notification } from "antd";
 import { Image } from "antd";
 import { CheckCircle, X } from "lucide-react";
@@ -75,7 +75,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
       const existingItemIndex = prev.cartItems.findIndex(
-        (cartItem) => cartItem.variant.variant_id === item.variant.variant_id
+        (cartItem) => cartItem.variant.variant_id === item.variant.variant_id,
       );
 
       const updatedItems =
@@ -83,7 +83,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           ? prev.cartItems.map((cartItem, index) =>
               index === existingItemIndex
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-                : cartItem
+                : cartItem,
             )
           : [...prev.cartItems, item];
 
@@ -106,36 +106,36 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           notification.open({
             message: (
               <div className="flex items-center">
-                <CheckCircle className="text-green-500 w-5 h-5 mr-2" />
+                <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
                 <div>{"Thêm vào giỏ hàng thành công"}</div>
               </div>
             ),
             style: { marginInlineStart: "0px !important" },
             description: (
-              <div className="flex pt-3 min-w-full overflow-y-auto h-full">
+              <div className="flex h-full min-w-full overflow-y-auto pt-3">
                 <div className="mr-4">
                   <Image
                     src={item.variant.image.image_url}
-                    className="object-cover rounded-md"
+                    className="rounded-md object-cover"
                     width={"4.5rem"}
                     height={"4.5rem"}
                   />
                 </div>
-                <div className="flex flex-col w-full gap-1">
-                  <div className="font-semibold text-sm">
+                <div className="flex w-full flex-col gap-1">
+                  <div className="text-sm font-semibold">
                     {item.variant.product.name}
                   </div>
                   <div className="flex justify-start">
-                    <p className="text-sm text-gray-500 ">
+                    <p className="text-sm text-gray-500">
                       {item.variant.color.color_name} /{" "}
                       {item.variant.size.size_code}
                     </p>
-                    <p className="text-sm text-gray-500 mx-2">|</p>
-                    <p className="text-sm text-gray-500 ">
+                    <p className="mx-2 text-sm text-gray-500">|</p>
+                    <p className="text-sm text-gray-500">
                       Số lượng: {item.quantity}
                     </p>
                   </div>
-                  <div className="flex justify-start gap-2 items-center">
+                  <div className="flex items-center justify-start gap-2">
                     <p className="text-sm text-gray-500">Tổng tiền:</p>
                     <p className="font-semibold text-black">
                       {(item.variant.product.sale_price
@@ -164,7 +164,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const removeItemFromCart = (variant_id: string) => {
     setCart((prev) => {
       const newCartItems = prev.cartItems.filter(
-        (cartItem) => cartItem.variant.variant_id !== variant_id
+        (cartItem) => cartItem.variant.variant_id !== variant_id,
       );
 
       const newTotalPrice = newCartItems.reduce((acc, cartItem) => {
@@ -211,7 +211,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         cartItems: prev.cartItems.map((cartItem) =>
           cartItem.variant.variant_id === variant_id
             ? { ...cartItem, quantity }
-            : cartItem
+            : cartItem,
         ),
       };
 

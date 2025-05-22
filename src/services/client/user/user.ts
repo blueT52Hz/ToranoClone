@@ -1,7 +1,7 @@
 import { ShippingAddress, User } from "@/types/user";
 import { supabase } from "@/services/supabaseClient";
 import { createCart } from "@/services/client/cart/cart";
-import { Cart, CartItem, Order } from "@/types/cart";
+import { Cart, CartItem, Order } from "@/types/cart.type";
 
 export const registerUser = async (user: User) => {
   const { data, error } = await supabase
@@ -51,7 +51,7 @@ export const login = async (email: string, password: string) => {
 };
 
 export const getShippingAddressesByUserId = async (
-  userId: string
+  userId: string,
 ): Promise<ShippingAddress[]> => {
   const { data, error } = await supabase
     .from("shipping_address") // Tên bảng
@@ -67,7 +67,7 @@ export const getShippingAddressesByUserId = async (
 };
 
 export const createShippingAddressWithoutUserId = async (
-  shipping_address: ShippingAddress
+  shipping_address: ShippingAddress,
 ) => {
   const { data, error } = await supabase
     .from("shipping_address")
@@ -110,7 +110,7 @@ export const createOrderWithoutUserId = async (
     shipping_fee: number;
     final_price: number;
   },
-  shipping_address: ShippingAddress
+  shipping_address: ShippingAddress,
 ) => {
   const cartResult = await createCartWithoutUserId(cart);
   console.log(cartResult);
@@ -153,7 +153,7 @@ export const createCartWithoutUserId = async (cart: Cart): Promise<Cart> => {
   Promise.all(
     cart.cartItems.map(async (item) => {
       return await createCartItem(item, cartData);
-    })
+    }),
   );
 
   return cartData;

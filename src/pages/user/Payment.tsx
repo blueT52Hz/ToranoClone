@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCart, useUser } from "@/context/UserContext";
 import { notification, Progress, QRCode } from "antd";
-import { Order } from "@/types/cart";
+import { Order } from "@/types/cart.type";
 import { v4 } from "uuid";
 import {
   createOrderByUserId,
@@ -81,7 +81,7 @@ const Payment = () => {
           shipping_fee: newOrder.shipping_fee,
           final_price: newOrder.final_price,
         },
-        guestAddress
+        guestAddress,
       );
       if (resultOrder) clearCart();
     }
@@ -168,10 +168,10 @@ const Payment = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 my-8">
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold mb-2">Thanh toán trực tuyến</h2>
-        <p className="text-gray-600 mb-4">
+    <div className="mx-auto my-8 max-w-md rounded-lg bg-white p-6 shadow-md">
+      <div className="mb-6 text-center">
+        <h2 className="mb-2 text-xl font-semibold">Thanh toán trực tuyến</h2>
+        <p className="mb-4 text-gray-600">
           Quét mã QR bên dưới để thanh toán số tiền{" "}
           <span className="font-semibold">
             {new Intl.NumberFormat("vi-VN", {
@@ -183,7 +183,7 @@ const Payment = () => {
 
         {paymentStatus === "pending" && (
           <div className="mb-4">
-            <p className="text-gray-600 mb-2">
+            <p className="mb-2 text-gray-600">
               Thời gian còn lại: {timeLeft} giây
             </p>
             <Progress percent={progress} showInfo={false} />
@@ -192,9 +192,9 @@ const Payment = () => {
       </div>
 
       {/* Mã QR */}
-      <div className="flex justify-center mb-6">
-        <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-          <div className="w-48 h-48 bg-white p-2">
+      <div className="mb-6 flex justify-center">
+        <div className="rounded-md border border-gray-300 bg-gray-50 p-4">
+          <div className="h-48 w-48 bg-white p-2">
             <QRCode value={"https://www.momo.vn/"} />
           </div>
         </div>

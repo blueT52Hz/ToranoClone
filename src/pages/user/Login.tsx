@@ -7,6 +7,9 @@ import { authApi } from "@/apis/auth.api";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
 import { AxiosError } from "axios";
+import { useShippingAddressStore } from "@/store/shippingAddressStrore";
+import { shippingAddressApi } from "@/apis/shippingAddress.api";
+
 const { Text } = Typography;
 
 type FieldType = {
@@ -20,6 +23,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { setToken } = useAuthStore();
   const { setUser } = useUserStore();
+  const { setShippingAddresses } = useShippingAddressStore();
 
   const loginMutation = useMutation({
     mutationFn: (values: FieldType) => authApi.login(values),
@@ -30,10 +34,21 @@ const Login = () => {
     loginMutation.mutate(
       { email, password },
       {
-        onSuccess: (response) => {
+        onSuccess: async (response) => {
           console.log(response);
           setToken(response.data.data.accessToken);
           setUser(response.data.data.user);
+
+          try {
+            // Lấy địa chỉ của user
+            const addressResponse =
+              await shippingAddressApi.getShippingAddresses();
+            console.log(addressResponse);
+            setShippingAddresses(addressResponse.data.data);
+          } catch (error) {
+            console.error("Error fetching addresses:", error);
+          }
+
           notification.success({
             message: "Đăng nhập thành công",
             description: "Bạn đã đăng nhập thành công",

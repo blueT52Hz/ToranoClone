@@ -1,23 +1,85 @@
 import { useState } from "react";
-import { useUser } from "@/context/UserContext";
 import { ShippingAddress } from "@/types/user";
 import AddressForm from "@/components/user/AddressForm";
 import { Navigate } from "react-router-dom";
 import AccountLayout from "@/layouts/Home/AccountLayout";
-import { Modal } from "antd";
+import { Modal, notification } from "antd";
+import { useUserStore } from "@/store/userStore";
+import { useShippingAddressStore } from "@/store/shippingAddressStrore";
+import { shippingAddressApi } from "@/apis/shippingAddress.api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 const AddressManagement = () => {
-  const { addresses, deleteAddress, setDefaultAddress, user } = useUser();
+  const { user } = useUserStore();
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [editingAddress, setEditingAddress] = useState<ShippingAddress | null>(
-    null
+    null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState("");
+  const { shippingAddress, setShippingAddresses } = useShippingAddressStore();
 
-  const [addressState, setAddressState] = useState(addresses);
+  // Fetch addresses
+  useQuery({
+    queryKey: ["addresses"],
+    queryFn: async () => {
+      const response = await shippingAddressApi.getShippingAddresses();
+      setShippingAddresses(response.data.data);
+      return response.data.data;
+    },
+  });
 
-  // Redirect if not logged in
+  // Delete address mutation
+  const deleteMutation = useMutation({
+    mutationFn: (addressId: string) =>
+      shippingAddressApi.deleteShippingAddress(addressId),
+    onSuccess: async () => {
+      notification.success({
+        message: "Xóa địa chỉ thành công",
+      });
+      // Refetch addresses
+      const response = await shippingAddressApi.getShippingAddresses();
+      setShippingAddresses(response.data.data);
+    },
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError<{ message: string }>;
+      notification.error({
+        message: "Xóa địa chỉ thất bại",
+        description: axiosError.response?.data?.message || "Có lỗi xảy ra",
+      });
+    },
+  });
+
+  // Update address mutation
+  const updateMutation = useMutation({
+    mutationFn: (data: {
+      addressId: string;
+      body: Omit<
+        ShippingAddress,
+        "user_id" | "address_id" | "created_at" | "updated_at"
+      >;
+    }) => shippingAddressApi.updateShippingAddress(data.addressId, data.body),
+    onSuccess: () => {
+      notification.success({
+        message: "Cập nhật địa chỉ thành công",
+      });
+      // Refetch addresses
+      const fetchAddresses = async () => {
+        const response = await shippingAddressApi.getShippingAddresses();
+        setShippingAddresses(response.data.data);
+      };
+      fetchAddresses();
+    },
+    onError: (error: unknown) => {
+      const axiosError = error as AxiosError<{ message: string }>;
+      notification.error({
+        message: "Cập nhật địa chỉ thất bại",
+        description: axiosError.response?.data?.message || "Có lỗi xảy ra",
+      });
+    },
+  });
+
   if (!user) {
     return <Navigate to="/" />;
   }
@@ -29,21 +91,18 @@ const AddressManagement = () => {
 
   const handleDelete = () => {
     if (!selectedAddressId) return;
-    deleteAddress(selectedAddressId);
-    setAddressState((prev) =>
-      prev.filter((address) => address.address_id !== selectedAddressId)
-    );
+    deleteMutation.mutate(selectedAddressId);
     setIsModalOpen(false);
   };
 
-  const handleSetDefault = (addressId: string) => {
-    setDefaultAddress(addressId);
-    setAddressState((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        is_default: addressId === addr.address_id,
-      }))
-    );
+  const handleSetDefault = async (addressId: string) => {
+    updateMutation.mutate({
+      addressId,
+      body: {
+        ...shippingAddress.find((addr) => addr.address_id === addressId)!,
+        is_default: true,
+      },
+    });
   };
 
   const handleCloseForm = () => {
@@ -59,7 +118,7 @@ const AddressManagement = () => {
             setEditingAddress(null);
             setIsAddingAddress(true);
           }}
-          className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+          className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
           + Thêm địa chỉ mới
         </button>
@@ -69,30 +128,29 @@ const AddressManagement = () => {
         <AddressForm
           existingAddress={editingAddress}
           onClose={handleCloseForm}
-          setAddressState={setAddressState}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {addressState.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-6 text-center">
+          {!shippingAddress || shippingAddress.length === 0 ? (
+            <div className="rounded-lg bg-white p-6 text-center shadow-md">
               <p className="text-gray-500">
                 Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới.
               </p>
             </div>
           ) : (
-            addressState.map((address) => (
+            shippingAddress.map((address) => (
               <div
                 key={address.address_id}
-                className="bg-white rounded-lg shadow-md p-6"
+                className="rounded-lg bg-white p-6 shadow-md"
               >
                 <div className="flex justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg">
+                      <h3 className="text-lg font-semibold">
                         {address.full_name}
                       </h3>
                       {address.is_default && (
-                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                        <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
                           Mặc định
                         </span>
                       )}
@@ -115,30 +173,19 @@ const AddressManagement = () => {
                     >
                       Xóa
                     </button>
-                    <Modal
-                      title={<div className="mb-8">Xác nhận xóa địa chỉ ?</div>}
-                      open={isModalOpen}
-                      onOk={handleDelete}
-                      centered
-                      onCancel={() => {
-                        setIsModalOpen(false), setSelectedAddressId("");
-                      }}
-                    >
-                      {/* <div>Xác nhận xóa địa chỉ</div> */}
-                    </Modal>
                   </div>
                 </div>
                 <div className="mt-2">
                   <p>{address.address_detail}</p>
                   <p>
-                    {address.ward}, {address.district}, {address.city},{" "}
+                    {address.ward}, {address.district}, {address.city}
                   </p>
                 </div>
                 {!address.is_default && (
                   <div className="mt-3">
                     <button
                       onClick={() => handleSetDefault(address.address_id)}
-                      className="border border-blue-600 text-blue-600 px-3 py-1 rounded hover:bg-blue-50"
+                      className="rounded border border-blue-600 px-3 py-1 text-blue-600 hover:bg-blue-50"
                     >
                       Đặt làm mặc định
                     </button>
@@ -149,6 +196,18 @@ const AddressManagement = () => {
           )}
         </div>
       )}
+
+      <Modal
+        title={<div className="mb-8">Xác nhận xóa địa chỉ?</div>}
+        open={isModalOpen}
+        onOk={handleDelete}
+        centered
+        onCancel={() => {
+          setIsModalOpen(false);
+          setSelectedAddressId("");
+        }}
+        okButtonProps={{ loading: deleteMutation.isPending }}
+      />
     </AccountLayout>
   );
 };
