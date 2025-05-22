@@ -3,12 +3,12 @@ import { Input, Typography, Form, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { useMutation } from "@tanstack/react-query";
-import { authApi } from "@/apis/auth.api";
-import { useAuthStore } from "@/store/authStore";
-import { useUserStore } from "@/store/userStore";
+import { authApi } from "@/apis/user/auth.api";
+import { useAuthStore } from "@/store/user/authStore";
+import { useUserStore } from "@/store/user/userStore";
 import { AxiosError } from "axios";
-import { useShippingAddressStore } from "@/store/shippingAddressStrore";
-import { shippingAddressApi } from "@/apis/shippingAddress.api";
+import { useShippingAddressStore } from "@/store/user/shippingAddressStrore";
+import { shippingAddressApi } from "@/apis/user/shippingAddress.api";
 
 const { Text } = Typography;
 

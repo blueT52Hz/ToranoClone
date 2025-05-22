@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import CartItemComponent from "@/components/user/Cart/CartItemCard";
 import "@components/user/Cart/style.css";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/store/user/cartStore";
 const ShoppingCart = () => {
   const { cart } = useCartStore();
   console.log(cart);

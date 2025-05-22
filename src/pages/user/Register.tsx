@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { format } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
-import { authApi } from "@/apis/auth.api";
-import { useUserStore } from "@/store/userStore";
-import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/apis/user/auth.api";
+import { useUserStore } from "@/store/user/userStore";
+import { useAuthStore } from "@/store/user/authStore";
 import dayjs from "dayjs";
 import { AxiosError } from "axios";
 

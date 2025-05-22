@@ -2,9 +2,7 @@ import Loading from "@/components/common/Loading";
 import Pagination from "@/components/user/Pagination";
 import ProductCard from "@/components/user/Product/ProductCard";
 import Sidebar, { FilterState } from "@/components/user/SidebarFilter";
-import { getProductsByCollectionSlug } from "@/services/client/product";
-import { supabase } from "@/services/supabaseClient";
-import { Product } from "@/types/product";
+// import { Product } from "@/types/product";
 import { cn } from "@/utils/cn";
 import { Flex, Drawer, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
@@ -12,6 +10,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, X, ListFilterPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+
+interface Product {
+  product_id: string;
+  product_name: string;
+  product_slug: string;
+  base_price: number;
+  sale_price: number | null;
+  discount: number | null;
+  colors: string[];
+  sizes: string[];
+  images: string[];
+  created_at: string;
+}
 
 const sortOptions = [
   {

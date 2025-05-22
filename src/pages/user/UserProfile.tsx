@@ -1,4 +1,4 @@
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user/userStore";
 import { useNavigate } from "react-router-dom";
 import AccountLayout from "@/layouts/Home/AccountLayout";
 import { Button } from "antd";

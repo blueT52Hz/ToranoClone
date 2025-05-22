@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 const http = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   timeout: 10000,
@@ -10,7 +10,6 @@ const http = axios.create({
 
 http.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
-  console.log(token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

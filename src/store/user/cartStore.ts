@@ -1,6 +1,6 @@
 import { Cart } from "@/types/cart.type";
 import { create } from "zustand";
-import { cartApi } from "@/apis/cart.api";
+import { cartApi } from "@/apis/user/cart.api";
 import { v4 as uuidv4 } from "uuid";
 
 interface CartState {

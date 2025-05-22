@@ -4,9 +4,9 @@ import AddressForm from "@/components/user/AddressForm";
 import { Navigate } from "react-router-dom";
 import AccountLayout from "@/layouts/Home/AccountLayout";
 import { Modal, notification } from "antd";
-import { useUserStore } from "@/store/userStore";
-import { useShippingAddressStore } from "@/store/shippingAddressStrore";
-import { shippingAddressApi } from "@/apis/shippingAddress.api";
+import { useUserStore } from "@/store/user/userStore";
+import { useShippingAddressStore } from "@/store/user/shippingAddressStrore";
+import { shippingAddressApi } from "@/apis/user/shippingAddress.api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 

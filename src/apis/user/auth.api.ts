@@ -1,5 +1,5 @@
 import { AuthResponse } from "@/types/auth.type";
-import { API_ENDPOINTS } from "@/apis/endpoints";
+import { API_ENDPOINTS } from "@/apis/user/endpoints";
 import http from "@/utils/http";
 
 export const authApi = {

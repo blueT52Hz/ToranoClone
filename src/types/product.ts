@@ -30,15 +30,6 @@ export interface ProductVariant {
   size: Size;
 }
 
-export interface Image {
-  image_id: string;
-  image_url: string;
-  image_name: string;
-  created_at: Date;
-  published_at: Date | null;
-  updated_at: Date;
-}
-
 export interface Outfit {
   outfit_id: string;
   outfit_name: string;
@@ -57,16 +48,6 @@ export interface Color {
 export interface Size {
   size_id: string;
   size_code: string;
-}
-
-export interface Collection {
-  collection_id: string;
-  name: string;
-  slug: string;
-  created_at: Date;
-  published_at: Date | null;
-  updated_at: Date;
-  image: Image;
 }
 
 export interface FormErrors {

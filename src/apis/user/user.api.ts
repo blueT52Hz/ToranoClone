@@ -1,6 +1,8 @@
 import { AuthResponse } from "@/types/auth.type";
-import { API_ENDPOINTS } from "@/apis/endpoints";
+import { API_ENDPOINTS } from "@/apis/user/endpoints";
 import http from "@/utils/http";
+import { User } from "@/types/user";
+import { SuccessResponse } from "@/types/utils.type";
 
 export const userApi = {
   changePassword(body: {
@@ -16,5 +18,8 @@ export const userApi = {
     date_of_birth: string;
   }) {
     return http.put<AuthResponse>(API_ENDPOINTS.USER.UPDATE_PROFILE, body);
+  },
+  getProfile() {
+    return http.get<SuccessResponse<User>>(API_ENDPOINTS.USER.PROFILE);
   },
 };

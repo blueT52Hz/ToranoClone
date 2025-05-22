@@ -1,7 +1,7 @@
 import { Form, Input, Button, notification, Select } from "antd";
 import type { ShippingAddress } from "@/types/user";
-import { shippingAddressApi } from "@/apis/shippingAddress.api";
-import { useShippingAddressStore } from "@/store/shippingAddressStrore";
+import { shippingAddressApi } from "@/apis/user/shippingAddress.api";
+import { useShippingAddressStore } from "@/store/user/shippingAddressStrore";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useState, useEffect } from "react";

@@ -1,9 +1,9 @@
-import { useUserStore } from "@/store/userStore";
+import { useUserStore } from "@/store/user/userStore";
 import { useNavigate } from "react-router-dom";
 import AccountLayout from "@/layouts/Home/AccountLayout";
 import { Button, DatePicker, Form, Input, Select, notification } from "antd";
 import { useMutation } from "@tanstack/react-query";
-import { userApi } from "@/apis/user.api";
+import { userApi } from "@/apis/user/user.api";
 import dayjs from "dayjs";
 import { AxiosError } from "axios";
 import { AuthResponse } from "@/types/auth.type";

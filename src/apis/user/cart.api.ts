@@ -1,5 +1,5 @@
 import { Cart, CartItem } from "@/types/cart.type";
-import { API_ENDPOINTS } from "@/apis/endpoints";
+import { API_ENDPOINTS } from "@/apis/user/endpoints";
 import http from "@/utils/http";
 import { SuccessResponse } from "@/types/utils.type";
 

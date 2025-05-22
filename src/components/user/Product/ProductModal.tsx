@@ -9,10 +9,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { cn } from "@/utils/cn";
 import { CartItem } from "@/types/cart.type";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/store/user/cartStore";
 import { useMutation } from "@tanstack/react-query";
-import { cartApi } from "@/apis/cart.api";
-import { useAuthStore } from "@/store/authStore";
+import { cartApi } from "@/apis/user/cart.api";
+import { useAuthStore } from "@/store/user/authStore";
 interface ProductModalProps {
   product: Product;
   isOpenModal: boolean;

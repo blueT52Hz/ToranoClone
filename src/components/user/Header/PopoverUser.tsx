@@ -1,8 +1,8 @@
-import { authApi } from "@/apis/auth.api";
-import { shippingAddressApi } from "@/apis/shippingAddress.api";
-import { useAuthStore } from "@/store/authStore";
-import { useShippingAddressStore } from "@/store/shippingAddressStrore";
-import { useUserStore } from "@/store/userStore";
+import { authApi } from "@/apis/user/auth.api";
+import { shippingAddressApi } from "@/apis/user/shippingAddress.api";
+import { useAuthStore } from "@/store/user/authStore";
+import { useShippingAddressStore } from "@/store/user/shippingAddressStrore";
+import { useUserStore } from "@/store/user/userStore";
 import { useMutation } from "@tanstack/react-query";
 import {
   Button,

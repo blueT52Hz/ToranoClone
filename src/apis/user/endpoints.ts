@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
   USER: {
     CHANGE_PASSWORD: "/user/changePassword",
     UPDATE_PROFILE: "/user/profile",
+    PROFILE: "user/profile",
     ADDRESS: "/shipping-addresses",
   },
   CART: {
