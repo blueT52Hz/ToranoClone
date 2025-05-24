@@ -159,6 +159,7 @@ const Login = () => {
               <a
                 href="https://policies.google.com/privacy"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="text-blue-500"
               >
                 Privacy Policy
@@ -168,6 +169,7 @@ const Login = () => {
                 href="https://policies.google.com/terms"
                 className="text-blue-500"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Terms of Service
               </a>{" "}

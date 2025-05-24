@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { updateSize } from "@/services/admin/size";
+import { sizeApi } from "@/apis/admin/size.api";
 import { Size } from "@/types/product";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { notification } from "antd";
 
 interface SizeEditModalProps {
   isOpen: boolean;
@@ -16,13 +19,30 @@ const SizeEditModal: React.FC<SizeEditModalProps> = ({
   size,
 }) => {
   const [sizeCode, setSizeCode] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (size) {
       setSizeCode(size.size_code);
     }
   }, [size]);
+
+  const sizeMutation = useMutation({
+    mutationFn: () =>
+      sizeApi.updateSize(size?.size_id || "", { size_code: sizeCode }),
+    onSuccess: () => {
+      onSizeUpdated();
+      notification.success({
+        message: "Cập nhật kích cỡ thành công",
+      });
+      onClose();
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      notification.error({
+        message: "Cập nhật kích cỡ thất bại",
+        description: error.response?.data?.message,
+      });
+    },
+  });
 
   if (!isOpen || !size) return null;
 
@@ -31,25 +51,16 @@ const SizeEditModal: React.FC<SizeEditModalProps> = ({
 
     if (!sizeCode) return;
 
-    try {
-      setIsSubmitting(true);
-      await updateSize(size.size_id, sizeCode);
-      onSizeUpdated();
-      onClose();
-    } catch (error) {
-      console.error("Failed to update size:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    sizeMutation.mutate();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
-        className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+        className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="mb-4 text-lg font-medium text-gray-900">
           Chỉnh sửa kích cỡ
         </h3>
 
@@ -57,7 +68,7 @@ const SizeEditModal: React.FC<SizeEditModalProps> = ({
           <div>
             <label
               htmlFor="edit_size_code"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Mã kích cỡ <span className="text-red-500">*</span>
             </label>
@@ -66,25 +77,25 @@ const SizeEditModal: React.FC<SizeEditModalProps> = ({
               id="edit_size_code"
               value={sizeCode}
               onChange={(e) => setSizeCode(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
             />
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="mt-6 flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-400"
-              disabled={isSubmitting || !sizeCode}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-blue-400"
+              disabled={sizeMutation.isPending || !sizeCode}
             >
-              {isSubmitting ? "Đang lưu..." : "Lưu"}
+              {sizeMutation.isPending ? "Đang lưu..." : "Lưu"}
             </button>
           </div>
         </form>

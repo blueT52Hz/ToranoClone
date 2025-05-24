@@ -1,3 +1,4 @@
+import { Image } from "@/types/image.type";
 export interface Product {
   product_id: string;
   product_code: string;
@@ -43,11 +44,15 @@ export interface Color {
   color_id: string;
   color_name: string;
   color_code: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface Size {
   size_id: string;
   size_code: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface FormErrors {

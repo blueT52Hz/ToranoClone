@@ -1,4 +1,6 @@
+import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminLayout from "@/layouts/Home/AdminLayout";
+import AdminLogin from "@/pages/admin/auth/Login";
 import CollectionDetail from "@/pages/admin/collections/CollectionDetail";
 import Collections from "@/pages/admin/collections/Collections";
 import ColorsPage from "@/pages/admin/Colors";
@@ -18,7 +20,15 @@ import { Route, Routes } from "react-router-dom";
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<AdminLayout />}>
+      <Route path="/login" element={<AdminLogin />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
         {/* ProductPages */}
         <Route path="/products" element={<Products />} />
         <Route path="/products/new" element={<ProductEdit />} />

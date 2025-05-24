@@ -11,6 +11,7 @@ import {
 import { Link } from "react-router-dom";
 import { getAllUsers } from "@/services/admin/user";
 import Loading from "@/components/common/Loading";
+import Pagination from "@/components/common/Pagination";
 
 type User = {
   user_id: string;
@@ -46,6 +47,13 @@ export default function Users() {
   const [sortField, setSortField] = useState<keyof User | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   // Thêm hàm xử lý sắp xếp
   const handleSort = (field: keyof User) => {
     if (sortField === field) {
@@ -62,7 +70,7 @@ export default function Users() {
       (user) =>
         (user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (genderFilter === "" || user.gender === genderFilter)
+        (genderFilter === "" || user.gender === genderFilter),
     )
     .sort((a, b) => {
       if (!sortField) return 0;
@@ -116,33 +124,33 @@ export default function Users() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Quản lý Người dùng</h1>
         <Link
           to="/users/create"
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Thêm người dùng
         </Link>
       </div>
 
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row gap-4">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-200 p-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <input
                 type="search"
                 placeholder="Tìm kiếm theo tên, email..."
-                className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
+                className="w-full rounded-lg bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter className="text-gray-400 h-4 w-4" />
+              <Filter className="h-4 w-4 text-gray-400" />
               <select
-                className="text-sm border-gray-300 rounded-md focus:border-blue-600 focus:ring-blue-600"
+                className="rounded-md border-gray-300 text-sm focus:border-blue-600 focus:ring-blue-600"
                 value={genderFilter}
                 onChange={(e) => setGenderFilter(e.target.value)}
               >
@@ -156,11 +164,11 @@ export default function Users() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("full_name")}
                 >
                   <div className="flex items-center">
@@ -174,7 +182,7 @@ export default function Users() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("email")}
                 >
                   <div className="flex items-center">
@@ -188,7 +196,7 @@ export default function Users() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("gender")}
                 >
                   <div className="flex items-center">
@@ -202,7 +210,7 @@ export default function Users() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("date_of_birth")}
                 >
                   <div className="flex items-center">
@@ -216,7 +224,7 @@ export default function Users() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("created_at")}
                 >
                   <div className="flex items-center">
@@ -230,7 +238,7 @@ export default function Users() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("orders_count")}
                 >
                   <div className="flex items-center">
@@ -265,23 +273,23 @@ export default function Users() {
                     <div className="flex items-center space-x-2">
                       <Link
                         to={`/admin/users/${user.user_id}`}
-                        className="p-1 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
+                        className="rounded-full p-1 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="h-4 w-4" />
                         <span className="sr-only">Xem chi tiết</span>
                       </Link>
                       <Link
                         to={`/users/edit/${user.user_id}`}
-                        className="p-1 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
+                        className="rounded-full p-1 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="h-4 w-4" />
                         <span className="sr-only">Sửa</span>
                       </Link>
                       <button
                         onClick={() => openDeleteModal(user)}
-                        className="p-1 text-red-600 hover:text-red-800 rounded-full hover:bg-red-50"
+                        className="rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Xóa</span>
                       </button>
                     </div>
@@ -293,59 +301,43 @@ export default function Users() {
         </div>
 
         {filteredUsers.length === 0 && (
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <p className="text-gray-500">Không tìm thấy người dùng nào</p>
           </div>
         )}
 
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-          <div className="flex items-center text-sm text-gray-500">
-            Hiển thị{" "}
-            <span className="font-medium mx-1">{filteredUsers.length}</span>{" "}
-            trên <span className="font-medium mx-1">{users.length}</span> người
-            dùng
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              disabled
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md text-gray-500"
-            >
-              Trước
-            </button>
-            <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md">
-              1
-            </button>
-            <button
-              disabled
-              className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md text-gray-500"
-            >
-              Sau
-            </button>
-          </div>
+        <div className="flex justify-center py-4">
+          {users.length > 0 && (
+            <Pagination
+              current={currentPage}
+              total={totalPages}
+              onChange={handlePageChange}
+            />
+          )}
         </div>
       </div>
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-lg font-medium text-gray-900">
               Xác nhận xóa
             </h3>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="mb-6 text-sm text-gray-500">
               Bạn có chắc chắn muốn xóa người dùng "{selectedUser?.full_name}"
               không? Hành động này không thể hoàn tác.
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Hủy
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 Xóa
               </button>

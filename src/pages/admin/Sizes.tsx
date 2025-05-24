@@ -8,18 +8,17 @@ import {
   Trash2,
   ArrowUpDown,
 } from "lucide-react";
-import { getAllSizes } from "@/services/admin/size";
 import SizeAddModal from "@/components/admin/sizes/SizeAddModal";
 import SizeEditModal from "@/components/admin/sizes/SizeEditModal";
 import SizeDeleteModal from "@/components/admin/sizes/SizeDeleteModal";
 import { Size } from "@/types/product";
 import Loading from "@/components/common/Loading";
+import { useQuery } from "@tanstack/react-query";
+import { sizeApi } from "@/apis/admin/size.api";
 
 const SizesPage: React.FC = () => {
   const [sizes, setSizes] = useState<Size[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -31,24 +30,16 @@ const SizesPage: React.FC = () => {
   const [sortField, setSortField] = useState<keyof Size | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Fetch sizes
-  const fetchSizes = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await getAllSizes();
-      setSizes(data);
-    } catch (err) {
-      console.error("Error fetching sizes:", err);
-      setError("Không thể tải danh sách kích cỡ. Vui lòng thử lại sau.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["sizes"],
+    queryFn: () => sizeApi.getSizes(),
+  });
 
   useEffect(() => {
-    fetchSizes();
-  }, []);
+    if (data) {
+      setSizes(data.data.data.sizes);
+    }
+  }, [data]);
 
   // Sorting function
   const handleSort = (field: keyof Size) => {
@@ -63,7 +54,7 @@ const SizesPage: React.FC = () => {
   // Filter and sort sizes
   const filteredSizes = sizes
     .filter((size) =>
-      size.size_code.toLowerCase().includes(searchTerm.toLowerCase())
+      size.size_code.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .sort((a, b) => {
       if (!sortField) return 0;
@@ -104,26 +95,26 @@ const SizesPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="container mx-auto space-y-6 px-4 py-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Quản lý Kích cỡ</h1>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Thêm Kích cỡ
         </button>
       </div>
 
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-200 p-4">
           <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <input
               type="search"
               placeholder="Tìm kiếm kích cỡ..."
-              className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
+              className="w-full rounded-lg bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -133,10 +124,10 @@ const SizesPage: React.FC = () => {
         {isLoading ? (
           <Loading />
         ) : error ? (
-          <div className="text-center py-8">
-            <p className="text-red-500">{error}</p>
+          <div className="py-8 text-center">
+            <p className="text-red-500">{error.message}</p>
             <button
-              onClick={fetchSizes}
+              onClick={() => refetch()}
               className="mt-2 text-blue-600 hover:text-blue-800"
             >
               Thử lại
@@ -144,12 +135,12 @@ const SizesPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
+            <table className="w-full text-left text-sm">
               <thead className="bg-gray-50 text-gray-600">
                 <tr>
                   <th className="px-4 py-3 font-medium">ID</th>
                   <th
-                    className="px-4 py-3 font-medium cursor-pointer"
+                    className="cursor-pointer px-4 py-3 font-medium"
                     onClick={() => handleSort("size_code")}
                   >
                     <div className="flex items-center">
@@ -157,13 +148,13 @@ const SizesPage: React.FC = () => {
                       {renderSortIndicator("size_code")}
                     </div>
                   </th>
-                  <th className="px-4 py-3 font-medium text-right">Thao tác</th>
+                  <th className="px-4 py-3 text-right font-medium">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredSizes.map((size) => (
                   <tr key={size.size_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-500 truncate max-w-[150px]">
+                    <td className="max-w-[150px] truncate px-4 py-3 text-gray-500">
                       {size.size_id}
                     </td>
                     <td className="px-4 py-3 font-medium text-gray-900">
@@ -173,16 +164,16 @@ const SizesPage: React.FC = () => {
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => openEditModal(size)}
-                          className="p-1 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
+                          className="rounded-full p-1 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="h-4 w-4" />
                           <span className="sr-only">Sửa</span>
                         </button>
                         <button
                           onClick={() => openDeleteModal(size)}
-                          className="p-1 text-red-600 hover:text-red-800 rounded-full hover:bg-red-50"
+                          className="rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Xóa</span>
                         </button>
                       </div>
@@ -193,7 +184,7 @@ const SizesPage: React.FC = () => {
             </table>
 
             {filteredSizes.length === 0 && (
-              <div className="text-center py-8">
+              <div className="py-8 text-center">
                 <p className="text-gray-500">Không tìm thấy kích cỡ nào</p>
               </div>
             )}
@@ -205,20 +196,20 @@ const SizesPage: React.FC = () => {
       <SizeAddModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSizeAdded={fetchSizes}
+        onSizeAdded={() => refetch()}
       />
 
       <SizeEditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onSizeUpdated={fetchSizes}
+        onSizeUpdated={() => refetch()}
         size={selectedSize}
       />
 
       <SizeDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onSizeDeleted={fetchSizes}
+        onSizeDeleted={() => refetch()}
         size={selectedSize}
       />
     </div>
