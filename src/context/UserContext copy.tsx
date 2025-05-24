@@ -5,7 +5,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { User } from "@/types/user";
+import { User } from "@/types/user.type";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
 import { Cart, CartItem } from "@/types/cart.type";
 import { message, notification } from "antd";

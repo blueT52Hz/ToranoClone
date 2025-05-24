@@ -1,5 +1,5 @@
 import axiosClient from "@/services/axiosClient";
-import { Product, ProductImage, ProductVariant } from "@/types/product";
+import { Product, ProductImage, ProductVariant } from "@/types/product.type";
 
 const API_BASE_URL = "/products";
 
@@ -24,11 +24,11 @@ export const createProduct = async (product: Omit<Product, "id">) => {
 // Cập nhật thông tin sản phẩm
 export const updateProduct = async (
   productId: string,
-  product: Partial<Product>
+  product: Partial<Product>,
 ) => {
   const response = await axiosClient.put(
     `${API_BASE_URL}/${productId}`,
-    product
+    product,
   );
   return response.data;
 };
@@ -42,7 +42,7 @@ export const deleteProduct = async (productId: string) => {
 // Lấy danh sách biến thể của một sản phẩm
 export const getProductVariants = async (productId: string) => {
   const response = await axiosClient.get(
-    `${API_BASE_URL}/${productId}/variants`
+    `${API_BASE_URL}/${productId}/variants`,
   );
   return response.data;
 };
@@ -50,11 +50,11 @@ export const getProductVariants = async (productId: string) => {
 // Thêm một biến thể mới vào sản phẩm
 export const addVariantToProduct = async (
   productId: string,
-  variant: Omit<ProductVariant, "id">
+  variant: Omit<ProductVariant, "id">,
 ) => {
   const response = await axiosClient.post(
     `${API_BASE_URL}/${productId}/variants`,
-    variant
+    variant,
   );
   return response.data;
 };
@@ -62,11 +62,11 @@ export const addVariantToProduct = async (
 // Cập nhật biến thể
 export const updateVariant = async (
   variantId: string,
-  variant: Partial<ProductVariant>
+  variant: Partial<ProductVariant>,
 ) => {
   const response = await axiosClient.put(
     `${API_BASE_URL}/variants/${variantId}`,
-    variant
+    variant,
   );
   return response.data;
 };
@@ -74,7 +74,7 @@ export const updateVariant = async (
 // Xóa biến thể
 export const deleteVariant = async (variantId: string) => {
   const response = await axiosClient.delete(
-    `${API_BASE_URL}/variants/${variantId}`
+    `${API_BASE_URL}/variants/${variantId}`,
   );
   return response.data;
 };
@@ -88,11 +88,11 @@ export const getProductImages = async (productId: string) => {
 // Thêm hình ảnh vào sản phẩm
 export const addImageToProduct = async (
   productId: string,
-  image: Omit<ProductImage, "id">
+  image: Omit<ProductImage, "id">,
 ) => {
   const response = await axiosClient.post(
     `${API_BASE_URL}/${productId}/images`,
-    image
+    image,
   );
   return response.data;
 };
@@ -100,7 +100,7 @@ export const addImageToProduct = async (
 // Xóa hình ảnh
 export const deleteImage = async (imageId: string) => {
   const response = await axiosClient.delete(
-    `${API_BASE_URL}/images/${imageId}`
+    `${API_BASE_URL}/images/${imageId}`,
   );
   return response.data;
 };

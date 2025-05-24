@@ -1,4 +1,4 @@
-import { ShippingAddress } from "@/types/user";
+import { ShippingAddress } from "@/types/user.type";
 
 export interface Order {
   order_id: string;

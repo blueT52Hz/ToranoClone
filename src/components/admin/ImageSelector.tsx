@@ -3,7 +3,7 @@ import {
   getPaginatedGalleryImages,
   uploadImageToGallery,
 } from "@/services/admin/gallery";
-import { Image } from "@/types/product";
+import { Image } from "@/types/product.type";
 import { Upload, ArrowLeft, ArrowRight, X } from "lucide-react";
 
 interface ImageSelectorProps {
@@ -37,7 +37,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
 
     const { images, totalPages } = await getPaginatedGalleryImages(
       page,
-      pageSize
+      pageSize,
     );
 
     console.log(images, totalPages);
@@ -88,14 +88,14 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full">
-        <div className="flex items-center justify-between p-4 border-b">
+      <div className="w-full max-w-4xl rounded-lg bg-white shadow-xl">
+        <div className="flex items-center justify-between border-b p-4">
           <h3 className="text-lg font-medium">{title}</h3>
           <button
             onClick={onCancel}
             className="text-gray-500 hover:text-gray-700"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
@@ -117,19 +117,19 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
         <div className="p-4">
           {view === "gallery" ? (
             <>
-              <div className="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-96 overflow-y-auto">
+              <div className="grid max-h-96 grid-cols-3 gap-4 overflow-y-auto md:grid-cols-4">
                 {galleryImages.map((image) => (
                   <div
                     key={image.image_id}
-                    className={`relative cursor-pointer border rounded-md overflow-hidden ${isImageSelected(image.image_id) ? "ring-2 ring-blue-500" : ""}`}
+                    className={`relative cursor-pointer overflow-hidden rounded-md border ${isImageSelected(image.image_id) ? "ring-2 ring-blue-500" : ""}`}
                     onClick={() => onImageSelect(image)}
                   >
                     <img
                       src={image.image_url}
                       alt={image.image_name}
-                      className="w-full h-32 object-cover"
+                      className="h-32 w-full object-cover"
                     />
-                    <div className="p-1 text-xs text-gray-500 truncate bg-gray-50 border-t">
+                    <div className="truncate border-t bg-gray-50 p-1 text-xs text-gray-500">
                       {image.image_name}
                     </div>
                   </div>
@@ -143,13 +143,13 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
               </div>
 
               {totalPages > 1 && (
-                <div className="flex justify-center items-center mt-4 space-x-2">
+                <div className="mt-4 flex items-center justify-center space-x-2">
                   <button
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
-                    className={`p-2 rounded-full ${currentPage === 1 ? "text-gray-300" : "text-gray-700 hover:bg-gray-100"}`}
+                    className={`rounded-full p-2 ${currentPage === 1 ? "text-gray-300" : "text-gray-700 hover:bg-gray-100"}`}
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ArrowLeft className="h-5 w-5" />
                   </button>
                   <span className="text-sm text-gray-600">
                     Trang {currentPage} / {totalPages}
@@ -157,15 +157,15 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
                   <button
                     onClick={handleNextPage}
                     disabled={currentPage === totalPages}
-                    className={`p-2 rounded-full ${currentPage === totalPages ? "text-gray-300" : "text-gray-700 hover:bg-gray-100"}`}
+                    className={`rounded-full p-2 ${currentPage === totalPages ? "text-gray-300" : "text-gray-700 hover:bg-gray-100"}`}
                   >
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="h-5 w-5" />
                   </button>
                 </div>
               )}
             </>
           ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
+            <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
               <input
                 type="file"
                 id="new-image-upload"
@@ -175,14 +175,14 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
               />
               <label
                 htmlFor="new-image-upload"
-                className="cursor-pointer flex flex-col items-center justify-center"
+                className="flex cursor-pointer flex-col items-center justify-center"
               >
                 {isUploading ? (
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                  <div className="mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                 ) : (
-                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <Upload className="mb-2 h-8 w-8 text-gray-400" />
                 )}
-                <p className="text-sm text-gray-600 mb-1">
+                <p className="mb-1 text-sm text-gray-600">
                   {isUploading
                     ? "Đang tải lên..."
                     : "Kéo thả hoặc click để tải lên hình ảnh"}
@@ -193,10 +193,10 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end p-4 border-t">
+        <div className="flex justify-end border-t p-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 mr-2"
+            className="mr-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             Hủy
           </button>

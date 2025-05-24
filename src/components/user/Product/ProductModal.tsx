@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { Color, Product, Image as ImageType, Size } from "@/types/product";
+import { Color, Product, Image as ImageType, Size } from "@/types/product.type";
 import { Form, Image, Modal, notification } from "antd";
 import { X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";

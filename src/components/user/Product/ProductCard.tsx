@@ -1,5 +1,5 @@
 import ProductModal from "@/components/user/Product/ProductModal";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, ShoppingBag } from "lucide-react";
@@ -28,32 +28,32 @@ const ProductCard = (props: ProductCardProps) => {
   if (item.variants) {
     colorCount = item.variants.reduce(
       (acc, variant) => (acc += variant.color.color_id ? 1 : 0),
-      0
+      0,
     );
     sizeCount = item.variants.reduce(
       (acc, variant) => (acc += variant.size.size_id ? 1 : 0),
-      0
+      0,
     );
   }
 
   return (
     <div
       className={clsx(
-        "overflow-hidden flex-shrink-0 min-h-full product-wrap bg-white",
-        className
+        "product-wrap min-h-full flex-shrink-0 overflow-hidden bg-white",
+        className,
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => !isOpenModal && setIsHovered(false)}
     >
-      <div className="w-full pb-[128%] overflow-hidden relative mb-2.5">
+      <div className="relative mb-2.5 w-full overflow-hidden pb-[128%]">
         <motion.div className="image cursor-pointer">
           <OptimizedImage
             src={item.variant_images[0]?.image_url || placeholder}
             alt={item.name}
             title={item.name}
             className={clsx(
-              "object-cover absolute top-1/2 transition-all duration-500 aspect-[4/5]",
-              isHoverd ? "opacity-0" : "opacity-100"
+              "absolute top-1/2 aspect-[4/5] object-cover transition-all duration-500",
+              isHoverd ? "opacity-0" : "opacity-100",
             )}
             draggable={false}
             onClick={() => {
@@ -66,8 +66,8 @@ const ProductCard = (props: ProductCardProps) => {
             alt={item.name}
             title={item.name}
             className={clsx(
-              "object-cover absolute top-1/2 -translate-y-1/2 transition-all duration-500  aspect-[4/6]",
-              !isHoverd ? "opacity-0" : "opacity-100 scale-110"
+              "absolute top-1/2 aspect-[4/6] -translate-y-1/2 object-cover transition-all duration-500",
+              !isHoverd ? "opacity-0" : "scale-110 opacity-100",
             )}
             draggable={false}
             onClick={() => {
@@ -76,14 +76,14 @@ const ProductCard = (props: ProductCardProps) => {
           />
         </motion.div>
         {item.discount !== 0 && (
-          <div className="absolute z-100 top-3 left-2 px-[10px] py-[5px] min-w-[52px] rounded-[11px] bg-[#ff0000] text-center text-xs text-[#fff] font-semibold leading-none">
+          <div className="z-100 absolute left-2 top-3 min-w-[52px] rounded-[11px] bg-[#ff0000] px-[10px] py-[5px] text-center text-xs font-semibold leading-none text-[#fff]">
             -{item.discount}%
           </div>
         )}
         <AnimatePresence>
           {isHoverd && (
             <motion.div
-              className="absolute z-100 bottom-3 flex left-0 right-0 justify-around gap-4 px-4 overflow-hidden"
+              className="z-100 absolute bottom-3 left-0 right-0 flex justify-around gap-4 overflow-hidden px-4"
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
@@ -91,20 +91,20 @@ const ProductCard = (props: ProductCardProps) => {
             >
               <div
                 onClick={() => setIsOpenModal(true)}
-                className="hover-button bg-white flex items-center truncate gap-2 font-semibold px-3 py-2 rounded-md hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500 cursor-pointer"
+                className="hover-button flex cursor-pointer items-center gap-2 truncate rounded-md bg-white px-3 py-2 font-semibold transition-all duration-500 hover:bg-shop-color-hover hover:text-[#fff]"
               >
-                <ShoppingBag className="w-4 h-4 shrink-0" />
-                <span className="line-clamp-1 text-xs truncate inline-block">
+                <ShoppingBag className="h-4 w-4 shrink-0" />
+                <span className="line-clamp-1 inline-block truncate text-xs">
                   THÊM VÀO GIỎ
                 </span>
               </div>
 
               <div
-                className="bg-[#333] text-[#fff] flex items-center justify-center p-2 rounded-md cursor-pointer"
+                className="flex cursor-pointer items-center justify-center rounded-md bg-[#333] p-2 text-[#fff]"
                 title="Xem nhanh"
                 onClick={() => setIsOpenModal(true)}
               >
-                <Eye className="w-5 h-5"></Eye>
+                <Eye className="h-5 w-5"></Eye>
               </div>
               <ProductModal
                 product={item}
@@ -115,18 +115,18 @@ const ProductCard = (props: ProductCardProps) => {
           )}
         </AnimatePresence>
       </div>
-      <div className="detail flex flex-col px-2 text-sm gap-2.5">
-        <div className="options flex justify-between text-shop-color-text leading-relaxed font-light">
+      <div className="detail flex flex-col gap-2.5 px-2 text-sm">
+        <div className="options flex justify-between font-light leading-relaxed text-shop-color-text">
           <span>+{colorCount} màu sắc</span>
           <span>+{sizeCount} kích cỡ</span>
         </div>
         <Link
           to={item.slug}
-          className="product-name text-shop-color-text line-clamp-2 cursor-pointer"
+          className="product-name line-clamp-2 cursor-pointer text-shop-color-text"
         >
           {item.name}
         </Link>
-        <div className="price flex gap-2 items-center mb-2">
+        <div className="price mb-2 flex items-center gap-2">
           <span className="font-bold text-[#ff2c26]">
             {item.sale_price && item.base_price !== item.sale_price
               ? item.sale_price.toLocaleString("en-US")
@@ -134,7 +134,7 @@ const ProductCard = (props: ProductCardProps) => {
             ₫
           </span>
           {item.sale_price && item.base_price !== item.sale_price && (
-            <span className="font-normal line-through text-xs text-[#878c8f]">
+            <span className="text-xs font-normal text-[#878c8f] line-through">
               {item.base_price.toLocaleString("en-US")}₫
             </span>
           )}

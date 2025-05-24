@@ -1,4 +1,4 @@
-import { Outfit } from "@/types/product";
+import { Outfit } from "@/types/product.type";
 import { supabase } from "../supabaseClient";
 import { getOutfitById } from "../admin/outfit";
 
@@ -18,7 +18,7 @@ export const getAllOutfits = async (): Promise<Outfit[]> => {
   }
 
   const outfitsWithImages = Promise.all(
-    outfits.map((outfit) => getOutfitById(outfit.outfit_id))
+    outfits.map((outfit) => getOutfitById(outfit.outfit_id)),
   );
 
   return outfitsWithImages;

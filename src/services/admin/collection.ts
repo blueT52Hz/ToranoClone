@@ -1,9 +1,9 @@
 import { supabase } from "@/services/supabaseClient";
-import { Collection, Product } from "@/types/product";
+import { Collection, Product } from "@/types/product.type";
 import { getImageByImageId } from "./gallery";
 
 export const getCollectionById = async (
-  collectionId: string
+  collectionId: string,
 ): Promise<Collection> => {
   console.log(collectionId);
 
@@ -26,7 +26,7 @@ export const getCollectionById = async (
 };
 
 export const getCollectionsByProductId = async (
-  productId: string
+  productId: string,
 ): Promise<Collection[]> => {
   const { data: collectionIds, error: ollectionIdError } = await supabase
     .from("product_collection")
@@ -54,7 +54,7 @@ export const getCollectionsByProductId = async (
 };
 
 export const getCollectionBySlug = async (
-  slug: string
+  slug: string,
 ): Promise<Collection> => {
   const { data, error } = await supabase
     .from("collection")
@@ -89,7 +89,7 @@ export const addCollection = async (
     image_id?: string | null;
     published_at: Date | null;
   },
-  productIds?: string[] // Danh sách product_id liên quan
+  productIds?: string[], // Danh sách product_id liên quan
 ): Promise<Collection> => {
   // Thêm trường created_at và updated_at vào collection
   const newCollection = {
@@ -116,7 +116,7 @@ export const addCollection = async (
   // Kiểm tra xem data có tồn tại không
   if (!collectionData) {
     throw new Error(
-      "Failed to add collection: No data returned from Supabase."
+      "Failed to add collection: No data returned from Supabase.",
     );
   }
 
@@ -128,7 +128,7 @@ export const addCollection = async (
         productIds.map((productId) => ({
           collection_id: collectionData.collection_id,
           product_id: productId,
-        }))
+        })),
       );
 
     // Xử lý lỗi khi thêm vào bảng product_collection
@@ -150,7 +150,7 @@ export const updateCollection = async (
     image_id?: string | null;
     published_at: Date | null;
   },
-  productIds?: string[] // Danh sách product_id liên quan
+  productIds?: string[], // Danh sách product_id liên quan
 ): Promise<Collection> => {
   console.log(productIds);
 
@@ -178,7 +178,7 @@ export const updateCollection = async (
   // Kiểm tra xem data có tồn tại không
   if (!collectionData) {
     throw new Error(
-      "Failed to update collection: No data returned from Supabase."
+      "Failed to update collection: No data returned from Supabase.",
     );
   }
 
@@ -201,7 +201,7 @@ export const updateCollection = async (
         productIds.map((productId) => ({
           collection_id: collectionId,
           product_id: productId,
-        }))
+        })),
       );
 
     if (insertError) {
@@ -218,7 +218,7 @@ export const updateCollection = async (
 };
 
 export const deleteCollectionById = async (
-  collectionId: string
+  collectionId: string,
 ): Promise<boolean> => {
   // Bước 1: Xóa các bản ghi liên quan trong bảng product_collection
   const { error: productCollectionError } = await supabase

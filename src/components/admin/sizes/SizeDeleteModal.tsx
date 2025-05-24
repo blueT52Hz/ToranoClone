@@ -1,6 +1,6 @@
 import React from "react";
 import { sizeApi } from "@/apis/admin/size.api";
-import { Size } from "@/types/product";
+import { Size } from "@/types/product.type";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { notification } from "antd";

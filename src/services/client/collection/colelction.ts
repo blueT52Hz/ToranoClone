@@ -1,6 +1,6 @@
 import { getCollectionById } from "@/services/admin/collection";
 import { supabase } from "@/services/supabaseClient";
-import { Collection } from "@/types/product";
+import { Collection } from "@/types/product.type";
 
 export const getPublishedCollectionsWithImage = async (): Promise<
   Collection[]
@@ -17,7 +17,7 @@ export const getPublishedCollectionsWithImage = async (): Promise<
   }
 
   const collections = Promise.all(
-    data.map((item) => getCollectionById(item.collection_id))
+    data.map((item) => getCollectionById(item.collection_id)),
   );
 
   // Trả về dữ liệu

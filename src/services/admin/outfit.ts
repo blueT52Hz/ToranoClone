@@ -1,9 +1,9 @@
 import { supabase } from "@/services/supabaseClient";
-import { Outfit } from "@/types/product";
+import { Outfit } from "@/types/product.type";
 import { getImageByImageId } from "./gallery";
 
 export const getOutfitsByProductId = async (
-  productId: string
+  productId: string,
 ): Promise<Outfit[]> => {
   const { data: productOutfits, error: productOutfitsError } = await supabase
     .from("product_outfit")
@@ -69,7 +69,7 @@ export const addOutfit = async (
     image_id: string;
     published_at: Date | null;
   },
-  productIds?: string[] // Danh sách product_id liên quan
+  productIds?: string[], // Danh sách product_id liên quan
 ): Promise<Outfit> => {
   // Thêm trường created_at và updated_at vào outfit
   const newOutfit = {
@@ -105,7 +105,7 @@ export const addOutfit = async (
         productIds.map((productId) => ({
           outfit_id: outfitData.outfit_id,
           product_id: productId,
-        }))
+        })),
       );
 
     // Xử lý lỗi khi thêm vào bảng product_outfit
@@ -133,7 +133,7 @@ export const getAllOutfits = async (): Promise<Outfit[]> => {
   }
 
   const outfitsWithImages = Promise.all(
-    outfits.map((outfit) => getOutfitById(outfit.outfit_id))
+    outfits.map((outfit) => getOutfitById(outfit.outfit_id)),
   );
 
   return outfitsWithImages;
@@ -146,7 +146,7 @@ export const updateOutfit = async (
     image_id?: string | null;
     published_at: Date | null;
   },
-  productIds?: string[] // Danh sách product_id liên quan
+  productIds?: string[], // Danh sách product_id liên quan
 ): Promise<Outfit> => {
   // Thêm trường updated_at vào updatedOutfit
   const newUpdatedOutfit = {
@@ -188,10 +188,10 @@ export const updateOutfit = async (
 
     // Bước 2: Xác định các sản phẩm cần xóa (có trong hiện tại nhưng không có trong productIds)
     const currentProductIds = currentProductOutfit.map(
-      (item) => item.product_id
+      (item) => item.product_id,
     );
     const productsToDelete = currentProductIds.filter(
-      (productId) => !productIds.includes(productId)
+      (productId) => !productIds.includes(productId),
     );
 
     // Bước 3: Xóa các sản phẩm không có trong productIds
@@ -212,7 +212,7 @@ export const updateOutfit = async (
       productIds.map((productId) => ({
         outfit_id: outfitId,
         product_id: productId,
-      }))
+      })),
     );
 
     // Xử lý lỗi khi thêm vào bảng product_outfit

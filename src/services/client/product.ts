@@ -4,12 +4,12 @@ import {
   Outfit,
   Product,
   ProductVariant,
-} from "@/types/product";
+} from "@/types/product.type";
 import { supabase } from "../supabaseClient";
 
 // Hàm lấy tất cả sản phẩm theo collection_slug
 export const getProductsByCollectionSlug = async (
-  collectionSlug: string
+  collectionSlug: string,
 ): Promise<Product[]> => {
   if (collectionSlug === "all") {
     return await getPublishedProducts();
@@ -33,7 +33,7 @@ export const getProductsByCollectionSlug = async (
 
   if (productCollectionsError) {
     throw new Error(
-      `Lỗi khi lấy danh sách sản phẩm thuộc collection: ${productCollectionsError.message}`
+      `Lỗi khi lấy danh sách sản phẩm thuộc collection: ${productCollectionsError.message}`,
     );
   }
 
@@ -43,14 +43,14 @@ export const getProductsByCollectionSlug = async (
   const productsWithDetails = await Promise.all(
     productIds.map(async (productId) => {
       return await getProductByProductId(productId);
-    })
+    }),
   );
 
   return productsWithDetails;
 };
 
 export const getProductByProductSlug = async (
-  slug: string
+  slug: string,
 ): Promise<Product> => {
   // Lấy thông tin sản phẩm dựa trên slug
   const { data: productData, error: productError } = await supabase
@@ -154,7 +154,7 @@ export const getProductByProductSlug = async (
           : null,
         updated_at: new Date(variantData.updated_at),
       };
-    })
+    }),
   );
 
   // Xử lý thông tin hình ảnh (images)
@@ -200,7 +200,7 @@ export const getProductByProductSlug = async (
           updated_at: new Date(collectionInfo.updated_at),
         },
       };
-    })
+    }),
   );
 
   // Xử lý thông tin outfit
@@ -232,7 +232,7 @@ export const getProductByProductSlug = async (
           updated_at: new Date(outfitInfo.updated_at),
         },
       };
-    })
+    }),
   );
 
   // Trả về đối tượng Product hoàn chỉnh
@@ -246,7 +246,7 @@ export const getProductByProductSlug = async (
 };
 
 export const getProductByProductId = async (
-  product_id: string
+  product_id: string,
 ): Promise<Product> => {
   // Lấy thông tin sản phẩm dựa trên slug
   const { data: productData, error: productError } = await supabase
@@ -350,7 +350,7 @@ export const getProductByProductId = async (
           : null,
         updated_at: new Date(variantData.updated_at),
       };
-    })
+    }),
   );
 
   // Xử lý thông tin hình ảnh (images)
@@ -396,7 +396,7 @@ export const getProductByProductId = async (
           updated_at: new Date(collectionInfo.updated_at),
         },
       };
-    })
+    }),
   );
 
   // Xử lý thông tin outfit
@@ -428,7 +428,7 @@ export const getProductByProductId = async (
           updated_at: new Date(outfitInfo.updated_at),
         },
       };
-    })
+    }),
   );
 
   // Trả về đối tượng Product hoàn chỉnh
@@ -462,7 +462,7 @@ export const getPublishedProducts = async (): Promise<Product[]> => {
   const productsWithDetails = await Promise.all(
     products.map(async (product) => {
       return await getProductByProductId(product.product_id);
-    })
+    }),
   );
 
   return productsWithDetails;

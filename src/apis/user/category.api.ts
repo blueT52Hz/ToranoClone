@@ -1,7 +1,7 @@
 import http from "@/utils/http";
 import { SuccessResponse } from "@/types/utils.type";
 import { Category } from "@/types/category.type";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 
 export const categoryApi = {
   getCategories: async () => {

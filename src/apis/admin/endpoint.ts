@@ -19,4 +19,12 @@ export const API_ENDPOINTS = {
     IMAGES: "/images",
     IMAGE_UPLOAD: "/images/upload",
   },
+  USER: {
+    USERS: "/user",
+    USER_ID: "/user/:id",
+  },
+  PRODUCT: {
+    PRODUCTS: "/product",
+    PRODUCT_ID: "/product/:id",
+  },
 } as const;

@@ -1,5 +1,5 @@
 import { supabase } from "@/services/supabaseClient";
-import { Product, ProductVariant } from "@/types/product";
+import { Product, ProductVariant } from "@/types/product.type";
 import { notification } from "antd";
 import { getVariantsByProductId } from "./product_variant";
 import { getImagesByProductId } from "./gallery";
@@ -68,7 +68,7 @@ export const addProduct = async (product: {
           quantity: variant.quantity,
           created_at: new Date(),
           updated_at: new Date(),
-        }))
+        })),
       );
 
     if (variantError) {
@@ -84,7 +84,7 @@ export const addProduct = async (product: {
         product.collectionsIds.map((collectionId) => ({
           product_id: productId,
           collection_id: collectionId,
-        }))
+        })),
       );
 
     if (collectionError) {
@@ -98,7 +98,7 @@ export const addProduct = async (product: {
       product.outfitIds.map((outfitId) => ({
         product_id: productId,
         outfit_id: outfitId,
-      }))
+      })),
     );
 
     if (outfitError) {
@@ -112,7 +112,7 @@ export const addProduct = async (product: {
       product.imageIds.map((imageId) => ({
         product_id: productId,
         image_id: imageId,
-      }))
+      })),
     );
 
     if (imageError) {
@@ -144,7 +144,7 @@ export const updateProductWithDetails = async (
     collectionsIds?: string[];
     outfitIds?: string[];
     imageIds?: string[];
-  }
+  },
 ): Promise<Product> => {
   const product = await updateProduct(productId, updatedProduct);
   return await getProductById(product.product_id);
@@ -170,7 +170,7 @@ export const updateProduct = async (
     collectionsIds?: string[];
     outfitIds?: string[];
     imageIds?: string[];
-  }
+  },
 ): Promise<Product> => {
   // Bước 1: Cập nhật thông tin sản phẩm trong bảng product
   const { data: productData, error: productError } = await supabase
@@ -189,7 +189,7 @@ export const updateProduct = async (
 
   if (!productData) {
     throw new Error(
-      "Failed to update product: No data returned from Supabase."
+      "Failed to update product: No data returned from Supabase.",
     );
   }
 
@@ -210,7 +210,7 @@ export const updateProduct = async (
           quantity: variant.quantity,
           created_at: new Date(),
           updated_at: new Date(),
-        }))
+        })),
       );
 
     if (variantError) {
@@ -236,7 +236,7 @@ export const updateProduct = async (
         updatedProduct.collectionsIds.map((collectionId) => ({
           product_id: productId,
           collection_id: collectionId,
-        }))
+        })),
       );
 
     if (collectionError) {
@@ -254,7 +254,7 @@ export const updateProduct = async (
       updatedProduct.outfitIds.map((outfitId) => ({
         product_id: productId,
         outfit_id: outfitId,
-      }))
+      })),
     );
 
     if (outfitError) {
@@ -272,7 +272,7 @@ export const updateProduct = async (
       updatedProduct.imageIds.map((imageId) => ({
         product_id: productId,
         image_id: imageId,
-      }))
+      })),
     );
 
     if (imageError) {
@@ -304,7 +304,7 @@ export const getProductById = async (productId: string): Promise<Product> => {
 
   // Lấy các biến thể của sản phẩm
   const variants: ProductVariant[] = await getVariantsByProductId(
-    product.product_id
+    product.product_id,
   );
 
   // Lấy các ảnh của sản phẩm
@@ -345,14 +345,14 @@ export const getAllProductsWithDetails = async (): Promise<Product[]> => {
     products.map(async (product) => {
       const result = await getProductById(product.product_id);
       return result;
-    })
+    }),
   );
 
   return productsWithDetails;
 };
 
 export const getProductsByCollectionId = async (
-  collectionId: string
+  collectionId: string,
 ): Promise<Product[]> => {
   const { data: productCollectionData, error: productCollectionError } =
     await supabase
@@ -370,14 +370,14 @@ export const getProductsByCollectionId = async (
     productIds.map(async (id) => {
       const result = await getProductById(id);
       return result;
-    })
+    }),
   );
 
   return productsWithDetails;
 };
 
 export const getProductsByOutfitId = async (
-  outfitId: string
+  outfitId: string,
 ): Promise<Product[]> => {
   const { data: productOutfitData, error: productOutfitError } = await supabase
     .from("product_outfit")
@@ -394,14 +394,14 @@ export const getProductsByOutfitId = async (
     productIds.map(async (id) => {
       const result = await getProductById(id);
       return result;
-    })
+    }),
   );
 
   return productsWithDetails;
 };
 
 export const getProductsByCollectionSlug = async (
-  slug: string
+  slug: string,
 ): Promise<Product[]> => {
   const { data: collection, error: collectionError } = await supabase
     .from("collection")

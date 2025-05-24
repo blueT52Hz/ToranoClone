@@ -1,4 +1,4 @@
-import { Image } from "@/types/product";
+import { Image } from "@/types/product.type";
 import { v4 as uuid } from "uuid";
 
 // In a real app, this would handle actual file uploads to a server
@@ -35,7 +35,7 @@ export const getGalleryImages = (): Image[] => {
 export const getPaginatedGalleryImages = (
   page: number,
   pageSize: number,
-  galleryImages: Image[]
+  galleryImages: Image[],
 ): { images: Image[]; totalPages: number } => {
   const start = (page - 1) * pageSize;
   const end = start + pageSize;

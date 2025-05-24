@@ -1,5 +1,5 @@
 import { Form, Input, Button, notification, Select } from "antd";
-import type { ShippingAddress } from "@/types/user";
+import type { ShippingAddress } from "@/types/user.type";
 import { shippingAddressApi } from "@/apis/user/shippingAddress.api";
 import { useShippingAddressStore } from "@/store/user/shippingAddressStrore";
 import { useMutation } from "@tanstack/react-query";

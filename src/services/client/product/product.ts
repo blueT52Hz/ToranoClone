@@ -1,5 +1,5 @@
 import { supabase } from "@/services/supabaseClient";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 
 export interface TopSellingProduct extends Product {
   totalSold: number;

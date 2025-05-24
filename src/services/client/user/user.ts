@@ -1,4 +1,4 @@
-import { ShippingAddress, User } from "@/types/user";
+import { ShippingAddress, User } from "@/types/user.type";
 import { supabase } from "@/services/supabaseClient";
 import { createCart } from "@/services/client/cart/cart";
 import { Cart, CartItem, Order } from "@/types/cart.type";

@@ -1,6 +1,6 @@
 import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { Order } from "@/types/cart.type";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 import {
   ArrowDown,
   ArrowUp,

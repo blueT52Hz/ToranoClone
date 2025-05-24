@@ -10,12 +10,15 @@
 // }
 
 export interface User {
-  date_of_birth: string;
-  email: string;
   full_name: string;
+  email: string;
   gender: "Nam" | "Nữ" | "Khác";
+  date_of_birth: string;
   status: "active" | "inactive" | "banned";
   user_id: string;
+  created_at: Date;
+  updated_at: Date;
+  last_login_at: Date;
 }
 
 export interface ShippingAddress {

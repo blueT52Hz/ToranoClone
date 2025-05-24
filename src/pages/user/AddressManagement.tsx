@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShippingAddress } from "@/types/user";
+import { ShippingAddress } from "@/types/user.type";
 import AddressForm from "@/components/user/AddressForm";
 import { Navigate } from "react-router-dom";
 import AccountLayout from "@/layouts/Home/AccountLayout";

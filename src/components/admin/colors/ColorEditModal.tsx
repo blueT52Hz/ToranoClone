@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Color } from "@/types/product";
+import { Color } from "@/types/product.type";
 import { useMutation } from "@tanstack/react-query";
 import { colorApi } from "@/apis/admin/color.api";
 import { notification } from "antd";

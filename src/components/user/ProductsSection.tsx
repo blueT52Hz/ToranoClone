@@ -1,5 +1,5 @@
 import ProductCard from "@/components/user/Product/ProductCard";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 
 interface ProductsSectionProp {
   columns: number;

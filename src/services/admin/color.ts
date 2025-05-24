@@ -1,5 +1,5 @@
 import { supabase } from "@/services/supabaseClient";
-import { Color } from "@/types/product";
+import { Color } from "@/types/product.type";
 import { notification } from "antd";
 
 export const addColor = async (color_name: string, color_code: string) => {
@@ -26,7 +26,7 @@ export const addColor = async (color_name: string, color_code: string) => {
 export const updateColor = async (
   color_id: string,
   color_name: string,
-  color_code: string
+  color_code: string,
 ) => {
   const { data, error } = await supabase
     .from("color")

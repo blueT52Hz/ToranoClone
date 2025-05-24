@@ -1,6 +1,6 @@
 import Loading from "@/components/common/Loading";
 import { getAllProductsWithDetails } from "@/services/admin/product";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 import { Plus, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -31,8 +31,8 @@ export const ProductSelectorModal = ({
       setAllProducts(allProductsResult);
       setAvailableProducts(
         allProductsResult.filter(
-          (product) => !selectedProductIds.includes(product.product_id)
-        )
+          (product) => !selectedProductIds.includes(product.product_id),
+        ),
       );
       setIsLoading(false);
     };
@@ -43,7 +43,7 @@ export const ProductSelectorModal = ({
     return availableProducts.filter(
       (product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.product_code.toLowerCase().includes(searchTerm.toLowerCase())
+        product.product_code.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [availableProducts, searchTerm]);
 
@@ -53,23 +53,23 @@ export const ProductSelectorModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full p-6 max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center mb-4">
+      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white p-6 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900">Thêm sản phẩm</h3>
           <button
             onClick={() => setIsProductSelectorOpen(false)}
             className="p-1 text-gray-400 hover:text-gray-500"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
           <input
             type="search"
             placeholder="Tìm kiếm sản phẩm theo tên hoặc mã..."
-            className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
+            className="w-full rounded-lg bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -78,15 +78,15 @@ export const ProductSelectorModal = ({
         {isLoading ? (
           <Loading />
         ) : (
-          <div className="overflow-y-auto flex-grow">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600 sticky top-0">
+          <div className="flex-grow overflow-y-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="sticky top-0 bg-gray-50 text-gray-600">
                 <tr>
                   <th className="px-4 py-3 font-medium">Mã</th>
                   <th className="px-4 py-3 font-medium">Sản phẩm</th>
                   <th className="px-4 py-3 font-medium">Giá</th>
                   <th className="px-4 py-3 font-medium">Trạng thái</th>
-                  <th className="px-4 py-3 font-medium w-20">Thao tác</th>
+                  <th className="w-20 px-4 py-3 font-medium">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -97,12 +97,12 @@ export const ProductSelectorModal = ({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0 mr-3">
+                        <div className="mr-3 h-10 w-10 flex-shrink-0">
                           {product.variant_images[0] && (
                             <img
                               src={product.variant_images[0].image_url}
                               alt={product.name}
-                              className="h-10 w-10 object-cover rounded-md"
+                              className="h-10 w-10 rounded-md object-cover"
                             />
                           )}
                         </div>
@@ -122,7 +122,7 @@ export const ProductSelectorModal = ({
                           <span className="text-gray-900">
                             {product.sale_price}₫
                           </span>
-                          <span className="ml-2 line-through text-gray-500">
+                          <span className="ml-2 text-gray-500 line-through">
                             {product.base_price}₫
                           </span>
                         </div>
@@ -134,7 +134,7 @@ export const ProductSelectorModal = ({
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                        className={`inline-flex rounded-full px-2 py-1 text-xs ${
                           product.published_at
                             ? "bg-green-100 text-green-700"
                             : "bg-yellow-100 text-yellow-700"
@@ -150,9 +150,9 @@ export const ProductSelectorModal = ({
                           addProduct(product);
                           setIsProductSelectorOpen(false);
                         }}
-                        className="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700"
+                        className="inline-flex items-center rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700"
                       >
-                        <Plus className="w-3 h-3 mr-1" />
+                        <Plus className="mr-1 h-3 w-3" />
                         Thêm
                       </button>
                     </td>
@@ -162,17 +162,17 @@ export const ProductSelectorModal = ({
             </table>
 
             {filteredProducts.length === 0 && (
-              <div className="text-center py-8">
+              <div className="py-8 text-center">
                 <p className="text-gray-500">Không tìm thấy sản phẩm nào</p>
               </div>
             )}
           </div>
         )}
 
-        <div className="flex justify-end mt-4">
+        <div className="mt-4 flex justify-end">
           <button
             onClick={() => setIsProductSelectorOpen(false)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             Đóng
           </button>

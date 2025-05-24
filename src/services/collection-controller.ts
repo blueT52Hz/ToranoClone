@@ -1,5 +1,5 @@
 import axiosClient from "@/services/axiosClient";
-import { Collection } from "@/types/product";
+import { Collection } from "@/types/product.type";
 
 const API_BASE_URL = "/collections";
 
@@ -18,7 +18,7 @@ export const getCollectionById = async (collectionId: string) => {
 // Lấy danh sách collections con của một collection cha
 export const getSubCollections = async (parentCollectionId: string) => {
   const response = await axiosClient.get(
-    `${API_BASE_URL}/parent/${parentCollectionId}`
+    `${API_BASE_URL}/parent/${parentCollectionId}`,
   );
   return response.data;
 };
@@ -32,11 +32,11 @@ export const createCollection = async (collection: Collection) => {
 // Cập nhật thông tin collection
 export const updateCollection = async (
   collectionId: string,
-  collection: Partial<Collection>
+  collection: Partial<Collection>,
 ) => {
   const response = await axiosClient.put(
     `${API_BASE_URL}/${collectionId}`,
-    collection
+    collection,
   );
   return response.data;
 };
@@ -50,10 +50,10 @@ export const deleteCollection = async (collectionId: string) => {
 // Thêm một sản phẩm vào collection
 export const addProductToCollection = async (
   collectionId: string,
-  productId: string
+  productId: string,
 ) => {
   const response = await axiosClient.post(
-    `${API_BASE_URL}/${collectionId}/products/${productId}`
+    `${API_BASE_URL}/${collectionId}/products/${productId}`,
   );
   return response.data;
 };
@@ -61,10 +61,10 @@ export const addProductToCollection = async (
 // Xóa một sản phẩm khỏi collection
 export const removeProductFromCollection = async (
   collectionId: string,
-  productId: string
+  productId: string,
 ) => {
   const response = await axiosClient.delete(
-    `${API_BASE_URL}/${collectionId}/products/${productId}`
+    `${API_BASE_URL}/${collectionId}/products/${productId}`,
   );
   return response.data;
 };

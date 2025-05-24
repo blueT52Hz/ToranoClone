@@ -1,5 +1,5 @@
 import axiosClient from "@/services/axiosClient";
-import { Size } from "@/types/product";
+import { Size } from "@/types/product.type";
 
 const API_BASE_URL = "/sizes";
 

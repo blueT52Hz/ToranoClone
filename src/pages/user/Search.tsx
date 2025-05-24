@@ -3,7 +3,7 @@ import Pagination from "@/components/user/Pagination";
 import ProductCard from "@/components/user/Product/ProductCard";
 import ProductsSection from "@/components/user/ProductsSection";
 import { getPublishedProducts } from "@/services/client/product";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 import { Divider } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";

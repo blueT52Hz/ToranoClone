@@ -236,33 +236,32 @@ export default function Gallery() {
             />
           )}
         </div>
-
-        {/* Upload Modal */}
-        <UploadImageModal
-          isUploadModalOpen={isUploadModalOpen}
-          setIsUploadModalOpen={setIsUploadModalOpen}
-          onUploadSuccess={refetch}
-        />
-
-        {/* Edit Name Modal */}
-        <EditNameImageModal
-          isEditModalOpen={isEditModalOpen}
-          setIsEditModalOpen={setIsEditModalOpen}
-          selectedImage={selectedImage}
-          setImages={setImages}
-          images={images}
-          setSelectedImage={setSelectedImage}
-        />
-
-        {/* Delete Confirmation Modal */}
-        <DeleteImageModal
-          isDeleteModalOpen={isDeleteModalOpen}
-          setIsDeleteModalOpen={setIsDeleteModalOpen}
-          selectedImage={selectedImage}
-          setSelectedImage={setSelectedImage}
-          onDeleteSuccess={refetch}
-        />
       </div>
+      {/* Upload Modal */}
+      <UploadImageModal
+        isUploadModalOpen={isUploadModalOpen}
+        setIsUploadModalOpen={setIsUploadModalOpen}
+        onUploadSuccess={refetch}
+      />
+
+      {/* Edit Name Modal */}
+      <EditNameImageModal
+        isEditModalOpen={isEditModalOpen}
+        setIsEditModalOpen={setIsEditModalOpen}
+        selectedImage={selectedImage}
+        setImages={setImages}
+        images={images}
+        setSelectedImage={setSelectedImage}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteImageModal
+        isDeleteModalOpen={isDeleteModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+        selectedImage={selectedImage}
+        setSelectedImage={setSelectedImage}
+        onDeleteSuccess={refetch}
+      />
     </div>
   );
 }

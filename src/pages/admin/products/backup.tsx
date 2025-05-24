@@ -9,7 +9,7 @@ import {
   Product,
   ProductVariant,
   Size,
-} from "@/types/product";
+} from "@/types/product.type";
 import { uploadImageToGallery } from "@/services/admin/gallery";
 import ImageSelector from "@/components/admin/ImageSelector";
 import { getProductById } from "@/services/admin/product";
@@ -68,7 +68,7 @@ export default function ProductDetail() {
   }>({});
   // Hàm xử lý thay đổi input
   const handleProductInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -172,7 +172,7 @@ export default function ProductDetail() {
 
   // danh sách collection chọn
   const [collectionSelectedIds, setCollectionSelectedIds] = useState<string[]>(
-    []
+    [],
   );
 
   // danh sách tất cả collection
@@ -219,7 +219,7 @@ export default function ProductDetail() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
 
@@ -233,7 +233,7 @@ export default function ProductDetail() {
             ? Math.round(((numValue - prev.sale_price) / numValue) * 100 * -1)
             : name === "sale_price" && numValue && prev.base_price
               ? Math.round(
-                  ((prev.base_price - numValue) / prev.base_price) * 100
+                  ((prev.base_price - numValue) / prev.base_price) * 100,
                 )
               : prev.discount,
       }));
@@ -317,7 +317,7 @@ export default function ProductDetail() {
         variants?: {
           [key: string]: { color?: string; size?: string; quantity?: string };
         };
-      }
+      },
     );
     return Object.keys(newErrors).length === 0;
   };
@@ -375,22 +375,22 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex h-full items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               to="/admin/products"
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+              className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Quay lại</span>
             </Link>
             <h1 className="text-2xl font-bold text-gray-800">
@@ -402,32 +402,32 @@ export default function ProductDetail() {
             {isEditMode && (
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100"
+                className="rounded-md bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
               >
-                <Trash2 className="w-4 h-4 mr-2 inline-block" />
+                <Trash2 className="mr-2 inline-block h-4 w-4" />
                 Xóa
               </button>
             )}
             <button
               onClick={() => handleSubmit(false)}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Lưu nháp
             </button>
             <button
               onClick={() => handleSubmit(true)}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
               {isSaving ? (
                 <>
-                  <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2"></span>
+                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                   Đang lưu...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2 inline-block" />
+                  <Save className="mr-2 inline-block h-4 w-4" />
                   {isEditMode ? "Cập nhật" : "Xuất bản"}
                 </>
               )}
@@ -435,8 +435,8 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
             {/* Basic Information */}
             <BasicInfo
               basicInfoFormErrors={basicInfoFormErrors}
@@ -463,17 +463,17 @@ export default function ProductDetail() {
 
           <div className="space-y-6">
             {/* Publishing */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-medium mb-4">Xuất bản</h2>
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-medium">Xuất bản</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">
                     Trạng thái
                   </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex cursor-pointer items-center">
                     <input
                       type="checkbox"
-                      className="sr-only peer"
+                      className="peer sr-only"
                       checked={product.published_at !== null}
                       onChange={(e) =>
                         setProduct((prev) => ({
@@ -482,7 +482,7 @@ export default function ProductDetail() {
                         }))
                       }
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
                     <span className="ml-3 text-sm font-medium text-gray-700">
                       {product.published_at !== null
                         ? "Đã xuất bản"
@@ -493,7 +493,7 @@ export default function ProductDetail() {
 
                 {isEditMode && (
                   <div>
-                    <p className="text-sm text-gray-500 mb-2">
+                    <p className="mb-2 text-sm text-gray-500">
                       Ngày tạo: {product.created_at.toLocaleDateString("vi-VN")}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -506,8 +506,8 @@ export default function ProductDetail() {
             </div>
 
             {/* Collections */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-medium mb-4">Bộ sưu tập</h2>
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-medium">Bộ sưu tập</h2>
               <div className="space-y-2">
                 {availableCollections.map((collection) => (
                   <label
@@ -518,7 +518,7 @@ export default function ProductDetail() {
                       type="checkbox"
                       className="rounded text-blue-600 focus:ring-blue-600"
                       checked={collectionSelectedIds.includes(
-                        collection.collection_id
+                        collection.collection_id,
                       )}
                       onChange={() =>
                         toggleCollection(collection.collection_id)
@@ -537,24 +537,24 @@ export default function ProductDetail() {
         {/* Delete Confirmation Modal */}
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+              <h3 className="mb-4 text-lg font-medium text-gray-900">
                 Xác nhận xóa
               </h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="mb-6 text-sm text-gray-500">
                 Bạn có chắc chắn muốn xóa sản phẩm "{product.name}" không? Hành
                 động này không thể hoàn tác.
               </p>
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                  className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
                 >
                   Xóa
                 </button>
@@ -575,7 +575,7 @@ interface BasicInfoProps {
     base_price?: string;
   };
   handleProductInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   productForm: {
     name: string;
@@ -596,13 +596,13 @@ const BasicInfo = ({
 }: BasicInfoProps) => {
   return (
     <>
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-medium mb-4">Thông tin cơ bản</h2>
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-medium">Thông tin cơ bản</h2>
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Tên sản phẩm <span className="text-red-500">*</span>
             </label>
@@ -612,7 +612,7 @@ const BasicInfo = ({
               name="name"
               value={productForm.name}
               onChange={handleProductInputChange}
-              className={`w-full px-3 py-2 border ${basicInfoFormErrors.name ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+              className={`w-full border px-3 py-2 ${basicInfoFormErrors.name ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
               placeholder="Nhập tên sản phẩm"
             />
             {basicInfoFormErrors.name && (
@@ -622,11 +622,11 @@ const BasicInfo = ({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label
                 htmlFor="product_code"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="mb-1 block text-sm font-medium text-gray-700"
               >
                 Mã sản phẩm <span className="text-red-500">*</span>
               </label>
@@ -636,7 +636,7 @@ const BasicInfo = ({
                 name="product_code"
                 value={productForm.product_code}
                 onChange={handleProductInputChange}
-                className={`w-full px-3 py-2 border ${basicInfoFormErrors.product_code ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                className={`w-full border px-3 py-2 ${basicInfoFormErrors.product_code ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 placeholder="TS001"
               />
               {basicInfoFormErrors.product_code && (
@@ -648,7 +648,7 @@ const BasicInfo = ({
             <div>
               <label
                 htmlFor="brand_name"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="mb-1 block text-sm font-medium text-gray-700"
               >
                 Thương hiệu
               </label>
@@ -658,7 +658,7 @@ const BasicInfo = ({
                 name="brand_name"
                 value={productForm.brand_name}
                 onChange={handleProductInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="Torano"
               />
             </div>
@@ -667,7 +667,7 @@ const BasicInfo = ({
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Mô tả sản phẩm
             </label>
@@ -677,19 +677,19 @@ const BasicInfo = ({
               value={productForm.description}
               onChange={handleProductInputChange}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
               placeholder="Nhập mô tả chi tiết về sản phẩm"
             ></textarea>
           </div>
         </div>
       </div>
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-medium mb-4">Giá sản phẩm</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-medium">Giá sản phẩm</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label
               htmlFor="base_price"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Giá gốc (VND) <span className="text-red-500">*</span>
             </label>
@@ -699,7 +699,7 @@ const BasicInfo = ({
               name="base_price"
               value={productForm.base_price || ""}
               onChange={handleProductInputChange}
-              className={`w-full px-3 py-2 border ${basicInfoFormErrors.base_price ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+              className={`w-full border px-3 py-2 ${basicInfoFormErrors.base_price ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
               placeholder="299000"
             />
             {basicInfoFormErrors.base_price && (
@@ -711,7 +711,7 @@ const BasicInfo = ({
           <div>
             <label
               htmlFor="sale_price"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Giá khuyến mãi (VND)
             </label>
@@ -721,14 +721,14 @@ const BasicInfo = ({
               name="sale_price"
               value={productForm.sale_price || ""}
               onChange={handleProductInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
               placeholder="249000"
             />
           </div>
           <div>
             <label
               htmlFor="discount"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
               Giảm giá (%)
             </label>
@@ -738,7 +738,7 @@ const BasicInfo = ({
               name="discount"
               value={productForm.discount}
               onChange={handleProductInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+              className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
             />
           </div>
         </div>
@@ -761,15 +761,15 @@ const VariantSummary = ({
   if (variants.length === 0) return null; // Nếu không có variants thì không render gì cả.
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-      <h2 className="text-lg font-medium mb-4">Tóm tắt biến thể</h2>
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-medium">Tóm tắt biến thể</h2>
       <div className="space-y-3">
         {variants.map((variant) => (
           <div
             key={variant.variant_id}
-            className="p-3 border border-gray-200 rounded-md"
+            className="rounded-md border border-gray-200 p-3"
           >
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <div>
                 <p className="font-medium">
                   {getColorName(variant.color.color_name)} /{" "}
@@ -783,7 +783,7 @@ const VariantSummary = ({
                 <img
                   src={variant.image.image_url || "/placeholder.svg"}
                   alt={`${getColorName(variant.color.color_name)} ${getSizeName(variant.size.size_code)}`}
-                  className="w-10 h-10 object-cover rounded-md"
+                  className="h-10 w-10 rounded-md object-cover"
                 />
               )}
             </div>
@@ -838,16 +838,16 @@ const ProductImages = ({ setProduct, product }: ProductImagesProps) => {
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-medium">Hình ảnh sản phẩm</h2>
         <div className="flex space-x-2">
           <button
             type="button"
             onClick={() => setIsImageSelectorOpen(true)}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
+            className="inline-flex items-center rounded-md bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
           >
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus className="mr-1 h-4 w-4" />
             Chọn ảnh
           </button>
 
@@ -862,9 +862,9 @@ const ProductImages = ({ setProduct, product }: ProductImagesProps) => {
             />
             <label
               htmlFor="product-images"
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer"
+              className="inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              <Upload className="w-4 h-4 mr-1" />
+              <Upload className="mr-1 h-4 w-4" />
               Tải lên
             </label>
           </div>
@@ -872,23 +872,23 @@ const ProductImages = ({ setProduct, product }: ProductImagesProps) => {
       </div>
 
       {product.variant_images.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
           {product.variant_images.map((image) => (
-            <div key={image.image_id} className="relative group">
+            <div key={image.image_id} className="group relative">
               <img
                 src={image.image_url || "/placeholder.svg"}
                 alt={image.image_name}
-                className="w-full h-24 object-cover rounded-md border border-gray-200"
+                className="h-24 w-full rounded-md border border-gray-200 object-cover"
               />
               <button
                 type="button"
                 onClick={() => removeImage(image.image_id)}
-                className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-1 top-1 rounded-full bg-white p-1 opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
               >
                 <Trash2 className="h-4 w-4 text-red-500" />
               </button>
               <div
-                className="mt-1 text-xs text-gray-500 truncate"
+                className="mt-1 truncate text-xs text-gray-500"
                 title={image.image_name}
               >
                 {image.image_name}
@@ -897,7 +897,7 @@ const ProductImages = ({ setProduct, product }: ProductImagesProps) => {
           ))}
         </div>
       ) : (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
           <p className="text-sm text-gray-500">
             Chưa có hình ảnh nào được thêm vào. Vui lòng chọn ảnh từ thư viện
             hoặc tải lên ảnh mới.
@@ -954,7 +954,7 @@ const ProductVariants = ({
   };
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    null
+    null,
   );
 
   const addVariant = () => {
@@ -1002,7 +1002,7 @@ const ProductVariants = ({
         variants: prev.variants.map((variant) =>
           variant.variant_id === selectedVariant.variant_id
             ? { ...variant, image: image }
-            : variant
+            : variant,
         ),
       }));
     }
@@ -1021,21 +1021,21 @@ const ProductVariants = ({
     setProduct((prev) => ({
       ...prev,
       variants: prev.variants.map((variant) =>
-        variant.variant_id === id ? { ...variant, [field]: value } : variant
+        variant.variant_id === id ? { ...variant, [field]: value } : variant,
       ),
     }));
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-medium">Biến thể sản phẩm</h2>
         <button
           type="button"
           onClick={addVariant}
           className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="mr-1 h-4 w-4" />
           Thêm biến thể
         </button>
       </div>
@@ -1043,9 +1043,9 @@ const ProductVariants = ({
       {product.variants.map((variant, index) => (
         <div
           key={variant.variant_id}
-          className="p-4 border border-gray-200 rounded-md mb-4"
+          className="mb-4 rounded-md border border-gray-200 p-4"
         >
-          <div className="flex justify-between items-center mb-3">
+          <div className="mb-3 flex items-center justify-between">
             <h3 className="font-medium">Biến thể {index + 1}</h3>
             {product.variants.length > 1 && (
               <button
@@ -1053,14 +1053,14 @@ const ProductVariants = ({
                 onClick={() => removeVariant(variant.variant_id)}
                 className="text-red-600 hover:text-red-800"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="h-4 w-4" />
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Màu sắc <span className="text-red-500">*</span>
               </label>
               <select
@@ -1068,7 +1068,7 @@ const ProductVariants = ({
                 onChange={(e) =>
                   updateVariant(variant.variant_id, "color", e.target.value)
                 }
-                className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.color ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                className={`w-full border px-3 py-2 ${errors.variants?.[variant.variant_id]?.color ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
               >
                 <option value="">Chọn màu</option>
                 {availableColors.map((color) => (
@@ -1084,7 +1084,7 @@ const ProductVariants = ({
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Kích cỡ <span className="text-red-500">*</span>
               </label>
               <select
@@ -1092,7 +1092,7 @@ const ProductVariants = ({
                 onChange={(e) =>
                   updateVariant(variant.variant_id, "size", e.target.value)
                 }
-                className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.size ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                className={`w-full border px-3 py-2 ${errors.variants?.[variant.variant_id]?.size ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
               >
                 <option value="">Chọn kích cỡ</option>
                 {availableSizes.map((size) => (
@@ -1108,7 +1108,7 @@ const ProductVariants = ({
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Số lượng <span className="text-red-500">*</span>
               </label>
               <input
@@ -1118,10 +1118,10 @@ const ProductVariants = ({
                   updateVariant(
                     variant.variant_id,
                     "quantity",
-                    Number.parseInt(e.target.value)
+                    Number.parseInt(e.target.value),
                   )
                 }
-                className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.quantity ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                className={`w-full border px-3 py-2 ${errors.variants?.[variant.variant_id]?.quantity ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 placeholder="50"
                 min="0"
               />
@@ -1132,28 +1132,28 @@ const ProductVariants = ({
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Hình ảnh biến thể
               </label>
               {variant.image ? (
                 <div
-                  className="relative group h-20 w-20 cursor-pointer"
+                  className="group relative h-20 w-20 cursor-pointer"
                   onClick={() => openVariantImageSelector(variant)}
                 >
                   <img
                     src={variant.image.image_url || "/placeholder.svg"}
                     alt={`${getColorName(variant.color.color_name)} ${getSizeName(variant.size.size_code)}`}
-                    className="w-full h-full object-cover rounded-md border border-gray-300"
+                    className="h-full w-full rounded-md border border-gray-300 object-cover"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
-                    <p className="text-white text-xs">Thay đổi</p>
+                  <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+                    <p className="text-xs text-white">Thay đổi</p>
                   </div>
                 </div>
               ) : (
                 <button
                   type="button"
                   onClick={() => openVariantImageSelector(variant)}
-                  className="flex items-center justify-center w-20 h-20 border-2 border-dashed border-gray-300 rounded-md hover:border-gray-400 focus:outline-none"
+                  className="flex h-20 w-20 items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400 focus:outline-none"
                 >
                   <Image className="h-8 w-8 text-gray-400" />
                 </button>
@@ -1169,32 +1169,32 @@ const ProductVariants = ({
           onCancel={() => setIsVariantImageSelectorOpen(false)}
           selectedImages={
             product.variants.find(
-              (v) => v.variant_id === selectedVariant.variant_id
+              (v) => v.variant_id === selectedVariant.variant_id,
             )?.image
               ? [
                   product.variants.find(
-                    (v) => v.variant_id === selectedVariant.variant_id
+                    (v) => v.variant_id === selectedVariant.variant_id,
                   )!.image!,
                 ]
               : []
           }
           title={`Chọn hình ảnh cho biến thể ${
             product.variants.find(
-              (v) => v.variant_id === selectedVariant.variant_id
+              (v) => v.variant_id === selectedVariant.variant_id,
             )?.color &&
             getColorName(
               product.variants.find(
-                (v) => v.variant_id === selectedVariant.variant_id
-              )?.color.color_name || ""
+                (v) => v.variant_id === selectedVariant.variant_id,
+              )?.color.color_name || "",
             )
           } / ${
             product.variants.find(
-              (v) => v.variant_id === selectedVariant.variant_id
+              (v) => v.variant_id === selectedVariant.variant_id,
             )?.size.size_code &&
             getSizeName(
               product.variants.find(
-                (v) => v.variant_id === selectedVariant.variant_id
-              )?.size.size_code || ""
+                (v) => v.variant_id === selectedVariant.variant_id,
+              )?.size.size_code || "",
             )
           }`}
           multiple={false}

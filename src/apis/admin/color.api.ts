@@ -1,6 +1,6 @@
 import { SuccessResponse } from "@/types/utils.type";
 import adminHttp from "@/utils/adminHttp";
-import { Color } from "@/types/product";
+import { Color } from "@/types/color.type";
 import { API_ENDPOINTS } from "./endpoint";
 
 interface ColorResponse {

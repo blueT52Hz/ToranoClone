@@ -8,7 +8,7 @@ import {
   ArrowDown,
   Filter,
 } from "lucide-react";
-import { Collection } from "@/types/product";
+import { Collection } from "@/types/product.type";
 import { useNavigate } from "react-router-dom";
 import Pagination from "@/components/common/Pagination";
 import {
@@ -103,7 +103,7 @@ export default function Collections() {
   const totalPages = Math.ceil(filteredCollections.length / itemsPerPage);
   const paginatedCollections = filteredCollections.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const openDeleteModal = (collection: Collection) => {
@@ -116,8 +116,8 @@ export default function Collections() {
       setIsLoading(true);
       setCollections(
         collections.filter(
-          (c) => c.collection_id !== selectedCollection.collection_id
-        )
+          (c) => c.collection_id !== selectedCollection.collection_id,
+        ),
       );
       await deleteCollectionById(selectedCollection.collection_id);
       setSelectedCollection(null);
@@ -173,28 +173,28 @@ export default function Collections() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Bộ sưu tập</h1>
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/admin/collections/new")}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Thêm bộ sưu tập
           </button>
         </div>
       </div>
 
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-200 p-4">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row">
             <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <input
                 type="search"
                 placeholder="Tìm kiếm bộ sưu tập..."
-                className="w-full py-2 pl-10 pr-4 text-sm text-gray-700 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
+                className="w-full rounded-lg bg-gray-100 py-2 pl-10 pr-4 text-sm text-gray-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -202,18 +202,18 @@ export default function Collections() {
 
             {/* Status filter */}
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700 flex items-center">
+              <label className="flex items-center text-sm font-medium text-gray-700">
                 <Filter className="mr-1 h-4 w-4" /> Lọc theo trạng thái:
               </label>
               <div
-                className={`${getStatusSelectColor(statusFilter)} rounded-md px-2 py-1 cursor-pointer`}
+                className={`${getStatusSelectColor(statusFilter)} cursor-pointer rounded-md px-2 py-1`}
               >
                 <select
                   value={statusFilter}
                   onChange={(e) =>
                     setStatusFilter(e.target.value as StatusFilter)
                   }
-                  className={`text-sm rounded-md shadow-sm cursor-pointer focus:outline-none transition-all ${getStatusSelectColor(statusFilter)}`}
+                  className={`cursor-pointer rounded-md text-sm shadow-sm transition-all focus:outline-none ${getStatusSelectColor(statusFilter)}`}
                 >
                   <option value="all" className="bg-white text-[#000]">
                     Tất cả
@@ -234,11 +234,11 @@ export default function Collections() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("name")}
                 >
                   <div className="flex items-center">
@@ -252,7 +252,7 @@ export default function Collections() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("slug")}
                 >
                   <div className="flex items-center">
@@ -266,7 +266,7 @@ export default function Collections() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("published_at")}
                 >
                   <div className="flex items-center">
@@ -280,7 +280,7 @@ export default function Collections() {
                   </div>
                 </th>
                 <th
-                  className="px-4 py-3 font-medium cursor-pointer"
+                  className="cursor-pointer px-4 py-3 font-medium"
                   onClick={() => handleSort("created_at")}
                 >
                   <div className="flex items-center">
@@ -303,7 +303,7 @@ export default function Collections() {
                     <button
                       onClick={() =>
                         navigate(
-                          `/admin/collections/${collection.collection_id}`
+                          `/admin/collections/${collection.collection_id}`,
                         )
                       }
                       className="hover:text-blue-600"
@@ -314,7 +314,7 @@ export default function Collections() {
                   <td className="px-4 py-3 text-gray-500">{collection.slug}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                      className={`inline-flex rounded-full px-2 py-1 text-xs ${
                         collection.published_at
                           ? "bg-green-100 text-green-700"
                           : "bg-yellow-100 text-yellow-700"
@@ -325,27 +325,27 @@ export default function Collections() {
                   </td>
                   <td className="px-4 py-3 text-gray-500">
                     {new Date(collection.created_at).toLocaleDateString(
-                      "vi-VN"
+                      "vi-VN",
                     )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
                       <button
-                        className="p-1 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-50"
+                        className="rounded-full p-1 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
                         onClick={() =>
                           navigate(
-                            `/admin/collections/${collection.collection_id}/edit`
+                            `/admin/collections/${collection.collection_id}/edit`,
                           )
                         }
                       >
-                        <Edit className="w-4 h-4" />
+                        <Edit className="h-4 w-4" />
                         <span className="sr-only">Sửa</span>
                       </button>
                       <button
                         onClick={() => openDeleteModal(collection)}
-                        className="p-1 text-red-600 hover:text-red-800 rounded-full hover:bg-red-50"
+                        className="rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Xóa</span>
                       </button>
                     </div>
@@ -357,13 +357,13 @@ export default function Collections() {
         </div>
 
         {paginatedCollections.length === 0 && (
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <p className="text-gray-500">Không tìm thấy bộ sưu tập nào</p>
           </div>
         )}
 
         {paginatedCollections.length > 0 && totalPages > 1 && (
-          <div className="pt-4 pb-5">
+          <div className="pb-5 pt-4">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -376,8 +376,8 @@ export default function Collections() {
       {/* Add Collection Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-lg font-medium text-gray-900">
               Thêm bộ sưu tập mới
             </h3>
 
@@ -385,7 +385,7 @@ export default function Collections() {
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="mb-1 block text-sm font-medium text-gray-700"
                 >
                   Tên bộ sưu tập <span className="text-red-500">*</span>
                 </label>
@@ -395,7 +395,7 @@ export default function Collections() {
                   name="name"
                   value={newCollection.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   placeholder="Nhập tên bộ sưu tập"
                 />
               </div>
@@ -403,7 +403,7 @@ export default function Collections() {
               <div>
                 <label
                   htmlFor="slug"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="mb-1 block text-sm font-medium text-gray-700"
                 >
                   Đường dẫn
                 </label>
@@ -413,25 +413,25 @@ export default function Collections() {
                   name="slug"
                   value={newCollection.slug}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   placeholder="summer-collection"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="mt-1 text-xs text-gray-500">
                   Để trống để tự động tạo từ tên.
                 </p>
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Hủy
               </button>
               <button
                 onClick={handleAddCollection}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                 disabled={!newCollection.name}
               >
                 Thêm
@@ -444,24 +444,24 @@ export default function Collections() {
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-lg font-medium text-gray-900">
               Xác nhận xóa
             </h3>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="mb-6 text-sm text-gray-500">
               Bạn có chắc chắn muốn xóa bộ sưu tập "{selectedCollection?.name}"
               không? Hành động này không thể hoàn tác.
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Hủy
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 Xóa
               </button>

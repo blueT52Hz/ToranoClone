@@ -7,97 +7,79 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
+  ArrowUpDown,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getAllUsers } from "@/services/admin/user";
 import Loading from "@/components/common/Loading";
 import Pagination from "@/components/common/Pagination";
-
-type User = {
-  user_id: string;
-  full_name: string;
-  gender: "Nam" | "Nữ" | "Khác";
-  date_of_birth: Date;
-  email: string;
-  created_at: Date;
-  orders_count: number;
-};
+import { User } from "@/types/user.type";
+import { useQuery } from "@tanstack/react-query";
+import { userApi } from "@/apis/admin/user.api";
 
 export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
-
-  useEffect(() => {
-    const getUser = async () => {
-      setIsLoading(true);
-      const result = await getAllUsers();
-      console.log(result);
-      setUsers(result);
-      setIsLoading(false);
-    };
-    getUser();
-  }, []);
-
   const [searchTerm, setSearchTerm] = useState("");
-  const [genderFilter, setGenderFilter] = useState<string>("");
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const [genderFilter, setGenderFilter] = useState<
+    "Nam" | "Nữ" | "Khác" | "all"
+  >("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "active" | "inactive" | "banned" | "all"
+  >("all");
   // Thêm state cho sắp xếp
-  const [sortField, setSortField] = useState<keyof User | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
+  const [sortBy, setSortBy] = useState<
+    | "full_name"
+    | "email"
+    | "gender"
+    | "date_of_birth"
+    | "status"
+    | "created_at"
+    | "last_login_at"
+    | "updated_at"
+  >("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const {
+    data: usersData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: () =>
+      userApi.getUsers(
+        currentPage,
+        10,
+        searchTerm,
+        genderFilter,
+        statusFilter,
+        sortBy,
+        sortOrder,
+      ),
+  });
+
+  useEffect(() => {
+    if (usersData) {
+      setUsers(usersData.data.data.users || []);
+      setTotalPages(usersData.data.data.pagination.totalPages);
+    }
+  }, [usersData]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    refetch();
+  }, [searchTerm, genderFilter, statusFilter, sortBy, sortOrder, refetch]);
+
+  useEffect(() => {
+    refetch();
+  }, [currentPage, refetch]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
-  // Thêm hàm xử lý sắp xếp
-  const handleSort = (field: keyof User) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
-
-  // Thay đổi filteredUsers để bao gồm sắp xếp
-  const filteredUsers = users
-    .filter(
-      (user) =>
-        (user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (genderFilter === "" || user.gender === genderFilter),
-    )
-    .sort((a, b) => {
-      if (!sortField) return 0;
-
-      const aValue = a[sortField];
-      const bValue = b[sortField];
-
-      if (aValue === null && bValue === null) return 0;
-      if (aValue === null) return sortDirection === "asc" ? -1 : 1;
-      if (bValue === null) return sortDirection === "asc" ? 1 : -1;
-
-      if (aValue instanceof Date && bValue instanceof Date) {
-        return sortDirection === "asc"
-          ? aValue.getTime() - bValue.getTime()
-          : bValue.getTime() - aValue.getTime();
-      }
-
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortDirection === "asc"
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      }
-
-      return sortDirection === "asc"
-        ? (aValue as number) - (bValue as number)
-        : (bValue as number) - (aValue as number);
-    });
 
   const openDeleteModal = (user: User) => {
     setSelectedUser(user);
@@ -150,14 +132,37 @@ export default function Users() {
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-gray-400" />
               <select
+                title="Giới tính"
                 className="rounded-md border-gray-300 text-sm focus:border-blue-600 focus:ring-blue-600"
                 value={genderFilter}
-                onChange={(e) => setGenderFilter(e.target.value)}
+                onChange={(e) =>
+                  setGenderFilter(
+                    e.target.value as "Nam" | "Nữ" | "Khác" | "all",
+                  )
+                }
               >
-                <option value="">Tất cả giới tính</option>
+                <option value="all">Tất cả giới tính</option>
                 <option value="Nam">Nam</option>
                 <option value="Nữ">Nữ</option>
                 <option value="Khác">Khác</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+              <select
+                title="Trạng thái"
+                className="rounded-md border-gray-300 text-sm focus:border-blue-600 focus:ring-blue-600"
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(
+                    e.target.value as "active" | "inactive" | "banned" | "all",
+                  )
+                }
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="active">Đang hoạt động</option>
+                <option value="inactive">Không hoạt động</option>
+                <option value="banned">Đã bị cấm</option>
               </select>
             </div>
           </div>
@@ -169,93 +174,129 @@ export default function Users() {
               <tr>
                 <th
                   className="cursor-pointer px-4 py-3 font-medium"
-                  onClick={() => handleSort("full_name")}
+                  onClick={() => {
+                    setSortBy("full_name");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
                 >
                   <div className="flex items-center">
                     Tên
-                    {sortField === "full_name" &&
-                      (sortDirection === "asc" ? (
+                    {sortBy === "full_name" ? (
+                      sortOrder === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      ))}
+                      )
+                    ) : (
+                      <ArrowUpDown className="ml-1 h-3 w-3 text-gray-400" />
+                    )}
                   </div>
                 </th>
                 <th
                   className="cursor-pointer px-4 py-3 font-medium"
-                  onClick={() => handleSort("email")}
+                  onClick={() => {
+                    setSortBy("email");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
                 >
                   <div className="flex items-center">
                     Email
-                    {sortField === "email" &&
-                      (sortDirection === "asc" ? (
+                    {sortBy === "email" ? (
+                      sortOrder === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      ))}
+                      )
+                    ) : (
+                      <ArrowUpDown className="ml-1 h-3 w-3 text-gray-400" />
+                    )}
                   </div>
                 </th>
                 <th
                   className="cursor-pointer px-4 py-3 font-medium"
-                  onClick={() => handleSort("gender")}
+                  onClick={() => {
+                    setSortBy("gender");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
                 >
                   <div className="flex items-center">
                     Giới tính
-                    {sortField === "gender" &&
-                      (sortDirection === "asc" ? (
+                    {sortBy === "gender" ? (
+                      sortOrder === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      ))}
+                      )
+                    ) : (
+                      <ArrowUpDown className="ml-1 h-3 w-3 text-gray-400" />
+                    )}
                   </div>
                 </th>
                 <th
                   className="cursor-pointer px-4 py-3 font-medium"
-                  onClick={() => handleSort("date_of_birth")}
-                >
-                  <div className="flex items-center">
-                    Ngày sinh
-                    {sortField === "date_of_birth" &&
-                      (sortDirection === "asc" ? (
-                        <ArrowUp className="ml-1 h-3 w-3" />
-                      ) : (
-                        <ArrowDown className="ml-1 h-3 w-3" />
-                      ))}
-                  </div>
-                </th>
-                <th
-                  className="cursor-pointer px-4 py-3 font-medium"
-                  onClick={() => handleSort("created_at")}
+                  onClick={() => {
+                    setSortBy("created_at");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
                 >
                   <div className="flex items-center">
                     Ngày đăng ký
-                    {sortField === "created_at" &&
-                      (sortDirection === "asc" ? (
+                    {sortBy === "created_at" ? (
+                      sortOrder === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      ))}
+                      )
+                    ) : (
+                      <ArrowUpDown className="ml-1 h-3 w-3 text-gray-400" />
+                    )}
                   </div>
                 </th>
                 <th
                   className="cursor-pointer px-4 py-3 font-medium"
-                  onClick={() => handleSort("orders_count")}
+                  onClick={() => {
+                    setSortBy("updated_at");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
                 >
                   <div className="flex items-center">
-                    Số đơn hàng
-                    {sortField === "orders_count" &&
-                      (sortDirection === "asc" ? (
+                    Ngày cập nhật
+                    {sortBy === "updated_at" ? (
+                      sortOrder === "asc" ? (
                         <ArrowUp className="ml-1 h-3 w-3" />
                       ) : (
                         <ArrowDown className="ml-1 h-3 w-3" />
-                      ))}
+                      )
+                    ) : (
+                      <ArrowUpDown className="ml-1 h-3 w-3 text-gray-400" />
+                    )}
+                  </div>
+                </th>
+                <th
+                  className="cursor-pointer px-4 py-3 font-medium"
+                  onClick={() => {
+                    setSortBy("last_login_at");
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                  }}
+                >
+                  <div className="flex items-center">
+                    Đăng nhập lần cuối
+                    {sortBy === "last_login_at" ? (
+                      sortOrder === "asc" ? (
+                        <ArrowUp className="ml-1 h-3 w-3" />
+                      ) : (
+                        <ArrowDown className="ml-1 h-3 w-3" />
+                      )
+                    ) : (
+                      <ArrowUpDown className="ml-1 h-3 w-3 text-gray-400" />
+                    )}
                   </div>
                 </th>
                 <th className="px-4 py-3 font-medium">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
+              {users.map((user) => (
                 <tr key={user.user_id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900">
                     {user.full_name}
@@ -263,12 +304,14 @@ export default function Users() {
                   <td className="px-4 py-3 text-gray-500">{user.email}</td>
                   <td className="px-4 py-3">{user.gender}</td>
                   <td className="px-4 py-3 text-gray-500">
-                    {formatDate(new Date(user.date_of_birth))}
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">
                     {formatDate(new Date(user.created_at))}
                   </td>
-                  <td className="px-4 py-3 text-center">{user.orders_count}</td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {formatDate(new Date(user.updated_at))}
+                  </td>
+                  <td className="px-4 py-3 text-gray-500">
+                    {formatDate(new Date(user.last_login_at))}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
                       <Link
@@ -278,13 +321,7 @@ export default function Users() {
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Xem chi tiết</span>
                       </Link>
-                      <Link
-                        to={`/users/edit/${user.user_id}`}
-                        className="rounded-full p-1 text-blue-600 hover:bg-blue-50 hover:text-blue-800"
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Sửa</span>
-                      </Link>
+
                       <button
                         onClick={() => openDeleteModal(user)}
                         className="rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800"
@@ -300,7 +337,7 @@ export default function Users() {
           </table>
         </div>
 
-        {filteredUsers.length === 0 && (
+        {users.length === 0 && (
           <div className="py-8 text-center">
             <p className="text-gray-500">Không tìm thấy người dùng nào</p>
           </div>
@@ -309,9 +346,9 @@ export default function Users() {
         <div className="flex justify-center py-4">
           {users.length > 0 && (
             <Pagination
-              current={currentPage}
-              total={totalPages}
-              onChange={handlePageChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           )}
         </div>

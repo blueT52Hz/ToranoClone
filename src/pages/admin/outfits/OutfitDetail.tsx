@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, Plus, Trash2, Check, X } from "lucide-react";
-import { Outfit, Product, Image } from "@/types/product";
+import { Outfit, Product, Image } from "@/types/product.type";
 import ImageSelector from "@/components/admin/ImageSelector";
 import {
   addOutfit,
@@ -129,7 +129,7 @@ export default function OutfitDetail() {
                 : new Date()
               : null,
           },
-          selectedProducts.map((product) => product.product_id)
+          selectedProducts.map((product) => product.product_id),
         );
       };
       submit();
@@ -141,7 +141,7 @@ export default function OutfitDetail() {
             image_id: outfitForm.image?.image_id,
             published_at: isPublish ? new Date() : null,
           },
-          selectedProducts.map((product) => product.product_id)
+          selectedProducts.map((product) => product.product_id),
         );
       };
       submit();
@@ -159,7 +159,7 @@ export default function OutfitDetail() {
 
   const removeProduct = (productId: string) => {
     setSelectedProducts(
-      selectedProducts.filter((p) => p.product_id !== productId)
+      selectedProducts.filter((p) => p.product_id !== productId),
     );
     console.log(selectedProducts);
   };
@@ -177,14 +177,14 @@ export default function OutfitDetail() {
           onClick={() => navigate("/admin/outfits")}
           className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
         >
-          <ArrowLeft className="w-4 h-4 mr-1" />
+          <ArrowLeft className="mr-1 h-4 w-4" />
           Quay lại
         </button>
 
         <div className="flex items-center space-x-3">
           <button
             onClick={handlePublishToggle}
-            className={`px-4 py-2 text-sm font-medium rounded-md ${
+            className={`rounded-md px-4 py-2 text-sm font-medium ${
               outfit.published_at
                 ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                 : "bg-green-100 text-green-700 hover:bg-green-200"
@@ -192,12 +192,12 @@ export default function OutfitDetail() {
           >
             {isPublish ? (
               <>
-                <X className="w-4 h-4 inline mr-1" />
+                <X className="mr-1 inline h-4 w-4" />
                 Hủy đăng
               </>
             ) : (
               <>
-                <Check className="w-4 h-4 inline mr-1" />
+                <Check className="mr-1 inline h-4 w-4" />
                 Đăng bán
               </>
             )}
@@ -206,12 +206,12 @@ export default function OutfitDetail() {
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+            className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-300"
           >
             {isLoading ? (
               <span className="flex items-center">
                 <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  className="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -234,7 +234,7 @@ export default function OutfitDetail() {
               </span>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
                 Lưu
               </>
             )}
@@ -243,15 +243,15 @@ export default function OutfitDetail() {
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h1 className="text-xl font-bold text-gray-800 mb-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h1 className="mb-6 text-xl font-bold text-gray-800">
           {isEditMode ? "Chỉnh sửa outfit" : "Tạo outfit mới"}
         </h1>
 
         <div className="space-y-6">
           {/* Tên outfit */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Tên outfit <span className="text-red-500">*</span>
             </label>
             <input
@@ -260,7 +260,7 @@ export default function OutfitDetail() {
               onChange={(e) =>
                 setOutfitForm({ ...outfitForm, name: e.target.value })
               }
-              className={`w-full px-3 py-2 border ${
+              className={`w-full border px-3 py-2 ${
                 errors.outfit_name ? "border-red-500" : "border-gray-300"
               } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
               placeholder="Nhập tên outfit"
@@ -272,24 +272,24 @@ export default function OutfitDetail() {
 
           {/* Hình ảnh */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Hình ảnh <span className="text-red-500">*</span>
             </label>
             <div className="flex items-start">
               <div
                 className={`border ${
                   errors.image ? "border-red-500" : "border-gray-300"
-                } rounded-md overflow-hidden w-[150px] h-[200px] relative`}
+                } relative h-[200px] w-[150px] overflow-hidden rounded-md`}
               >
                 {outfitForm.image?.image_url ? (
                   <img
                     src={outfitForm.image.image_url}
                     alt={outfitForm.name}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center w-full h-full bg-gray-100">
-                    <span className="text-gray-400 text-sm">
+                  <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                    <span className="text-sm text-gray-400">
                       Chưa có hình ảnh
                     </span>
                   </div>
@@ -297,7 +297,7 @@ export default function OutfitDetail() {
               </div>
               <button
                 onClick={() => setShowImageSelector(true)}
-                className="ml-4 px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+                className="ml-4 rounded bg-gray-100 px-3 py-1 text-sm text-gray-600 hover:bg-gray-200"
               >
                 Chọn ảnh
               </button>
@@ -308,23 +308,23 @@ export default function OutfitDetail() {
           </div>
 
           {/* Danh sách sản phẩm */}
-          <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-            <div className="flex justify-between items-center mb-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-medium">
                 Sản phẩm ({selectedProducts.length})
               </h2>
               <button
                 type="button"
                 onClick={() => setIsProductSelectorOpen(true)}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
               >
-                <Plus className="w-4 h-4 mr-1" />
+                <Plus className="mr-1 h-4 w-4" />
                 Thêm sản phẩm
               </button>
             </div>
 
             {selectedProducts.length === 0 ? (
-              <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <div className="rounded-lg border-2 border-dashed border-gray-200 py-8 text-center">
                 <p className="text-gray-500">
                   Chưa có sản phẩm nào trong Outfit này
                 </p>
@@ -333,20 +333,20 @@ export default function OutfitDetail() {
                   onClick={() => setIsProductSelectorOpen(true)}
                   className="mt-2 inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800"
                 >
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Thêm sản phẩm
                 </button>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-gray-50 text-gray-600">
                     <tr>
                       <th className="px-4 py-3 font-medium">Mã</th>
                       <th className="px-4 py-3 font-medium">Sản phẩm</th>
                       <th className="px-4 py-3 font-medium">Giá</th>
                       <th className="px-4 py-3 font-medium">Trạng thái</th>
-                      <th className="px-4 py-3 font-medium w-20">Thao tác</th>
+                      <th className="w-20 px-4 py-3 font-medium">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -357,12 +357,12 @@ export default function OutfitDetail() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center">
-                            <div className="h-10 w-10 flex-shrink-0 mr-3">
+                            <div className="mr-3 h-10 w-10 flex-shrink-0">
                               {product.variant_images.length > 0 && (
                                 <img
                                   src={product.variant_images[0].image_url}
                                   alt={product.name}
-                                  className="h-10 w-10 object-cover rounded-md"
+                                  className="h-10 w-10 rounded-md object-cover"
                                 />
                               )}
                             </div>
@@ -382,7 +382,7 @@ export default function OutfitDetail() {
                               <span className="text-gray-900">
                                 {product.sale_price}₫
                               </span>
-                              <span className="ml-2 line-through text-gray-500">
+                              <span className="ml-2 text-gray-500 line-through">
                                 {product.base_price}₫
                               </span>
                             </div>
@@ -394,7 +394,7 @@ export default function OutfitDetail() {
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                            className={`inline-flex rounded-full px-2 py-1 text-xs ${
                               product.published_at
                                 ? "bg-green-100 text-green-700"
                                 : "bg-yellow-100 text-yellow-700"
@@ -407,9 +407,9 @@ export default function OutfitDetail() {
                           <button
                             type="button"
                             onClick={() => removeProduct(product.product_id)}
-                            className="p-1 text-red-600 hover:text-red-800 rounded-full hover:bg-red-50"
+                            className="rounded-full p-1 text-red-600 hover:bg-red-50 hover:text-red-800"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="h-4 w-4" />
                             <span className="sr-only">Xóa</span>
                           </button>
                         </td>

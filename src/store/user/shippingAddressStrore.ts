@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ShippingAddress } from "@/types/user";
+import { ShippingAddress } from "@/types/user.type";
 
 interface ShippingAddressState {
   shippingAddress: ShippingAddress[];

@@ -1,5 +1,5 @@
 import { Form, Input, Button, notification, Select } from "antd";
-import type { ShippingAddress } from "@/types/user";
+import type { ShippingAddress } from "@/types/user.type";
 import { v4 as uuidv4 } from "uuid";
 import { useState, useEffect } from "react";
 

@@ -1,5 +1,5 @@
 import { Order } from "@/types/cart.type";
-import { ShippingAddress } from "@/types/user";
+import { ShippingAddress } from "@/types/user.type";
 import {
   ArrowDown,
   ArrowUp,

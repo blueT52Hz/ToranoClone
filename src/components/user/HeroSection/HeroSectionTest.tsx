@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/utils/cn";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { HeroSection as HeroSectionType } from "@/types/product";
+import { HeroSection as HeroSectionType } from "@/types/product.type";
 import { v4 as uuidv4 } from "uuid";
 import Loading from "@/components/common/Loading";
 
@@ -118,7 +118,7 @@ const HeroSection = () => {
   return (
     <section className="section-home-slider mb-20">
       <motion.div
-        className="relative group overflow-hidden"
+        className="group relative overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         initial={{ opacity: 0, scale: 0.7 }}
@@ -144,11 +144,11 @@ const HeroSection = () => {
           >
             <div className="flex flex-nowrap">
               {heroSections.map((item, i) => (
-                <div className="basis-full flex-shrink-0" key={i}>
+                <div className="flex-shrink-0 basis-full" key={i}>
                   <img
                     src={item.image.image_url}
                     key={i}
-                    className="w-full h-full object-cover cursor-pointer select-none"
+                    className="h-full w-full cursor-pointer select-none object-cover"
                     onClick={() => {
                       if (!isDragging) navigate(item.hero_slug);
                     }}
@@ -164,7 +164,7 @@ const HeroSection = () => {
           {isHovered && (
             <>
               <motion.button
-                className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="absolute left-6 top-1/2 -translate-y-1/2 transform rounded-full bg-[#fff] p-2 text-shop-color-main hover:bg-shop-color-main hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -40, opacity: 0 }}
@@ -176,7 +176,7 @@ const HeroSection = () => {
               </motion.button>
 
               <motion.button
-                className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="absolute right-6 top-1/2 -translate-y-1/2 transform rounded-full bg-[#fff] p-2 text-shop-color-main hover:bg-shop-color-main hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 initial={{ x: 40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 40, opacity: 0 }}
@@ -191,7 +191,7 @@ const HeroSection = () => {
         </AnimatePresence>
 
         <Flex
-          className="absolute w-full bottom-2"
+          className="absolute bottom-2 w-full"
           justify="center"
           gap={"0.5rem"}
         >
@@ -199,8 +199,8 @@ const HeroSection = () => {
             return (
               <div
                 className={cn(
-                  "w-4 h-4 rounded-full bg-slate-300 opacity-40 cursor-pointer",
-                  currentSlide === index ? "opacity-100 bg-[#ff0000]" : ""
+                  "h-4 w-4 cursor-pointer rounded-full bg-slate-300 opacity-40",
+                  currentSlide === index ? "bg-[#ff0000] opacity-100" : "",
                 )}
                 key={index}
                 onClick={() => handleOnClickCircle(index)}

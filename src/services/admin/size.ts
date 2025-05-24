@@ -1,6 +1,6 @@
 import { notification } from "antd";
 import { supabase } from "@/services/supabaseClient";
-import { Size } from "@/types/product";
+import { Size } from "@/types/product.type";
 
 // Lấy tất cả size
 export const getAllSizes = async (): Promise<Size[]> => {
@@ -37,7 +37,7 @@ export const addSize = async (size_code: string): Promise<Size | null> => {
 // Cập nhật size
 export const updateSize = async (
   size_id: string,
-  size_code: string
+  size_code: string,
 ): Promise<Size | null> => {
   const { data, error } = await supabase
     .from("size")

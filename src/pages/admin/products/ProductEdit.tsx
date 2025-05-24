@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Save, Trash2, Upload, Plus, Image } from "lucide-react";
-import { Color, FormErrors, Image as ImageType, Size } from "@/types/product";
+import {
+  Color,
+  FormErrors,
+  Image as ImageType,
+  Size,
+} from "@/types/product.type";
 
 interface Product {
   product_id: string;
@@ -66,7 +71,7 @@ export default function ProductDetail() {
   const [sizes, setSizes] = useState<Size[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [collectionSelectedIds, setCollectionSelectedIds] = useState<string[]>(
-    []
+    [],
   );
   const [productImages, setProductImages] = useState<ImageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -187,7 +192,7 @@ export default function ProductDetail() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
 
@@ -201,7 +206,7 @@ export default function ProductDetail() {
             ? Math.round(((numValue - prev.sale_price) / numValue) * 100 * -1)
             : name === "sale_price" && numValue && prev.base_price
               ? Math.round(
-                  ((prev.base_price - numValue) / prev.base_price) * 100
+                  ((prev.base_price - numValue) / prev.base_price) * 100,
                 )
               : prev.discount,
       }));
@@ -224,7 +229,7 @@ export default function ProductDetail() {
   const updateVariant = (id: string, field: string, value: string | number) => {
     setVariants((prev) => [
       ...prev.map((variant) =>
-        variant.variant_id === id ? { ...variant, [field]: value } : variant
+        variant.variant_id === id ? { ...variant, [field]: value } : variant,
       ),
     ]);
   };
@@ -255,13 +260,13 @@ export default function ProductDetail() {
       // Kiểm tra xem có biến thể nào khác sử dụng ảnh này không
       const isImageUsed = variants.some(
         (item) =>
-          item.variant_id !== id && item.image_id === deletedVariant.image_id
+          item.variant_id !== id && item.image_id === deletedVariant.image_id,
       );
 
       // Nếu không có biến thể nào khác sử dụng ảnh, xóa ảnh khỏi danh sách productImages
       if (!isImageUsed) {
         setProductImages((prev) =>
-          prev.filter((item) => item.image_id !== deletedVariant.image_id)
+          prev.filter((item) => item.image_id !== deletedVariant.image_id),
         );
       }
     }
@@ -286,7 +291,7 @@ export default function ProductDetail() {
   const handleProductImageSelect = (image: ImageType) => {
     if (productImages.map((item) => item.image_id).includes(image.image_id)) {
       setProductImages((prev) =>
-        prev.filter((item) => item.image_id !== image.image_id)
+        prev.filter((item) => item.image_id !== image.image_id),
       );
     } else setProductImages((prev) => [...prev, image]);
     // Close the selector after selection
@@ -305,12 +310,12 @@ export default function ProductDetail() {
 
   const removeImage = (imageId: string) => {
     setProductImages((prev) =>
-      prev.filter((item) => item.image_id !== imageId)
+      prev.filter((item) => item.image_id !== imageId),
     );
     setVariants((prev) =>
       prev.map((variant) =>
-        variant.image_id === imageId ? { ...variant, image_id: "" } : variant
-      )
+        variant.image_id === imageId ? { ...variant, image_id: "" } : variant,
+      ),
     );
   };
 
@@ -330,7 +335,7 @@ export default function ProductDetail() {
         ...prev.filter(
           (item) =>
             selectedVariant?.image_id !== item.image_id &&
-            item.image_id !== image.image_id
+            item.image_id !== image.image_id,
         ),
         image,
       ]);
@@ -339,8 +344,8 @@ export default function ProductDetail() {
         prev.map((item) =>
           item.variant_id === selectedVariant?.variant_id
             ? { ...item, image_id: image.image_id }
-            : item
-        )
+            : item,
+        ),
       );
     }
 
@@ -416,7 +421,7 @@ export default function ProductDetail() {
         variants?: {
           [key: string]: { color?: string; size?: string; quantity?: string };
         };
-      }
+      },
     );
     return Object.keys(newErrors).length === 0;
   };
@@ -473,7 +478,7 @@ export default function ProductDetail() {
       if (existingImages.error) {
         console.error(
           "Lỗi khi lấy danh sách ảnh hiện có:",
-          existingImages.error
+          existingImages.error,
         );
         setIsSaving(false);
         return;
@@ -484,7 +489,7 @@ export default function ProductDetail() {
 
       // Xóa các ảnh không còn được sử dụng
       const imagesToDelete = currentImageIds.filter(
-        (id) => !newImageIds.includes(id)
+        (id) => !newImageIds.includes(id),
       );
       if (imagesToDelete.length > 0) {
         const { error: deleteError } = await supabase
@@ -510,7 +515,7 @@ export default function ProductDetail() {
               .from("product_image")
               .insert({ ...item, product_id: product.product_id });
           }
-        })
+        }),
       );
 
       console.log("Cập nhật ảnh thành công:", updateImages);
@@ -524,22 +529,22 @@ export default function ProductDetail() {
       if (existingVariants.error) {
         console.error(
           "Lỗi khi lấy danh sách biến thể hiện có:",
-          existingVariants.error
+          existingVariants.error,
         );
         setIsSaving(false);
         return;
       }
 
       const currentVariantIds = existingVariants.data.map(
-        (variant) => variant.variant_id
+        (variant) => variant.variant_id,
       );
       const newVariantIds = product_variant.map(
-        (variant) => variant.variant_id
+        (variant) => variant.variant_id,
       );
 
       // Xóa các biến thể không còn được sử dụng
       const variantsToDelete = currentVariantIds.filter(
-        (id) => !newVariantIds.includes(id)
+        (id) => !newVariantIds.includes(id),
       );
       if (variantsToDelete.length > 0) {
         const { error: deleteError } = await supabase
@@ -567,7 +572,7 @@ export default function ProductDetail() {
               .insert(item);
             return data;
           }
-        })
+        }),
       );
 
       console.log("Cập nhật biến thể thành công:", updateVariants);
@@ -581,20 +586,20 @@ export default function ProductDetail() {
       if (existingCollections.error) {
         console.error(
           "Lỗi khi lấy danh sách bộ sưu tập hiện có:",
-          existingCollections.error
+          existingCollections.error,
         );
         setIsSaving(false);
         return;
       }
 
       const currentCollectionIds = existingCollections.data.map(
-        (col) => col.collection_id
+        (col) => col.collection_id,
       );
       const newCollectionIds = collectionSelectedIds;
 
       // Xóa các bộ sưu tập không còn được sử dụng
       const collectionsToDelete = currentCollectionIds.filter(
-        (id) => !newCollectionIds.includes(id)
+        (id) => !newCollectionIds.includes(id),
       );
       if (collectionsToDelete.length > 0) {
         const { error: deleteError } = await supabase
@@ -609,7 +614,7 @@ export default function ProductDetail() {
 
       // Thêm các bộ sưu tập mới
       const collectionsToAdd = newCollectionIds.filter(
-        (id) => !currentCollectionIds.includes(id)
+        (id) => !currentCollectionIds.includes(id),
       );
       if (collectionsToAdd.length > 0) {
         const product_collection = collectionsToAdd.map((item) => ({
@@ -658,8 +663,8 @@ export default function ProductDetail() {
             await supabase
               .from("product_image")
               .update(item)
-              .eq("image_id", item.image_id)
-        )
+              .eq("image_id", item.image_id),
+        ),
       );
 
       const addVariant = await supabase
@@ -706,7 +711,7 @@ export default function ProductDetail() {
 
     if (deleteCollectionsError) {
       throw new Error(
-        `Lỗi khi xóa liên kết bộ sưu tập: ${deleteCollectionsError.message}`
+        `Lỗi khi xóa liên kết bộ sưu tập: ${deleteCollectionsError.message}`,
       );
     }
 
@@ -747,22 +752,22 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex h-full items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               to="/admin/products"
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+              className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Quay lại</span>
             </Link>
             <h1 className="text-2xl font-bold text-gray-800">
@@ -774,32 +779,32 @@ export default function ProductDetail() {
             {isEditMode && (
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100"
+                className="rounded-md bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
               >
-                <Trash2 className="w-4 h-4 mr-2 inline-block" />
+                <Trash2 className="mr-2 inline-block h-4 w-4" />
                 Xóa
               </button>
             )}
             <button
               // onClick={() => handleSubmit(false)}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Lưu nháp
             </button>
             <button
               onClick={() => handleSubmit(true)}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
               {isSaving ? (
                 <>
-                  <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin mr-2"></span>
+                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                   Đang lưu...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2 inline-block" />
+                  <Save className="mr-2 inline-block h-4 w-4" />
                   {isEditMode ? "Cập nhật" : "Xuất bản"}
                 </>
               )}
@@ -807,16 +812,16 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
             {/* Basic Information */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-medium mb-4">Thông tin cơ bản</h2>
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-medium">Thông tin cơ bản</h2>
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
                     Tên sản phẩm <span className="text-red-500">*</span>
                   </label>
@@ -826,7 +831,7 @@ export default function ProductDetail() {
                     name="name"
                     value={product.name}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${errors.name ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                    className={`w-full border px-3 py-2 ${errors.name ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                     placeholder="Nhập tên sản phẩm"
                   />
                   {errors.name && (
@@ -837,7 +842,7 @@ export default function ProductDetail() {
                 <div>
                   <label
                     htmlFor="slug"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
                     Tên sản phẩm <span className="text-red-500">*</span>
                   </label>
@@ -847,7 +852,7 @@ export default function ProductDetail() {
                     name="slug"
                     value={product.slug}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${errors.slug ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                    className={`w-full border px-3 py-2 ${errors.slug ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                     placeholder="Nhập slug sản phẩm"
                   />
                   {errors.slug && (
@@ -855,11 +860,11 @@ export default function ProductDetail() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label
                       htmlFor="product_code"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="mb-1 block text-sm font-medium text-gray-700"
                     >
                       Mã sản phẩm <span className="text-red-500">*</span>
                     </label>
@@ -869,7 +874,7 @@ export default function ProductDetail() {
                       name="product_code"
                       value={product.product_code}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border ${errors.product_code ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                      className={`w-full border px-3 py-2 ${errors.product_code ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                       placeholder="TS001"
                     />
                     {errors.product_code && (
@@ -881,7 +886,7 @@ export default function ProductDetail() {
                   <div>
                     <label
                       htmlFor="brand_name"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="mb-1 block text-sm font-medium text-gray-700"
                     >
                       Thương hiệu
                     </label>
@@ -891,7 +896,7 @@ export default function ProductDetail() {
                       name="brand_name"
                       value={product.brand_name}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       placeholder="Torano"
                     />
                   </div>
@@ -900,7 +905,7 @@ export default function ProductDetail() {
                 <div>
                   <label
                     htmlFor="description"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
                     Mô tả sản phẩm
                   </label>
@@ -910,7 +915,7 @@ export default function ProductDetail() {
                     value={product.description}
                     onChange={handleInputChange}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
                     placeholder="Nhập mô tả chi tiết về sản phẩm"
                   ></textarea>
                 </div>
@@ -918,22 +923,23 @@ export default function ProductDetail() {
             </div>
 
             {/* Images */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-medium">Hình ảnh sản phẩm</h2>
                 <div className="flex space-x-2">
                   <button
                     type="button"
                     onClick={openImageSelector}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
+                    className="inline-flex items-center rounded-md bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
+                    <Plus className="mr-1 h-4 w-4" />
                     Chọn ảnh
                   </button>
 
                   <div className="relative">
                     <input
                       type="file"
+                      title="Chọn ảnh"
                       id="product-images"
                       accept="image/*"
                       multiple
@@ -952,23 +958,24 @@ export default function ProductDetail() {
               </div>
 
               {productImages.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                   {productImages.map((image) => (
-                    <div key={image.image_id} className="relative group">
+                    <div key={image.image_id} className="group relative">
                       <img
                         src={image.image_url || "/placeholder.svg"}
                         alt={image.image_name}
-                        className="w-full h-24 object-cover rounded-md border border-gray-200"
+                        className="h-24 w-full rounded-md border border-gray-200 object-cover"
                       />
                       <button
                         type="button"
+                        title="Xóa ảnh"
                         onClick={() => removeImage(image.image_id)}
-                        className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute right-1 top-1 rounded-full bg-white p-1 opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </button>
                       <div
-                        className="mt-1 text-xs text-gray-500 truncate"
+                        className="mt-1 truncate text-xs text-gray-500"
                         title={image.image_name}
                       >
                         {image.image_name}
@@ -977,7 +984,7 @@ export default function ProductDetail() {
                   ))}
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
                   <p className="text-sm text-gray-500">
                     Chưa có hình ảnh nào được thêm vào. Vui lòng chọn ảnh từ thư
                     viện hoặc tải lên ảnh mới.
@@ -987,13 +994,13 @@ export default function ProductDetail() {
             </div>
 
             {/* Pricing */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-medium mb-4">Giá sản phẩm</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-medium">Giá sản phẩm</h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                   <label
                     htmlFor="base_price"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
                     Giá gốc (VND) <span className="text-red-500">*</span>
                   </label>
@@ -1003,7 +1010,7 @@ export default function ProductDetail() {
                     name="base_price"
                     value={product.base_price || ""}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${errors.base_price ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                    className={`w-full border px-3 py-2 ${errors.base_price ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                     placeholder="299000"
                   />
                   {errors.base_price && (
@@ -1015,7 +1022,7 @@ export default function ProductDetail() {
                 <div>
                   <label
                     htmlFor="sale_price"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
                     Giá bán (VND)
                   </label>
@@ -1025,7 +1032,7 @@ export default function ProductDetail() {
                     name="sale_price"
                     value={product.sale_price || ""}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border ${errors.sale_price ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                    className={`w-full border px-3 py-2 ${errors.sale_price ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                     placeholder="249000"
                   />
                   {errors.sale_price && (
@@ -1037,7 +1044,7 @@ export default function ProductDetail() {
                 <div>
                   <label
                     htmlFor="discount"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 block text-sm font-medium text-gray-700"
                   >
                     Giảm giá (%)
                   </label>
@@ -1047,22 +1054,22 @@ export default function ProductDetail() {
                     name="discount"
                     value={product.discount}
                     readOnly
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                    className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
                   />
                 </div>
               </div>
             </div>
 
             {/* Variants */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-medium">Biến thể sản phẩm</h2>
                 <button
                   type="button"
                   onClick={addVariant}
                   className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
                 >
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Thêm biến thể
                 </button>
               </div>
@@ -1070,36 +1077,38 @@ export default function ProductDetail() {
               {variants.map((variant, index) => (
                 <div
                   key={variant.variant_id}
-                  className="p-4 border border-gray-200 rounded-md mb-4"
+                  className="mb-4 rounded-md border border-gray-200 p-4"
                 >
-                  <div className="flex justify-between items-center mb-3">
+                  <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-medium">Biến thể {index + 1}</h3>
                     {variants.length > 1 && (
                       <button
                         type="button"
+                        title="Xóa biến thể"
                         onClick={() => removeVariant(variant.variant_id)}
                         className="text-red-600 hover:text-red-800"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
                         Màu sắc <span className="text-red-500">*</span>
                       </label>
                       <select
                         value={variant.color_id}
+                        title="Chọn màu"
                         onChange={(e) =>
                           updateVariant(
                             variant.variant_id,
                             "color_id",
-                            e.target.value
+                            e.target.value,
                           )
                         }
-                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.color ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                        className={`w-full border px-3 py-2 ${errors.variants?.[variant.variant_id]?.color ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                       >
                         <option value="">Chọn màu</option>
                         {colors.map((color) => (
@@ -1115,19 +1124,20 @@ export default function ProductDetail() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
                         Kích cỡ <span className="text-red-500">*</span>
                       </label>
                       <select
                         value={variant.size_id}
+                        title="Chọn kích cỡ"
                         onChange={(e) =>
                           updateVariant(
                             variant.variant_id,
                             "size_id",
-                            e.target.value
+                            e.target.value,
                           )
                         }
-                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.size ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                        className={`w-full border px-3 py-2 ${errors.variants?.[variant.variant_id]?.size ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                       >
                         <option value="">Chọn kích cỡ</option>
                         {sizes.map((size) => (
@@ -1143,7 +1153,7 @@ export default function ProductDetail() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
                         Số lượng <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -1153,10 +1163,10 @@ export default function ProductDetail() {
                           updateVariant(
                             variant.variant_id,
                             "quantity",
-                            Number.parseInt(e.target.value)
+                            Number.parseInt(e.target.value),
                           )
                         }
-                        className={`w-full px-3 py-2 border ${errors.variants?.[variant.variant_id]?.quantity ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
+                        className={`w-full border px-3 py-2 ${errors.variants?.[variant.variant_id]?.quantity ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600`}
                         placeholder="50"
                         min="0"
                       />
@@ -1167,32 +1177,33 @@ export default function ProductDetail() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
                         Hình ảnh biến thể
                       </label>
                       {variant.image_id ? (
                         <div
-                          className="relative group h-20 w-20 cursor-pointer"
+                          className="group relative h-20 w-20 cursor-pointer"
                           onClick={() => openVariantImageSelector(variant)}
                         >
                           <img
                             src={
                               productImages.find(
-                                (item) => item.image_id === variant.image_id
+                                (item) => item.image_id === variant.image_id,
                               )?.image_url || "/placeholder.svg"
                             }
-                            // alt={`${getColorName(variant.color_name)} ${getSizeName(variant.size_code)}`}
-                            className="w-full h-full object-cover rounded-md border border-gray-300"
+                            alt={"Ảnh gì đó"}
+                            className="h-full w-full rounded-md border border-gray-300 object-cover"
                           />
-                          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-md">
-                            <p className="text-white text-xs">Thay đổi</p>
+                          <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+                            <p className="text-xs text-white">Thay đổi</p>
                           </div>
                         </div>
                       ) : (
                         <button
                           type="button"
+                          title="Chọn hình ảnh"
                           onClick={() => openVariantImageSelector(variant)}
-                          className="flex items-center justify-center w-20 h-20 border-2 border-dashed border-gray-300 rounded-md hover:border-gray-400 focus:outline-none"
+                          className="flex h-20 w-20 items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400 focus:outline-none"
                         >
                           <Image className="h-8 w-8 text-gray-400" />
                         </button>
@@ -1205,53 +1216,9 @@ export default function ProductDetail() {
           </div>
 
           <div className="space-y-6">
-            {/* Publishing */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-medium mb-4">Xuất bản</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
-                    Trạng thái
-                  </span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={product.published_at !== null}
-                      onChange={(e) =>
-                        setProduct((prev) => ({
-                          ...prev,
-                          published_at: e.target.checked ? new Date() : null,
-                        }))
-                      }
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    <span className="ml-3 text-sm font-medium text-gray-700">
-                      {product.published_at !== null
-                        ? "Đã xuất bản"
-                        : "Bản nháp"}
-                    </span>
-                  </label>
-                </div>
-
-                {isEditMode && (
-                  <div>
-                    <p className="text-sm text-gray-500 mb-2">
-                      Ngày tạo:{" "}
-                      {new Date(product.created_at).toLocaleDateString("vi-VN")}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Cập nhật lần cuối:{" "}
-                      {new Date(product.updated_at).toLocaleDateString("vi-VN")}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Collections */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-              <h2 className="text-lg font-medium mb-4">Bộ sưu tập</h2>
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-medium">Bộ sưu tập</h2>
               <div className="space-y-2">
                 {collections.map((collection) => (
                   <label
@@ -1262,7 +1229,7 @@ export default function ProductDetail() {
                       type="checkbox"
                       className="rounded text-blue-600 focus:ring-blue-600"
                       checked={collectionSelectedIds.includes(
-                        collection.collection_id
+                        collection.collection_id,
                       )}
                       onChange={() =>
                         toggleCollection(collection.collection_id)
@@ -1276,15 +1243,15 @@ export default function ProductDetail() {
 
             {/* Variants Summary */}
             {variants.length > 0 && (
-              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-medium mb-4">Tóm tắt biến thể</h2>
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 className="mb-4 text-lg font-medium">Tóm tắt biến thể</h2>
                 <div className="space-y-3">
                   {variants.map((variant) => (
                     <div
                       key={variant.variant_id}
-                      className="p-3 border border-gray-200 rounded-md"
+                      className="rounded-md border border-gray-200 p-3"
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-start justify-between">
                         <div>
                           <p className="font-medium">
                             {getColorName(variant.color_id)} /{" "}
@@ -1298,11 +1265,11 @@ export default function ProductDetail() {
                           <img
                             src={
                               productImages.find(
-                                (image) => image.image_id === variant.image_id
+                                (image) => image.image_id === variant.image_id,
                               )?.image_url || "/placeholder.svg"
                             }
                             alt={`${getColorName(variant.color_id)} ${getSizeName(variant.size_id)}`}
-                            className="w-10 h-10 object-cover rounded-md"
+                            className="h-10 w-10 rounded-md object-cover"
                           />
                         )}
                       </div>
@@ -1317,24 +1284,24 @@ export default function ProductDetail() {
         {/* Delete Confirmation Modal */}
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+              <h3 className="mb-4 text-lg font-medium text-gray-900">
                 Xác nhận xóa
               </h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="mb-6 text-sm text-gray-500">
                 Bạn có chắc chắn muốn xóa sản phẩm "{product.name}" không? Hành
                 động này không thể hoàn tác.
               </p>
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                  className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
                 >
                   Xóa
                 </button>
@@ -1342,29 +1309,28 @@ export default function ProductDetail() {
             </div>
           </div>
         )}
-
-        {/* Image Selector Modal */}
-        {isImageSelectorOpen && (
-          <ImageSelector
-            onImageSelect={handleProductImageSelect}
-            onCancel={() => setIsImageSelectorOpen(false)}
-            selectedImages={productImages}
-            title="Chọn hình ảnh sản phẩm"
-            multiple={true}
-          />
-        )}
-
-        {/* Variant Image Selector Modal */}
-        {isVariantImageSelectorOpen && selectedVariant !== null && (
-          <ImageSelector
-            onImageSelect={handleVariantImageSelect}
-            onCancel={() => setIsVariantImageSelectorOpen(false)}
-            selectedImages={productImages}
-            title={`Chọn hình ảnh cho biến thể`}
-            multiple={false}
-          />
-        )}
       </div>
+      {/* Image Selector Modal */}
+      {isImageSelectorOpen && (
+        <ImageSelector
+          onImageSelect={handleProductImageSelect}
+          onCancel={() => setIsImageSelectorOpen(false)}
+          selectedImages={productImages}
+          title="Chọn hình ảnh sản phẩm"
+          multiple={true}
+        />
+      )}
+
+      {/* Variant Image Selector Modal */}
+      {isVariantImageSelectorOpen && selectedVariant !== null && (
+        <ImageSelector
+          onImageSelect={handleVariantImageSelect}
+          onCancel={() => setIsVariantImageSelectorOpen(false)}
+          selectedImages={productImages}
+          title={`Chọn hình ảnh cho biến thể`}
+          multiple={false}
+        />
+      )}
     </div>
   );
 }

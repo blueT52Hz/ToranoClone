@@ -1,5 +1,5 @@
 import axiosClient from "@/services/axiosClient";
-import { Color } from "@/types/product";
+import { Color } from "@/types/product.type";
 
 const API_BASE_URL = "/colors";
 

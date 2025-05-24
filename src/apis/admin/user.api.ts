@@ -1,10 +1,10 @@
 import { SuccessResponse } from "@/types/utils.type";
 import adminHttp from "@/utils/adminHttp";
-import { Outfit, OutfitPreview, OutfitWithProducts } from "@/types/outfit.type";
 import { API_ENDPOINTS } from "@/apis/admin/endpoint";
+import { User } from "@/types/user.type";
 
-interface OutfitPreviewResponse {
-  outfits: OutfitPreview[];
+interface UserResponse {
+  users: User[];
   pagination: {
     total: number;
     page: number;
@@ -13,46 +13,31 @@ interface OutfitPreviewResponse {
   };
 }
 
-interface OutfitWithProductsResponse {
-  outfits: OutfitWithProducts[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export const outfitApi = {
-  getOutfits(
+export const userApi = {
+  getUsers(
     page: number = 1,
-    limit: number = 9,
+    limit: number = 10,
     search: string = "",
-    status: "published" | "draft" | "archived" | "all" = "all",
+    gender: "Nam" | "Nữ" | "Khác" | "all" = "all",
+    status: "active" | "inactive" | "banned" | "all" = "all",
     sortBy:
-      | "outfit_name"
+      | "full_name"
+      | "email"
+      | "gender"
+      | "date_of_birth"
+      | "status"
       | "created_at"
-      | "published_at"
-      | "updated_at" = "published_at",
+      | "last_login_at"
+      | "updated_at" = "created_at",
     sortOrder: "asc" | "desc" = "desc",
   ) {
-    return adminHttp.get<SuccessResponse<OutfitPreviewResponse>>(
-      `${API_ENDPOINTS.OUTFIT.OUTFITS}?page=${page}&limit=${limit}&search=${search}&status=${status}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
+    return adminHttp.get<SuccessResponse<UserResponse>>(
+      `${API_ENDPOINTS.USER.USERS}?page=${page}&limit=${limit}&search=${search}&gender=${gender}&status=${status}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
     );
   },
-  createOutfit(body: Pick<Outfit, "outfit_name">) {
-    return adminHttp.post<SuccessResponse<Outfit>>(
-      API_ENDPOINTS.OUTFIT.OUTFITS,
-      body,
-    );
-  },
-  updateOutfit(id: string, body: Pick<Outfit, "outfit_name">) {
-    return adminHttp.put<SuccessResponse<Outfit>>(
-      `${API_ENDPOINTS.OUTFIT.OUTFITS}/${id}`,
-      body,
-    );
-  },
-  deleteOutfit(id: string) {
-    return adminHttp.delete<SuccessResponse<Outfit>>(
-      `${API_ENDPOINTS.OUTFIT.OUTFITS}/${id}`,
+  getUserById(id: string) {
+    return adminHttp.get<SuccessResponse<User>>(
+      `${API_ENDPOINTS.USER.USER_ID}/${id}`,
     );
   },
 };

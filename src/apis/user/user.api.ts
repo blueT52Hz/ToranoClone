@@ -1,7 +1,7 @@
 import { AuthResponse } from "@/types/auth.type";
 import { API_ENDPOINTS } from "@/apis/user/endpoints";
 import http from "@/utils/http";
-import { User } from "@/types/user";
+import { User } from "@/types/user.type";
 import { SuccessResponse } from "@/types/utils.type";
 
 export const userApi = {

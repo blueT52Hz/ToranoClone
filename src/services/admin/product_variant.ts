@@ -1,8 +1,8 @@
 import { supabase } from "@/services/supabaseClient";
-import { ProductVariant } from "@/types/product";
+import { ProductVariant } from "@/types/product.type";
 
 export const getVariantsByProductId = async (
-  productId: string
+  productId: string,
 ): Promise<ProductVariant[]> => {
   // Bước 1: Lấy tất cả biến thể từ bảng product_variant dựa trên product_id
   const { data: variants, error: variantsError } = await supabase
@@ -101,7 +101,7 @@ export const getVariantsByProductId = async (
           size_code: size.size_code,
         },
       };
-    })
+    }),
   );
 
   return variantsWithDetails;

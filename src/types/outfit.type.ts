@@ -1,5 +1,5 @@
 import { Image } from "@/types/image.type";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 export interface OutfitPreview {
   outfit_id: string;
   outfit_name: string;

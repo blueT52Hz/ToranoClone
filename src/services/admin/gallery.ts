@@ -1,4 +1,4 @@
-import { Image } from "@/types/product";
+import { Image } from "@/types/product.type";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/services/supabaseClient";
 import { notification } from "antd";
@@ -101,7 +101,7 @@ export const uploadImageToGallery = async (file: File): Promise<Image> => {
 // Update image name
 export const updateImageName = async (
   image_id: string,
-  newName: string
+  newName: string,
 ): Promise<void> => {
   try {
     const { error } = await supabase
@@ -192,7 +192,7 @@ export const removeFromGallery = async (image_id: string): Promise<void> => {
 
 export const getPaginatedGalleryImages = async (
   page: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<{ images: Image[]; totalPages: number }> => {
   const {
     data: images,
@@ -219,7 +219,7 @@ export const getPaginatedGalleryImages = async (
 };
 
 export const getImagesByProductId = async (
-  productId: string
+  productId: string,
 ): Promise<Image[]> => {
   const { data: images, error } = await supabase
     .from("product_image")

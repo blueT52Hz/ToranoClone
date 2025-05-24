@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { ShippingAddress, User } from "@/types/user";
+import { ShippingAddress, User } from "@/types/user.type";
 import { clearLocalCart, getLocalCart, setLocalCart } from "@/utils/storage";
 import { Cart, CartItem } from "@/types/cart.type";
 import { notification } from "antd";

@@ -1,7 +1,7 @@
 import Loading from "@/components/common/Loading";
 import ProductCard from "@/components/user/Product/ProductCard";
 import { getProductsByCollectionSlug } from "@/services/client/product";
-import { Product } from "@/types/product";
+import { Product } from "@/types/product.type";
 import clsx from "clsx";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -33,11 +33,11 @@ const SaleSection = () => {
   return (
     <section className="section-home-sale py-18 bg-red-50">
       <div className="container min-w-full px-4 min850:px-10 min1200:px-12">
-        <div className="title flex flex-col mb-4">
+        <div className="title mb-4 flex flex-col">
           <div className="flex justify-between pt-6">
             <Link
               to={`/collections/onsale`}
-              className="hover:text-shop-color-hover text-xl sm:text-4xl font-bold"
+              className="text-xl font-bold hover:text-shop-color-hover sm:text-4xl"
               style={{ transition: "all .3s easeInOut" }}
             >
               SẢN PHẨM KHUYẾN MÃI
@@ -48,7 +48,7 @@ const SaleSection = () => {
                 className={clsx(
                   canSlidePrev
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
-                    : "text-[#959595]"
+                    : "text-[#959595]",
                 )}
                 style={{ transition: "all .3s easeInOut" }}
                 onClick={() => canSlidePrev && swiperRef.current?.slidePrev()}
@@ -58,7 +58,7 @@ const SaleSection = () => {
                 className={clsx(
                   canSlideNext
                     ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
-                    : "text-[#959595]"
+                    : "text-[#959595]",
                 )}
                 style={{ transition: "all .3s easeInOut" }}
                 onClick={() => canSlideNext && swiperRef.current?.slideNext()}
@@ -82,14 +82,14 @@ const SaleSection = () => {
                 swiperRef.current = swiper;
                 const slidesPerView = swiper.params.slidesPerView;
                 setSlidesPerView(
-                  typeof slidesPerView === "number" ? slidesPerView : 1
+                  typeof slidesPerView === "number" ? slidesPerView : 1,
                 );
               }}
               onSlideChange={(swiper) => {
                 setCurrentSlide(swiper.activeIndex);
                 const slidesPerView = swiper.params.slidesPerView;
                 setSlidesPerView(
-                  typeof slidesPerView === "number" ? slidesPerView : 1
+                  typeof slidesPerView === "number" ? slidesPerView : 1,
                 );
               }}
             >
@@ -106,7 +106,7 @@ const SaleSection = () => {
         <div className="flex justify-center pb-8">
           <Link
             to={"collections/onsale"}
-            className="flex min450:flex-row min450:gap-1 flex-col justify-center items-center bg-white px-7 py-3 border-2 border-slate-400 rounded-md font-light hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500"
+            className="flex flex-col items-center justify-center rounded-md border-2 border-slate-400 bg-white px-7 py-3 font-light transition-all duration-500 hover:bg-shop-color-hover hover:text-[#fff] min450:flex-row min450:gap-1"
           >
             <span>XEM TẤT CẢ </span>
             <span className="font-semibold">SẢN PHẨM KHUYẾN MÃI</span>

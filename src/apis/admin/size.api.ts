@@ -1,6 +1,6 @@
 import { SuccessResponse } from "@/types/utils.type";
 import adminHttp from "@/utils/adminHttp";
-import { Size } from "@/types/product";
+import { Size } from "@/types/size.type";
 import { API_ENDPOINTS } from "@/apis/admin/endpoint";
 
 interface SizeResponse {
