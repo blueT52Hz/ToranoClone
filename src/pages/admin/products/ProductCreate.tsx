@@ -1,8 +1,89 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Save, Plus, Image } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
+import { CategoryProduct } from "@/types/category.type";
+import { useQuery } from "@tanstack/react-query";
+import { categoryApi } from "@/apis/admin/category.api";
+import { Color } from "@/types/color.type";
+import { colorApi } from "@/apis/admin/color.api";
+import { Size } from "@/types/size.type";
+import { Image } from "@/types/image.type";
+import { sizeApi } from "@/apis/admin/size.api";
+import ImageSelector from "@/components/admin/ImageSelector";
+import SelectedImage from "@/components/admin/SelectedImage";
 
 export default function ProductCreate() {
+  const [categories, setCategories] = useState<CategoryProduct[]>([]);
+  const [colors, setColors] = useState<Color[]>([]);
+  const [sizes, setSizes] = useState<Size[]>([]);
+  const [isOpenImageSelector, setIsOpenImageSelector] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Image[]>([]);
+  const [typeOfImage, setTypeOfImage] = useState<
+    "thumbnail" | "hover" | "normal"
+  >("normal");
+  const [selectedThumbnailImage, setSelectedThumbnailImage] =
+    useState<Image | null>(null);
+  const [selectedHoverImage, setSelectedHoverImage] = useState<Image | null>(
+    null,
+  );
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categoriesForProduct"],
+    queryFn: () => categoryApi.getCategoriesForProduct(),
+  });
+
+  const { data: colorsData } = useQuery({
+    queryKey: ["colors"],
+    queryFn: () => colorApi.getColors(),
+  });
+
+  const { data: sizesData } = useQuery({
+    queryKey: ["sizes"],
+    queryFn: () => sizeApi.getSizes(),
+  });
+
+  useEffect(() => {
+    if (categoriesData) {
+      setCategories(categoriesData.data.data);
+    }
+  }, [categoriesData]);
+
+  useEffect(() => {
+    if (colorsData) {
+      setColors(colorsData.data.data.colors);
+    }
+  }, [colorsData]);
+
+  useEffect(() => {
+    if (sizesData) {
+      setSizes(sizesData.data.data.sizes);
+    }
+  }, [sizesData]);
+
+  const handleImageSelect = (images: Image | Image[]) => {
+    console.log("Selected images:", images);
+    setIsOpenImageSelector(false);
+
+    if (Array.isArray(images)) {
+      // Nếu là mảng ảnh (cho thư viện ảnh)
+      setSelectedImages(images);
+    } else {
+      // Nếu là ảnh đơn (cho thumbnail hoặc hover)
+      switch (typeOfImage) {
+        case "thumbnail":
+          setSelectedThumbnailImage(images);
+          break;
+        case "hover":
+          setSelectedHoverImage(images);
+          break;
+        default:
+          // Nếu không phải thumbnail hay hover thì thêm vào thư viện ảnh
+          setSelectedImages((prev) => [...prev, images]);
+          break;
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="space-y-6">
@@ -129,6 +210,10 @@ export default function ProductCreate() {
                   <button
                     type="button"
                     className="inline-flex items-center rounded-md bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
+                    onClick={() => {
+                      setTypeOfImage("normal");
+                      setIsOpenImageSelector(true);
+                    }}
                   >
                     <Plus className="mr-1 h-4 w-4" />
                     Chọn ảnh
@@ -137,41 +222,64 @@ export default function ProductCreate() {
               </div>
 
               <div className="mb-6 flex gap-20">
-                <div className="flex flex-col items-center">
-                  <h3 className="mb-2 text-sm font-medium text-gray-700">
-                    Ảnh thumbnail
-                  </h3>
-                  <button
-                    type="button"
-                    className="flex h-32 w-32 items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400"
-                  >
-                    <Plus className="h-8 w-8 text-gray-400" />
-                  </button>
-                </div>
+                <SelectedImage
+                  image={selectedThumbnailImage}
+                  title="Ảnh thumbnail"
+                  onSelect={() => {
+                    setTypeOfImage("thumbnail");
+                    setIsOpenImageSelector(true);
+                  }}
+                  showImageName={true}
+                  onRemove={() => setSelectedThumbnailImage(null)}
+                />
 
-                <div className="flex flex-col items-center">
-                  <h3 className="mb-2 text-sm font-medium text-gray-700">
-                    Ảnh hover
-                  </h3>
-                  <button
-                    type="button"
-                    className="flex h-32 w-32 items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400"
-                  >
-                    <Plus className="h-8 w-8 text-gray-400" />
-                  </button>
-                </div>
+                <SelectedImage
+                  image={selectedHoverImage}
+                  title="Ảnh hover"
+                  onSelect={() => {
+                    setTypeOfImage("hover");
+                    setIsOpenImageSelector(true);
+                  }}
+                  showImageName={true}
+                  onRemove={() => setSelectedHoverImage(null)}
+                />
               </div>
 
               <div>
                 <h3 className="mb-2 text-sm font-medium text-gray-700">
                   Thư viện ảnh
                 </h3>
-                <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
-                  <p className="text-sm text-gray-500">
-                    Chưa có hình ảnh nào được thêm vào. Vui lòng chọn ảnh từ thư
-                    viện.
-                  </p>
-                </div>
+                {selectedImages.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-4">
+                    {selectedImages.map((image) => (
+                      <SelectedImage
+                        key={image.image_id}
+                        image={image}
+                        title=""
+                        size="md"
+                        showImageName={true}
+                        onSelect={() => {
+                          setTypeOfImage("normal");
+                          setIsOpenImageSelector(true);
+                        }}
+                        onRemove={() => {
+                          setSelectedImages((prev) =>
+                            prev.filter(
+                              (img) => img.image_id !== image.image_id,
+                            ),
+                          );
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
+                    <p className="text-sm text-gray-500">
+                      Chưa có hình ảnh nào được thêm vào. Vui lòng chọn ảnh từ
+                      thư viện.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -245,14 +353,44 @@ export default function ProductCreate() {
           <div className="space-y-6">
             {/* Collections */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-medium">Bộ sưu tập</h2>
+              <h2 className="mb-4 text-lg font-medium">Danh mục sản phẩm</h2>
               <div className="space-y-2">
-                <p className="text-sm text-gray-500">Chưa có bộ sưu tập nào</p>
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <div
+                      key={category.category_id}
+                      className="flex items-center"
+                    >
+                      <input
+                        type="checkbox"
+                        id={`category-${category.category_id}`}
+                        name="categories"
+                        value={category.category_id}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                      />
+                      <label
+                        htmlFor={`category-${category.category_id}`}
+                        className="ml-2 text-sm text-gray-700"
+                      >
+                        {category.category_name}
+                      </label>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">Chưa có danh mục nào</p>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <ImageSelector
+        isOpen={isOpenImageSelector}
+        setIsOpen={setIsOpenImageSelector}
+        isAllowMultiple={typeOfImage === "normal"}
+        onImageSelect={handleImageSelect}
+      />
     </div>
   );
 }

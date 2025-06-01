@@ -11,3 +11,9 @@ export interface Category {
     image_alt: string;
   };
 }
+
+export interface CategoryProduct {
+  category_id: string;
+  created_at: Date;
+  category_name: string;
+}

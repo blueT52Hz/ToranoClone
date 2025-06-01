@@ -18,6 +18,24 @@ export interface ProductPreview {
   updated_at: Date;
 }
 
+export interface ProductForm {
+  product_name: string;
+  product_description: string;
+  product_code: string;
+  product_status: "draft" | "published";
+  product_slug: string | null;
+  base_price: number;
+  sale_price: number | null;
+  discount: number;
+  brand_name: string;
+  category_ids: string[];
+  outfit_ids: string[];
+  thumbnail_id: string;
+  hover_id: string;
+  image_ids: string[];
+  variants: string[];
+}
+
 export interface FormErrors {
   name?: string;
   slug?: string;

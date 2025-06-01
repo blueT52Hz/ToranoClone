@@ -27,4 +27,8 @@ export const API_ENDPOINTS = {
     PRODUCTS: "/product",
     PRODUCT_ID: "/product/:id",
   },
+  CATEGORY: {
+    CATEGORIES: "/category",
+    CATEGORIES_FOR_PRODUCT: "/category/options",
+  },
 } as const;

@@ -41,7 +41,7 @@ export default function Gallery() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["images"],
+    queryKey: ["images", currentPage, searchTerm, sortBy, sortOrder],
     queryFn: () =>
       imageApi.getImages(currentPage, 10, searchTerm, sortBy, sortOrder),
   });
@@ -56,12 +56,7 @@ export default function Gallery() {
 
   useEffect(() => {
     setCurrentPage(1);
-    refetch();
-  }, [sortBy, sortOrder, searchTerm, refetch]);
-
-  useEffect(() => {
-    refetch();
-  }, [currentPage, refetch]);
+  }, [searchTerm, sortBy, sortOrder]);
 
   useEffect(() => {
     if (searchInputRef.current) {

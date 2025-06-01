@@ -10,6 +10,7 @@ import OrderDetailsPage from "@/pages/admin/orders/OrderDetail";
 import Orders from "@/pages/admin/orders/Orders";
 import OutfitDetail from "@/pages/admin/outfits/OutfitDetail";
 import Outfits from "@/pages/admin/outfits/Outfits";
+import ProductCreate from "@/pages/admin/products/ProductCreate";
 import ProductEdit from "@/pages/admin/products/ProductEdit";
 import Products from "@/pages/admin/products/Products";
 import Sizes from "@/pages/admin/Sizes";
@@ -31,7 +32,7 @@ const AdminRoutes = () => {
       >
         {/* ProductPages */}
         <Route path="/products" element={<Products />} />
-        <Route path="/products/new" element={<ProductEdit />} />
+        <Route path="/products/new" element={<ProductCreate />} />
         <Route path="/products/:id" element={<ProductEdit />} />
         <Route path="/products/:id/edit" element={<ProductEdit />} />
         {/* OrderPages */}
