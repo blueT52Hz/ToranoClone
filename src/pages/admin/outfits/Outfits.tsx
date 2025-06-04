@@ -232,11 +232,7 @@ export default function Outfits() {
           ))}
         </div>
 
-        {isLoading && outfits.length === 0 && (
-          <div className="py-12 text-center">
-            <Loading />
-          </div>
-        )}
+        {isLoading && outfits.length === 0 && <Loading />}
 
         {outfits.length === 0 && !isLoading && (
           <div className="py-12 text-center">

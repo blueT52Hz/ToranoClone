@@ -1,73 +1,46 @@
-import { OutfitFormData, OutfitDetail } from "@/types/outfit.type";
+import { CategoryFormData, CategoryDetail } from "@/types/category.type";
 import { useEffect, useState } from "react";
 import { Image } from "@/types/image.type";
 import ImageSelector from "@/components/admin/ImageSelector";
-import {
-  FieldErrors,
-  UseFormSetValue,
-  UseFormSetError,
-  UseFormRegister,
-} from "react-hook-form";
+import { UseFormSetValue } from "react-hook-form";
 
-interface OutfitImageProps {
-  outfit: OutfitDetail | null;
-  register: UseFormRegister<OutfitFormData>;
-  setValue: UseFormSetValue<OutfitFormData>;
-  setError: UseFormSetError<OutfitFormData>;
-  errors: FieldErrors<OutfitFormData>;
+interface CategoryImageProps {
+  category: CategoryDetail | null;
+  setValue: UseFormSetValue<CategoryFormData>;
 }
 
-export const OutfitImage = ({
-  register,
-  setValue,
-  setError,
-  errors,
-  outfit,
-}: OutfitImageProps) => {
+export const CategoryImage = ({ setValue, category }: CategoryImageProps) => {
   const [selectedImage, setSelectedImage] = useState<Image | null>(null);
   const [showImageSelector, setShowImageSelector] = useState(false);
 
   useEffect(() => {
-    if (outfit) {
-      setSelectedImage(outfit.image);
-      setValue("image_id", outfit.image.image_id);
+    if (category) {
+      setSelectedImage(category.image || null);
+      if (category.image) {
+        setValue("image_id", category.image.image_id);
+      }
     }
-  }, [outfit, setValue]);
+  }, [category, setValue]);
 
   const handleImageSelect = (image: Image | Image[]) => {
     if (Array.isArray(image)) {
       setSelectedImage(image[0]);
       setValue("image_id", image[0].image_id);
-      setError("image_id", { message: "" });
     } else {
       setSelectedImage(image);
       setValue("image_id", image.image_id);
-      setError("image_id", { message: "" });
     }
     setShowImageSelector(false);
   };
 
   const handleOpenImageSelector = () => {
-    if (!selectedImage) {
-      setError("image_id", { message: "Vui lòng chọn hình ảnh cho outfit" });
-    }
     setShowImageSelector(true);
   };
 
   return (
-    <div
-      {...register("image_id", {
-        required: "Vui lòng chọn hình ảnh cho outfit",
-        validate: () => {
-          if (!selectedImage) {
-            return "Vui lòng chọn hình ảnh cho outfit";
-          }
-          return true;
-        },
-      })}
-    >
+    <div>
       <label className="mb-1 block text-sm font-medium text-gray-700">
-        Hình ảnh <span className="text-red-500">*</span>
+        Hình ảnh
       </label>
       <div className="flex items-start">
         <div
@@ -85,23 +58,33 @@ export const OutfitImage = ({
             </div>
           )}
         </div>
-        <button
-          onClick={handleOpenImageSelector}
-          className="ml-4 rounded bg-gray-100 px-3 py-1 text-sm text-gray-600 hover:bg-gray-200"
-        >
-          Chọn ảnh
-        </button>
+        <div className="ml-4 flex flex-col gap-2">
+          <button
+            onClick={handleOpenImageSelector}
+            className="rounded bg-gray-100 px-3 py-1 text-sm text-gray-600 hover:bg-gray-200"
+          >
+            Chọn ảnh
+          </button>
+          {selectedImage && (
+            <button
+              onClick={() => {
+                setSelectedImage(null);
+                setValue("image_id", "");
+              }}
+              className="rounded bg-red-100 px-3 py-1 text-sm text-red-600 hover:bg-red-200"
+            >
+              Xóa ảnh
+            </button>
+          )}
+        </div>
       </div>
-      {errors.image_id && (
-        <p className="mt-1 text-sm text-red-500">{errors.image_id.message}</p>
-      )}
       {showImageSelector && (
         <ImageSelector
           onImageSelect={handleImageSelect}
           isOpen={showImageSelector}
           setIsOpen={setShowImageSelector}
           selectedImages={selectedImage ? [selectedImage] : []}
-          title="Chọn hình ảnh cho outfit"
+          title="Chọn hình ảnh cho danh mục"
         />
       )}
     </div>

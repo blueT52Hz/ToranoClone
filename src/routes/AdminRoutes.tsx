@@ -2,6 +2,8 @@ import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminLayout from "@/layouts/Home/AdminLayout";
 import AdminLogin from "@/pages/admin/auth/Login";
 import Categories from "@/pages/admin/categories/Categories";
+import CategoriesCreate from "@/pages/admin/categories/CategoriesCreate";
+import CategoriesEdit from "@/pages/admin/categories/CategoriesEdit";
 import ColorsPage from "@/pages/admin/Colors";
 import Dashboard from "@/pages/admin/Dashboard";
 import GalleryPage from "@/pages/admin/Gallery";
@@ -34,22 +36,22 @@ const AdminRoutes = () => {
         <Route path="/products" element={<Products />} />
         <Route path="/products/new" element={<ProductCreate />} />
         <Route path="/products/:product_id" element={<ProductEdit />} />
-        {/* OrderPages */}
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/orders/:orderId" element={<OrderDetailsPage />} />{" "}
         {/* CategoryPages */}
         <Route path="/categories" element={<Categories />} />
-        {/* <Route path="/categories/new" element={<CollectionDetail />} /> */}
-        {/* <Route path="/categories/:id" element={<CollectionDetail />} /> */}
-        {/* <Route path="/categories/:id/edit" element={<CollectionDetail />} /> */}
+        <Route path="/categories/new" element={<CategoriesCreate />} />
+        <Route path="/categories/:category_id" element={<CategoriesEdit />} />
         {/* OutfitPages */}
         <Route path="/outfits" element={<Outfits />} />
         <Route path="/outfits/new" element={<OutfitCreate />} />
         <Route path="/outfits/:outfit_id" element={<OutfitEdit />} />
-        <Route index element={<Dashboard />} />
+        {/* OrderPages */}
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
+        {/* UserPages */}
         <Route path="/users" element={<Users />} />
         <Route path="/users/:id" element={<UserDetailPage />} />
         {/* Pages */}
+        <Route index element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/colors" element={<ColorsPage />} />
         <Route path="/sizes" element={<Sizes />} />

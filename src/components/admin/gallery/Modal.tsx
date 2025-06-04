@@ -48,13 +48,14 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
       <div
         ref={modalRef}
-        className={`bg-white rounded-lg shadow-xl w-full ${maxWidth} p-6 max-h-[90vh] overflow-auto transform transition-all`}
+        className={`w-full rounded-lg bg-white shadow-xl ${maxWidth} max-h-[90vh] transform overflow-auto p-6 transition-all`}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900">{title}</h3>
           <button
+            title="Close"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500 rounded-full p-1 hover:bg-gray-100 transition-colors"
+            className="rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-500"
           >
             <X className="h-5 w-5" />
           </button>
