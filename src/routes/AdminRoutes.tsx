@@ -1,14 +1,14 @@
 import ProtectedRoute from "@/components/admin/ProtectedRoute";
 import AdminLayout from "@/layouts/Home/AdminLayout";
 import AdminLogin from "@/pages/admin/auth/Login";
-import CollectionDetail from "@/pages/admin/collections/CollectionDetail";
-import Collections from "@/pages/admin/collections/Collections";
+import Categories from "@/pages/admin/categories/Categories";
 import ColorsPage from "@/pages/admin/Colors";
 import Dashboard from "@/pages/admin/Dashboard";
 import GalleryPage from "@/pages/admin/Gallery";
 import OrderDetailsPage from "@/pages/admin/orders/OrderDetail";
 import Orders from "@/pages/admin/orders/Orders";
-import OutfitDetail from "@/pages/admin/outfits/OutfitDetail";
+import OutfitCreate from "@/pages/admin/outfits/OutfitCreate";
+import OutfitEdit from "@/pages/admin/outfits/OutfitEdit";
 import Outfits from "@/pages/admin/outfits/Outfits";
 import ProductCreate from "@/pages/admin/products/ProductCreate";
 import ProductEdit from "@/pages/admin/products/ProductEdit";
@@ -33,21 +33,19 @@ const AdminRoutes = () => {
         {/* ProductPages */}
         <Route path="/products" element={<Products />} />
         <Route path="/products/new" element={<ProductCreate />} />
-        <Route path="/products/:id" element={<ProductEdit />} />
-        <Route path="/products/:id/edit" element={<ProductEdit />} />
+        <Route path="/products/:product_id" element={<ProductEdit />} />
         {/* OrderPages */}
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:orderId" element={<OrderDetailsPage />} />{" "}
-        {/* CollectionPages */}
-        <Route path="/collections" element={<Collections />} />
-        <Route path="/collections/new" element={<CollectionDetail />} />
-        <Route path="/collections/:id" element={<CollectionDetail />} />
-        <Route path="/collections/:id/edit" element={<CollectionDetail />} />
+        {/* CategoryPages */}
+        <Route path="/categories" element={<Categories />} />
+        {/* <Route path="/categories/new" element={<CollectionDetail />} /> */}
+        {/* <Route path="/categories/:id" element={<CollectionDetail />} /> */}
+        {/* <Route path="/categories/:id/edit" element={<CollectionDetail />} /> */}
         {/* OutfitPages */}
         <Route path="/outfits" element={<Outfits />} />
-        <Route path="/outfits/new" element={<OutfitDetail />} />
-        <Route path="/outfits/:id" element={<OutfitDetail />} />
-        <Route path="/outfits/:id/edit" element={<OutfitDetail />} />
+        <Route path="/outfits/new" element={<OutfitCreate />} />
+        <Route path="/outfits/:outfit_id" element={<OutfitEdit />} />
         <Route index element={<Dashboard />} />
         <Route path="/users" element={<Users />} />
         <Route path="/users/:id" element={<UserDetailPage />} />

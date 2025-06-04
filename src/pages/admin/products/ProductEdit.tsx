@@ -1,8 +1,101 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Save, Plus, Image } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { productApi } from "@/apis/admin/product.api";
+import { ProductForm } from "@/types/product.type";
+import { notification, Modal } from "antd";
+import { AxiosError } from "axios";
+import { VariantForm } from "@/components/admin/variants/VariantForm";
+import { CategoriesCheckBox } from "@/components/admin/categories/CategoriesCheckBox";
+import { ProductBasicInformation } from "@/components/admin/products/ProductBasicInformation";
+import { ProductPricing } from "@/components/admin/products/ProductPricing";
+import { ProductImages } from "@/components/admin/products/ProductImages";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-export default function ProductCreate() {
+export default function ProductEdit() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+  } = useForm<ProductForm>();
+
+  const { product_id } = useParams();
+  const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const { data: productResponse } = useQuery({
+    queryKey: ["product", product_id],
+    queryFn: () => productApi.getProduct(product_id as string),
+    enabled: !!product_id,
+  });
+
+  const product = productResponse?.data.data || null;
+
+  const updateProductMutation = useMutation({
+    mutationFn: (data: ProductForm) =>
+      productApi.updateProduct(product_id as string, data),
+    onSuccess: () => {
+      notification.success({
+        message: "Cập nhật sản phẩm thành công",
+      });
+      navigate("/admin/products");
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      notification.error({
+        message: "Cập nhật sản phẩm thất bại",
+        description: error.response?.data.message,
+      });
+    },
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: () => productApi.deleteProduct(product_id as string),
+    onSuccess: () => {
+      notification.success({
+        message: "Xóa sản phẩm thành công",
+      });
+      navigate("/admin/products");
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      notification.error({
+        message: "Xóa sản phẩm thất bại",
+        description: error.response?.data.message,
+      });
+    },
+  });
+
+  if (!product_id) {
+    navigate("/admin/products");
+    return null;
+  }
+
+  const onSubmit = (data: ProductForm) => {
+    // Xử lý các trường không có giá trị
+    const formData = {
+      ...data,
+      discount: data.discount || null,
+      sale_price: data.sale_price || null,
+      product_slug: data.product_slug || null,
+    };
+    console.log(formData);
+    updateProductMutation.mutate(formData);
+  };
+
+  const handleDelete = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteProductMutation.mutate();
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="space-y-6">
@@ -16,16 +109,37 @@ export default function ProductCreate() {
               <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Quay lại</span>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Thêm sản phẩm mới
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-800">Sửa sản phẩm</h1>
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="mr-2 inline-block h-4 w-4" />
+              Xóa sản phẩm
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setValue("product_status", "draft");
+                handleSubmit(onSubmit)();
+              }}
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
               Lưu nháp
             </button>
-            <button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            <button
+              type="button"
+              onClick={() => {
+                setValue("product_status", "published");
+                handleSubmit(onSubmit)();
+              }}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              disabled={updateProductMutation.isPending}
+            >
               <Save className="mr-2 inline-block h-4 w-4" />
               Xuất bản
             </button>
@@ -35,224 +149,58 @@ export default function ProductCreate() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             {/* Basic Information */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-medium">Thông tin cơ bản</h2>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Tên sản phẩm <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="Nhập tên sản phẩm"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="slug"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Slug <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="slug"
-                    name="slug"
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="Nhập slug sản phẩm"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label
-                      htmlFor="product_code"
-                      className="mb-1 block text-sm font-medium text-gray-700"
-                    >
-                      Mã sản phẩm <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="product_code"
-                      name="product_code"
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      placeholder="TS001"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="brand_name"
-                      className="mb-1 block text-sm font-medium text-gray-700"
-                    >
-                      Thương hiệu
-                    </label>
-                    <input
-                      type="text"
-                      id="brand_name"
-                      name="brand_name"
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                      placeholder="Torano"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Mô tả sản phẩm
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    rows={4}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="Nhập mô tả chi tiết về sản phẩm"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
+            <ProductBasicInformation
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              product={product}
+            />
 
             {/* Images */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-medium">Hình ảnh sản phẩm</h2>
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    className="inline-flex items-center rounded-md bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100"
-                  >
-                    <Plus className="mr-1 h-4 w-4" />
-                    Chọn ảnh
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-6 flex gap-20">
-                <div className="flex flex-col items-center">
-                  <h3 className="mb-2 text-sm font-medium text-gray-700">
-                    Ảnh thumbnail
-                  </h3>
-                  <button
-                    type="button"
-                    className="flex h-32 w-32 items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400"
-                  >
-                    <Plus className="h-8 w-8 text-gray-400" />
-                  </button>
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <h3 className="mb-2 text-sm font-medium text-gray-700">
-                    Ảnh hover
-                  </h3>
-                  <button
-                    type="button"
-                    className="flex h-32 w-32 items-center justify-center rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400"
-                  >
-                    <Plus className="h-8 w-8 text-gray-400" />
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="mb-2 text-sm font-medium text-gray-700">
-                  Thư viện ảnh
-                </h3>
-                <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
-                  <p className="text-sm text-gray-500">
-                    Chưa có hình ảnh nào được thêm vào. Vui lòng chọn ảnh từ thư
-                    viện.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ProductImages
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              setError={setError}
+              clearErrors={clearErrors}
+              product={product}
+            />
 
             {/* Pricing */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-medium">Giá sản phẩm</h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div>
-                  <label
-                    htmlFor="base_price"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Giá gốc (VND) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    id="base_price"
-                    name="base_price"
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="299000"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="sale_price"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Giá bán (VND)
-                  </label>
-                  <input
-                    type="number"
-                    id="sale_price"
-                    name="sale_price"
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    placeholder="249000"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="discount"
-                    className="mb-1 block text-sm font-medium text-gray-700"
-                  >
-                    Giảm giá (%)
-                  </label>
-                  <input
-                    type="number"
-                    id="discount"
-                    name="discount"
-                    readOnly
-                    className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
-                  />
-                </div>
-              </div>
-            </div>
+            <ProductPricing
+              register={register}
+              errors={errors}
+              setValue={setValue}
+              watch={watch}
+              product={product}
+            />
 
             {/* Variants */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-medium">Biến thể sản phẩm</h2>
-                <button
-                  type="button"
-                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
-                >
-                  <Plus className="mr-1 h-4 w-4" />
-                  Thêm biến thể
-                </button>
-              </div>
-            </div>
+            <VariantForm
+              variantsProp={product?.variants || []}
+              setValue={setValue}
+            />
           </div>
 
-          <div className="space-y-6">
-            {/* Collections */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-medium">Bộ sưu tập</h2>
-              <div className="space-y-2">
-                <p className="text-sm text-gray-500">Chưa có bộ sưu tập nào</p>
-              </div>
-            </div>
-          </div>
+          {/* Categories */}
+          <CategoriesCheckBox setValue={setValue} product={product} />
         </div>
       </div>
+
+      <Modal
+        title="Xác nhận xóa sản phẩm"
+        open={isDeleteModalOpen}
+        onOk={handleConfirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+        <p className="text-sm text-gray-500">
+          Hành động này không thể hoàn tác.
+        </p>
+      </Modal>
     </div>
   );
 }

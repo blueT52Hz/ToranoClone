@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
@@ -12,14 +12,13 @@ import {
   Users,
   ChevronLeft,
   Menu,
-  ChevronRight,
 } from "lucide-react";
 import clsx from "clsx";
 
 const menuItems = [
   { name: "Dashboard", href: "dashboard", icon: LayoutDashboard },
   { name: "Sản phẩm", href: "products", icon: Package },
-  { name: "Collections", href: "collections", icon: Layers },
+  { name: "Danh mục", href: "categories", icon: Layers },
   { name: "Outfits", href: "outfits", icon: Shirt },
   { name: "Màu sắc", href: "colors", icon: Palette },
   { name: "Kích cỡ", href: "sizes", icon: Ruler },
@@ -29,7 +28,6 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
-  const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -55,7 +53,7 @@ export default function Sidebar() {
       {/* Mobile overlay */}
       {!isCollapsed && isMobile && (
         <div
-          className="sticky inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+          className="sticky inset-0 z-20 bg-black bg-opacity-50 md:hidden"
           onClick={toggleSidebar}
         />
       )}
@@ -63,18 +61,18 @@ export default function Sidebar() {
       <aside
         className={clsx(
           isCollapsed ? "w-16" : "w-64",
-          "sticky top-0 bg-slate-50 text-slate-800 flex flex-col z-30 transition-all duration-300 ease-in-out",
+          "sticky top-0 z-30 flex flex-col bg-slate-50 text-slate-800 transition-all duration-300 ease-in-out",
           {
             "-translate-x-full": isMobile && isCollapsed,
             "translate-x-0": !(isMobile && isCollapsed),
-          }
+          },
         )}
       >
         <div
           className={clsx(
-            "p-4 border-b border-slate-200 flex items-center",
+            "flex items-center border-b border-slate-200 p-4",
             { "justify-center": isCollapsed },
-            { "justify-between": !isCollapsed }
+            { "justify-between": !isCollapsed },
           )}
         >
           <NavLink
@@ -89,7 +87,7 @@ export default function Sidebar() {
           </NavLink>
           <button
             onClick={toggleSidebar}
-            className="p-1 rounded-md hover:bg-slate-200 text-slate-600"
+            className="rounded-md p-1 text-slate-600 hover:bg-slate-200"
           >
             {isCollapsed ? <Menu size={18} /> : <ChevronLeft size={18} />}
           </button>
@@ -104,16 +102,16 @@ export default function Sidebar() {
                   className={({ isActive }) =>
                     `flex items-center ${
                       isCollapsed ? "justify-center" : ""
-                    } px-3 py-2 rounded-md text-base ${
+                    } rounded-md px-3 py-2 text-base ${
                       isActive
-                        ? "bg-blue-50 text-blue-600 font-medium"
+                        ? "bg-blue-50 font-medium text-blue-600"
                         : "text-slate-700 hover:bg-slate-100"
                     }`
                   }
                   title={isCollapsed ? item.name : ""}
                 >
                   <item.icon
-                    className={`w-5 h-5 ${isCollapsed ? "" : "mr-3"}`}
+                    className={`h-5 w-5 ${isCollapsed ? "" : "mr-3"}`}
                   />
                   <span className={isCollapsed ? "hidden" : "block"}>
                     {item.name}
@@ -128,8 +126,9 @@ export default function Sidebar() {
       {/* Mobile toggle button */}
       {isMobile && isCollapsed && (
         <button
+          title="Mở sidebar"
           onClick={toggleSidebar}
-          className="sticky bottom-4 left-4 z-40 p-3 rounded-full bg-blue-600 text-white shadow-lg md:hidden"
+          className="sticky bottom-4 left-4 z-40 rounded-full bg-blue-600 p-3 text-white shadow-lg md:hidden"
         >
           <Menu size={24} />
         </button>

@@ -6,6 +6,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import Pagination from "@/components/common/Pagination";
 import { notification } from "antd";
 import { AxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
+
 interface ImageSelectorProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -33,6 +35,8 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
   const [sortBy, setSortBy] = useState<SortBy>("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
+  const queryClient = useQueryClient();
+
   const uploadImageMutation = useMutation({
     mutationFn: (formData: FormData) => imageApi.createImage(formData),
     onSuccess: (data) => {
@@ -41,6 +45,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
       });
       const imagesSelect = isAllowMultiple ? data.data.data : data.data.data[0];
       onImageSelect(imagesSelect);
+      queryClient.invalidateQueries({ queryKey: ["images"] });
     },
     onError: (error: AxiosError<{ message: string }>) => {
       notification.error({

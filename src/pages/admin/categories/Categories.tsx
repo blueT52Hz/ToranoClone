@@ -8,37 +8,24 @@ import {
   ArrowDown,
   Filter,
 } from "lucide-react";
-import { Collection } from "@/types/product.type";
+import { Category } from "@/types/category.type";
 import { useNavigate } from "react-router-dom";
 import Pagination from "@/components/common/Pagination";
-import {
-  deleteCollectionById,
-  getAllCollections,
-} from "@/services/admin/collection";
 import Loading from "@/components/common/Loading";
 
-type StatusFilter = "all" | "published" | "draft";
+type StatusFilter = "all" | "published" | "draft" | "archived";
+type SortBy = "category_name" | "created_at" | "published_at" | "updated_at";
 
-export default function Collections() {
+export default function Categories() {
   const navigate = useNavigate();
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    const fetchCollection = async () => {
-      setIsLoading(true);
-      const result = await getAllCollections();
-      setCollections(result);
-      setIsLoading(false);
-    };
-    fetchCollection();
-  }, []);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedCollection, setSelectedCollection] =
-    useState<Collection | null>(null);
-  const [newCollection, setNewCollection] = useState({ name: "", slug: "" });
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

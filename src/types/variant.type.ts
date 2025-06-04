@@ -1,9 +1,11 @@
-export interface VariantAdd {
-  product_id: string;
+import { Image } from "@/types/image.type";
+
+export interface VariantForm {
   size_id: string;
   color_id: string;
-  sku: string;
   status: "draft" | "published";
   quantity: number;
-  image_ids: string[];
+  images: Image[];
+  created_at: Date;
+  updated_at: Date;
 }

@@ -300,7 +300,7 @@ const ProductList = () => {
                           <Eye className="h-4 w-4" />
                         </Link>
                         <Link
-                          to={`/admin/products/${product.product_id}/edit`}
+                          to={`/admin/products/${product.product_id}`}
                           className="text-yellow-600 hover:text-yellow-800"
                           title="Sửa"
                         >
@@ -323,13 +323,15 @@ const ProductList = () => {
             </tbody>
           </table>
         </div>
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page: number) => setCurrentPage(page)}
-          />
-        )}
+        <div className="mb-4">
+          {totalPages > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page: number) => setCurrentPage(page)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

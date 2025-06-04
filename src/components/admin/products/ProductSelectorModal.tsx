@@ -1,55 +1,55 @@
 import Loading from "@/components/common/Loading";
-import { getAllProductsWithDetails } from "@/services/admin/product";
-import { Product } from "@/types/product.type";
 import { Plus, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { ProductPreview } from "@/types/product.type";
+import { useQuery } from "@tanstack/react-query";
+import { productApi } from "@/apis/admin/product.api";
 
 interface ProductSelectorModalProps {
   setIsProductSelectorOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedProducts: Product[];
-  setSelectedProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  selectedProducts: ProductPreview[];
+  handleAddProduct: (product: ProductPreview) => void;
 }
+
+type SortBy =
+  | "product_name"
+  | "product_code"
+  | "created_at"
+  | "updated_at"
+  | "price"
+  | "discount"
+  | "quantity_total"
+  | "quantity_min"
+  | "status";
+type SortOrder = "asc" | "desc";
+type Status = "all" | "published" | "draft";
 
 export const ProductSelectorModal = ({
   setIsProductSelectorOpen,
   selectedProducts,
-  setSelectedProducts,
+  handleAddProduct,
 }: ProductSelectorModalProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState<ProductPreview[]>([]);
+  const [sortBy, setSortBy] = useState<SortBy>("created_at");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [status, setStatus] = useState<Status>("all");
 
-  const selectedProductIds = useMemo(() => {
-    return selectedProducts.map((product) => product.product_id);
-  }, [selectedProducts]);
+  const { data: productsData, isLoading } = useQuery({
+    queryKey: ["products", searchTerm, status, sortBy, sortOrder],
+    queryFn: () =>
+      productApi.getProducts(1, 10, searchTerm, status, sortBy, sortOrder),
+  });
 
   useEffect(() => {
-    const getProduct = async () => {
-      setIsLoading(true);
-      const allProductsResult = await getAllProductsWithDetails();
-      setAllProducts(allProductsResult);
-      setAvailableProducts(
-        allProductsResult.filter(
-          (product) => !selectedProductIds.includes(product.product_id),
+    if (productsData) {
+      setProducts(
+        productsData.data.data.products.filter(
+          (product) => !selectedProducts.includes(product),
         ),
       );
-      setIsLoading(false);
-    };
-    getProduct();
-  }, [selectedProducts]);
-
-  const filteredProducts = useMemo(() => {
-    return availableProducts.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.product_code.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [availableProducts, searchTerm]);
-
-  const addProduct = (product: Product) => {
-    setSelectedProducts([...selectedProducts, product]);
-  };
+    }
+  }, [productsData, selectedProducts]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -57,6 +57,7 @@ export const ProductSelectorModal = ({
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900">Thêm sản phẩm</h3>
           <button
+            title="Đóng"
             onClick={() => setIsProductSelectorOpen(false)}
             className="p-1 text-gray-400 hover:text-gray-500"
           >
@@ -75,6 +76,55 @@ export const ProductSelectorModal = ({
           />
         </div>
 
+        <div className="mb-4 flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Sắp xếp theo:</label>
+            <select
+              title="Sắp xếp theo"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="product_name">Tên sản phẩm</option>
+              <option value="product_code">Mã sản phẩm</option>
+              <option value="created_at">Ngày tạo</option>
+              <option value="updated_at">Ngày cập nhật</option>
+              <option value="price">Giá</option>
+              <option value="discount">Giảm giá</option>
+              <option value="quantity_total">Tổng số lượng</option>
+              <option value="quantity_min">Số lượng tối thiểu</option>
+              <option value="status">Trạng thái</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Thứ tự:</label>
+            <select
+              title="Thứ tự"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="asc">Tăng dần</option>
+              <option value="desc">Giảm dần</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Trạng thái:</label>
+            <select
+              title="Trạng thái"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as Status)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="all">Tất cả</option>
+              <option value="published">Đã đăng</option>
+              <option value="draft">Bản nháp</option>
+            </select>
+          </div>
+        </div>
+
         {isLoading ? (
           <Loading />
         ) : (
@@ -90,7 +140,7 @@ export const ProductSelectorModal = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product.product_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-gray-500">
                       {product.product_code}
@@ -98,20 +148,17 @@ export const ProductSelectorModal = ({
                     <td className="px-4 py-3">
                       <div className="flex items-center">
                         <div className="mr-3 h-10 w-10 flex-shrink-0">
-                          {product.variant_images[0] && (
+                          {product.image.image_url && (
                             <img
-                              src={product.variant_images[0].image_url}
-                              alt={product.name}
+                              src={product.image.image_url}
+                              alt={product.product_name}
                               className="h-10 w-10 rounded-md object-cover"
                             />
                           )}
                         </div>
                         <div>
                           <div className="font-medium text-gray-900">
-                            {product.name}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {product.brand_name}
+                            {product.product_name}
                           </div>
                         </div>
                       </div>
@@ -135,19 +182,21 @@ export const ProductSelectorModal = ({
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex rounded-full px-2 py-1 text-xs ${
-                          product.published_at
+                          product.product_status === "published"
                             ? "bg-green-100 text-green-700"
                             : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
-                        {product.published_at ? "Đã đăng" : "Bản nháp"}
+                        {product.product_status === "published"
+                          ? "Đã đăng"
+                          : "Bản nháp"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <button
                         type="button"
                         onClick={() => {
-                          addProduct(product);
+                          handleAddProduct(product);
                           setIsProductSelectorOpen(false);
                         }}
                         className="inline-flex items-center rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700"
@@ -161,7 +210,7 @@ export const ProductSelectorModal = ({
               </tbody>
             </table>
 
-            {filteredProducts.length === 0 && (
+            {products.length === 0 && (
               <div className="py-8 text-center">
                 <p className="text-gray-500">Không tìm thấy sản phẩm nào</p>
               </div>

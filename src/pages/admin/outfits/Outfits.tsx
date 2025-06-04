@@ -16,7 +16,7 @@ import { outfitApi } from "@/apis/admin/outfit.api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-type StatusFilter = "all" | "published" | "draft" | "archived";
+type StatusFilter = "all" | "publish" | "draft" | "archived";
 type SortBy = "outfit_name" | "created_at" | "published_at" | "updated_at";
 
 export default function Outfits() {
@@ -38,7 +38,7 @@ export default function Outfits() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["outfits"],
+    queryKey: ["outfits", currentPage, search, statusFilter, sortBy, sortOrder],
     queryFn: () =>
       outfitApi.getOutfits(
         currentPage,
@@ -57,19 +57,10 @@ export default function Outfits() {
     }
   }, [outfitsData]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-    refetch();
-  }, [currentPage, search, statusFilter, sortBy, sortOrder, refetch]);
-
-  useEffect(() => {
-    refetch();
-  }, [currentPage, refetch]);
-
   // Get status background color
   const getStatusSelectColor = (status: string): string => {
     switch (status) {
-      case "published":
+      case "publish":
         return "bg-green-100 text-green-700";
       case "draft":
         return "bg-gray-100 text-gray-700";
@@ -79,8 +70,6 @@ export default function Outfits() {
         return "bg-blue-100 text-blue-700";
     }
   };
-
-  if (isLoading) return <Loading />;
 
   return (
     <div className="space-y-6">
@@ -127,10 +116,7 @@ export default function Outfits() {
                 <option value="all" className="bg-white text-[#000]">
                   Tất cả
                 </option>
-                <option
-                  value="published"
-                  className="bg-green-100 text-green-700"
-                >
+                <option value="publish" className="bg-green-100 text-green-700">
                   Đã xuất bản
                 </option>
                 <option value="draft" className="bg-gray-100 text-gray-700">
@@ -190,12 +176,18 @@ export default function Outfits() {
                 <div className="absolute right-2 top-2">
                   <span
                     className={`inline-flex rounded-full px-2 py-1 text-xs ${
-                      outfit.published_at
+                      outfit.status === "publish"
                         ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
+                        : outfit.status === "archived"
+                          ? "bg-gray-100 text-gray-700"
+                          : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {outfit.published_at ? "Đã đăng" : "Bản nháp"}
+                    {outfit.status === "publish"
+                      ? "Đã đăng"
+                      : outfit.status === "archived"
+                        ? "Đã lưu trữ"
+                        : "Bản nháp"}
                   </span>
                 </div>
               </div>
@@ -217,7 +209,7 @@ export default function Outfits() {
                 <div className="mt-4 flex space-x-2">
                   <button
                     onClick={() =>
-                      navigate(`/admin/outfits/${outfit.outfit_id}/edit`)
+                      navigate(`/admin/outfits/${outfit.outfit_id}`)
                     }
                     className="inline-flex flex-1 items-center justify-center rounded-md bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-100"
                   >
@@ -240,7 +232,13 @@ export default function Outfits() {
           ))}
         </div>
 
-        {outfits.length === 0 && (
+        {isLoading && outfits.length === 0 && (
+          <div className="py-12 text-center">
+            <Loading />
+          </div>
+        )}
+
+        {outfits.length === 0 && !isLoading && (
           <div className="py-12 text-center">
             <p className="text-gray-500">Không tìm thấy outfit nào</p>
           </div>

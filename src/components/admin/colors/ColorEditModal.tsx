@@ -3,6 +3,7 @@ import { Color } from "@/types/product.type";
 import { useMutation } from "@tanstack/react-query";
 import { colorApi } from "@/apis/admin/color.api";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 interface ColorEditModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,10 +33,10 @@ const ColorEditModal: React.FC<ColorEditModalProps> = ({
       });
       onClose();
     },
-    onError: (error) => {
+    onError: (error: AxiosError<{ message: string }>) => {
       notification.error({
         message: "Cập nhật màu sắc thất bại",
-        description: error.message,
+        description: error.response?.data.message,
       });
       console.error("Failed to update color:", error);
     },
