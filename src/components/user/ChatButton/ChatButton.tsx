@@ -42,7 +42,7 @@ const ChatButton = () => {
       </div>
       <div
         ref={chatRef}
-        className={`fixed bottom-24 right-0 z-50 h-[500px] w-full overflow-hidden rounded-lg shadow-lg transition-all duration-300 md:right-6 md:w-[400px] ${
+        className={`fixed bottom-24 right-0 z-50 h-[500px] w-full overflow-hidden rounded-lg shadow-lg transition-all duration-300 md:right-6 md:w-[600px] ${
           isOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >

@@ -31,7 +31,7 @@ interface UserContextType {
     address: Omit<
       ShippingAddress,
       "address_id" | "user_id" | "created_at" | "updated_at"
-    >
+    >,
   ) => Promise<ShippingAddress>;
   updateAddress: (address: ShippingAddress) => Promise<ShippingAddress>;
   deleteAddress: (addressId: string) => void;
@@ -77,7 +77,7 @@ const UserContext = createContext<UserContextType>({
     address: Omit<
       ShippingAddress,
       "address_id" | "user_id" | "created_at" | "updated_at"
-    >
+    >,
   ): Promise<ShippingAddress> {
     throw new Error("Function not implemented.");
   },
@@ -95,7 +95,10 @@ const UserContext = createContext<UserContextType>({
   },
 });
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [cart, setCart] = useState<Cart>(getLocalCart());
   const [addresses, setAddresses] = useState<ShippingAddress[]>([]);
 
@@ -120,11 +123,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUser = (updatedUser: Partial<User>) => {
     if (!user) return;
 
-    setUser((prev) => ({
-      ...prev!,
+    const newUser = {
+      ...user,
       ...updatedUser,
       updated_at: new Date().toISOString(),
-    }));
+    };
+    setUser(newUser);
+    localStorage.setItem("user", JSON.stringify(newUser));
   };
 
   const addToCart = async (item: CartItem) => {
@@ -132,7 +137,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     setCart((prev) => {
       const existingItemIndex = prev.cartItems.findIndex(
-        (cartItem) => cartItem.variant.variant_id === item.variant.variant_id
+        (cartItem) => cartItem.variant.variant_id === item.variant.variant_id,
       );
 
       const updatedItems =
@@ -140,7 +145,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           ? prev.cartItems.map((cartItem, index) =>
               index === existingItemIndex
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-                : cartItem
+                : cartItem,
             )
           : [...prev.cartItems, item];
 
@@ -162,37 +167,37 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         notification.open({
           message: (
             <div className="flex items-center">
-              <CheckCircle className="text-green-500 w-5 h-5 mr-2" />
+              <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
               <div>{"Thêm vào giỏ hàng thành công"}</div>
             </div>
           ),
           style: { marginInlineStart: "0px !important" },
           description: (
-            <div className="flex pt-3 min-w-full overflow-y-auto h-full">
+            <div className="flex h-full min-w-full overflow-y-auto pt-3">
               <div className="mr-4">
                 <Image
                   src={item.variant.image.image_url}
-                  className="object-cover rounded-md"
+                  className="rounded-md object-cover"
                   width={72} // Sử dụng số thay vì chuỗi
                   height={72} // Sử dụng số thay vì chuỗi
                   alt={item.variant.product.name} // Thêm thuộc tính alt bắt buộc
                 />
               </div>
-              <div className="flex flex-col w-full gap-1">
-                <div className="font-semibold text-sm">
+              <div className="flex w-full flex-col gap-1">
+                <div className="text-sm font-semibold">
                   {item.variant.product.name}
                 </div>
                 <div className="flex justify-start">
-                  <p className="text-sm text-gray-500 ">
+                  <p className="text-sm text-gray-500">
                     {item.variant.color.color_name} /{" "}
                     {item.variant.size.size_code}
                   </p>
-                  <p className="text-sm text-gray-500 mx-2">|</p>
-                  <p className="text-sm text-gray-500 ">
+                  <p className="mx-2 text-sm text-gray-500">|</p>
+                  <p className="text-sm text-gray-500">
                     Số lượng: {item.quantity}
                   </p>
                 </div>
-                <div className="flex justify-start gap-2 items-center">
+                <div className="flex items-center justify-start gap-2">
                   <p className="text-sm text-gray-500">Tổng tiền:</p>
                   <p className="font-semibold text-black">
                     {(item.variant.product.sale_price
@@ -268,7 +273,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     address: Omit<
       ShippingAddress,
       "address_id" | "user_id" | "created_at" | "updated_at"
-    >
+    >,
   ): Promise<ShippingAddress> => {
     if (!user) throw new Error("User not logged in");
 
@@ -282,7 +287,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (addresses.length === 0 || address.is_default) {
       setAddresses((prev) =>
-        prev.map((addr) => ({ ...addr, is_default: false }))
+        prev.map((addr) => ({ ...addr, is_default: false })),
       );
 
       await supabase
@@ -329,7 +334,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           prev.map((addr) => ({
             ...addr,
             is_default: addr.address_id === updatedAddress.address_id,
-          }))
+          })),
         );
 
         await supabase
@@ -342,8 +347,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         prev.map((addr) =>
           addr.address_id === updatedAddress.address_id
             ? { ...updatedAddress, updated_at: new Date() }
-            : addr
-        )
+            : addr,
+        ),
       );
 
       console.log("Địa chỉ đã được cập nhật:", data);
@@ -358,7 +363,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // Lấy thông tin địa chỉ cần xóa
       const addressToDelete = addresses.find(
-        (addr) => addr.address_id === addressId
+        (addr) => addr.address_id === addressId,
       );
 
       if (!addressToDelete) {
@@ -378,14 +383,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Cập nhật trạng thái cục bộ
       setAddresses((prev) =>
-        prev.filter((addr) => addr.address_id !== addressId)
+        prev.filter((addr) => addr.address_id !== addressId),
       );
 
       // Nếu địa chỉ bị xóa là mặc định và còn địa chỉ khác
       if (addressToDelete.is_default && addresses.length > 1) {
         // Đặt địa chỉ đầu tiên trong danh sách còn lại làm mặc định
         const newDefaultAddress = addresses.find(
-          (addr) => addr.address_id !== addressId
+          (addr) => addr.address_id !== addressId,
         );
 
         if (newDefaultAddress) {
@@ -405,7 +410,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             prev.map((addr) => ({
               ...addr,
               is_default: addr.address_id === newDefaultAddress.address_id,
-            }))
+            })),
           );
         }
       }
@@ -442,7 +447,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (resetError) {
       console.error(
         "Lỗi khi đặt các địa chỉ khác thành không mặc định:",
-        resetError
+        resetError,
       );
       throw resetError;
     }
@@ -451,7 +456,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       prev.map((addr) => ({
         ...addr,
         is_default: addr.address_id === addressId,
-      }))
+      })),
     );
 
     console.log("Địa chỉ mặc định đã được cập nhật:", updatedAddress);
@@ -464,7 +469,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const removeItemFromCart = async (variant_id: string) => {
     setCart((prev) => {
       const newCartItems = prev.cartItems.filter(
-        (cartItem) => cartItem.variant.variant_id !== variant_id
+        (cartItem) => cartItem.variant.variant_id !== variant_id,
       );
 
       const newTotalPrice = newCartItems.reduce((acc, cartItem) => {
@@ -523,7 +528,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const newCartItems = prev.cartItems.map((cartItem) =>
         cartItem.variant.variant_id === variant_id
           ? { ...cartItem, quantity }
-          : cartItem
+          : cartItem,
       );
 
       const newTotalPrice = newCartItems.reduce((acc, cartItem) => {
@@ -565,6 +570,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogOut = () => {
     setUser(null);
+    localStorage.removeItem("user");
     setCart(getLocalCart());
     notification.success({
       message: "Đăng xuất thành công",
@@ -577,6 +583,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const data = await login(email, password);
       setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
+      console.log(data);
       notification.success({
         message: "Đăng nhập thành công",
         description: null,

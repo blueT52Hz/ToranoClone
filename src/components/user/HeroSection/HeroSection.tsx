@@ -39,7 +39,7 @@ const items: HeroSectionType[] = [
       updated_at: new Date(),
     },
     hero_name: "Đồ Thu Đông",
-    hero_slug: "/collections/do-thu-dong",
+    hero_slug: "/collections/onsale",
     hero_id: uuidv4(),
   },
   {
@@ -53,7 +53,7 @@ const items: HeroSectionType[] = [
       updated_at: new Date(),
     },
     hero_name: "Đồ Thu Đông",
-    hero_slug: "/collections/do-thu-dong",
+    hero_slug: "/collections/onsale",
     hero_id: uuidv4(),
   },
   {
@@ -67,7 +67,7 @@ const items: HeroSectionType[] = [
       updated_at: new Date(),
     },
     hero_name: "New Collection",
-    hero_slug: "/collections/new-1",
+    hero_slug: "/collections/onsale",
     hero_id: uuidv4(),
   },
 ];
@@ -101,7 +101,7 @@ const HeroSection = () => {
   return (
     <section className="section-home-slider mb-5 min850:mb-10 min1200:mb-20">
       <motion.div
-        className="relative group overflow-hidden"
+        className="group relative overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         initial={{ opacity: 0, scale: 0.7 }}
@@ -113,7 +113,7 @@ const HeroSection = () => {
           {isHovered && (
             <>
               <motion.button
-                className="absolute z-10 left-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="absolute left-6 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-[#fff] p-2 text-shop-color-main hover:bg-shop-color-main hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 initial={{ x: -40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -40, opacity: 0 }}
@@ -125,7 +125,7 @@ const HeroSection = () => {
               </motion.button>
 
               <motion.button
-                className="absolute z-10 right-6 top-1/2 transform -translate-y-1/2 bg-[#fff] text-shop-color-main hover:text-[#fff] hover:bg-shop-color-main rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="absolute right-6 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-[#fff] p-2 text-shop-color-main hover:bg-shop-color-main hover:text-[#fff] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 initial={{ x: 40, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 40, opacity: 0 }}
@@ -154,15 +154,15 @@ const HeroSection = () => {
             delay: 3000,
             disableOnInteraction: false,
           }}
-          className="w-full h-full"
+          className="h-full w-full"
         >
           {heroSections.map((item, i) => (
             <SwiperSlide key={i}>
-              <div className="w-full h-full">
+              <div className="h-full w-full">
                 <img
                   src={item.image.image_url}
                   alt={item.hero_name}
-                  className="w-full h-full object-cover cursor-pointer select-none"
+                  className="h-full w-full cursor-pointer select-none object-cover"
                   onClick={() => navigate(item.hero_slug)}
                   draggable={false}
                 />
@@ -172,15 +172,15 @@ const HeroSection = () => {
         </Swiper>
 
         <Flex
-          className="absolute z-10 w-full bottom-2"
+          className="absolute bottom-2 z-10 w-full"
           justify="center"
           gap={"0.5rem"}
         >
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               className={cn(
-                "w-4 h-4 rounded-full bg-slate-300 opacity-40 cursor-pointer",
-                currentSlide === index ? "opacity-100 bg-[#ff0000]" : ""
+                "h-4 w-4 cursor-pointer rounded-full bg-slate-300 opacity-40",
+                currentSlide === index ? "bg-[#ff0000] opacity-100" : "",
               )}
               key={index}
               onClick={() => handleOnClickCircle(index)}

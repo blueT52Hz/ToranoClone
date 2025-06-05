@@ -81,7 +81,7 @@ const Collections = () => {
           .eq("slug", slug)
           .single();
 
-        if (error || !data || result.length === 0) {
+        if (error || !data) {
           navigate("/404");
           return;
         }

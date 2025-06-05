@@ -57,6 +57,7 @@ const Products = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [productsRelated, setProductsRelated] = useState<Product[]>([]);
+  const [error, setError] = useState<string>("");
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     const getProduct = async () => {
@@ -181,6 +182,7 @@ const ProductOptions = (props: ProductOptionsProps) => {
 
   const [idSelectedSize, setIdSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState<string>("");
   const [form] = Form.useForm();
   const { addToCart } = useCart();
 
@@ -189,16 +191,30 @@ const ProductOptions = (props: ProductOptionsProps) => {
   }, [activeImageId]);
 
   const handleAddToCart = () => {
+    if (!idSelectedSize) {
+      setError("Vui lòng chọn kích thước sản phẩm");
+      return;
+    }
+
+    const selectedVariant = product.variants.find(
+      (variant) =>
+        variant.image.image_id === activeImageId &&
+        variant.size.size_id === idSelectedSize,
+    );
+
+    if (!selectedVariant) {
+      setError("Sản phẩm không tồn tại với kích thước đã chọn");
+      return;
+    }
+
     const item: CartItem = {
       cart_item_id: uuidv4(),
-      variant: product.variants.filter(
-        (variant) =>
-          variant.image.image_id === activeImageId &&
-          variant.size.size_id === idSelectedSize,
-      )[0],
+      variant: selectedVariant,
       quantity,
       created_at: new Date(),
     };
+
+    setError("");
     addToCart(item);
   };
 
@@ -210,7 +226,7 @@ const ProductOptions = (props: ProductOptionsProps) => {
             src={
               product.variant_images.find(
                 (item) => item.image_id === activeImageId,
-              )?.image_url
+              )?.image_url || product.variant_images[0].image_url
             }
             className="rounded-lg"
           />
@@ -260,7 +276,7 @@ const ProductOptions = (props: ProductOptionsProps) => {
                 {colorsArray.map((color) => (
                   <button
                     key={color.color_id}
-                    className={`rounded border px-2 py-2 ${
+                    className={`rounded border px-3 py-1 ${
                       product.variants.find(
                         (variant) => variant.image.image_id === activeImageId,
                       )?.color.color_id === color.color_id
@@ -287,68 +303,55 @@ const ProductOptions = (props: ProductOptionsProps) => {
             <div className="flex items-center gap-4">
               <h3 className="font-medium">Kích thước:</h3>
               <div className="mt-2 flex flex-wrap gap-2">
-                {sizesArray.map((size) => {
-                  const isVariantInStock = product.variants.some(
-                    (variant) =>
-                      variant.quantity > 0 &&
-                      variant.image.image_id === activeImageId &&
-                      variant.size.size_id === size.size_id,
-                  );
-
-                  return (
+                {product.variants
+                  .filter((variant) => variant.image.image_id === activeImageId)
+                  .map((variant) => (
                     <button
-                      key={size.size_id}
-                      className={`relative rounded border px-4 py-2 transition ${
-                        idSelectedSize === size.size_id
+                      key={variant.size.size_id}
+                      onClick={() => {
+                        setIdSelectedSize(variant.size.size_id);
+                        setError("");
+                      }}
+                      className={`rounded border px-3 py-1 text-sm ${
+                        idSelectedSize === variant.size.size_id
                           ? "border-2 border-red-500"
-                          : "border-gray-300"
-                      } ${!isVariantInStock ? "cursor-not-allowed opacity-50" : ""}`}
-                      onClick={() =>
-                        isVariantInStock && setIdSelectedSize(size.size_id)
-                      }
-                      disabled={!isVariantInStock}
+                          : "border-gray-300 text-gray-700 hover:border-red-500"
+                      }`}
                     >
-                      {size.size_code}
-                      {!isVariantInStock && (
-                        <X className="absolute inset-0 m-auto h-full w-full opacity-30" />
-                      )}
+                      {variant.size.size_code}
                     </button>
-                  );
-                })}
+                  ))}
               </div>
             </div>
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
 
           <div className="mt-4 flex items-center">
             <h3 className="mr-4 font-medium">Số lượng:</h3>
-            <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="border px-3 py-1"
-            >
-              -
-            </button>
-            <input
-              type="number"
-              className="w-16 rounded-md border border-white text-center focus:outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              value={quantity}
-              onChange={(e) =>
-                setQuantity(parseInt(e.target.value) || quantity)
-              }
-            />
-
-            <button
-              onClick={() => setQuantity(quantity + 1)}
-              className="border px-3 py-1"
-            >
-              +
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="rounded-md border border-gray-300 px-2 py-1 hover:bg-gray-50"
+              >
+                -
+              </button>
+              <span className="w-8 text-center">{quantity}</span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="rounded-md border border-gray-300 px-2 py-1 hover:bg-gray-50"
+              >
+                +
+              </button>
+            </div>
           </div>
 
-          <div
-            className="aspectRatio-[9/16] mt-6 w-full cursor-pointer bg-[#e70505] px-7 py-3 text-center text-base text-white"
-            onClick={handleAddToCart}
-          >
-            THÊM VÀO GIỎ
+          <div className="mt-4 flex items-center gap-4">
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            >
+              Thêm vào giỏ hàng
+            </button>
           </div>
 
           <div className="my-4 mt-4 flex justify-end gap-4">

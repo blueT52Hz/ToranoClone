@@ -1,4 +1,4 @@
-import { getAllOutfits } from "@/services/admin/outfit";
+import { getAllOutfits } from "@/services/client/outfit";
 import { Outfit } from "@/types/product";
 import clsx from "clsx";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -25,11 +25,11 @@ const OutFitSection = () => {
   }, []);
   return (
     <section className="outfit-of-the-day">
-      <div className="container px-4 min850:px-10 min1200:px-12 py-8 flex flex-col bg-red-50 gap-8">
+      <div className="container flex flex-col gap-8 bg-red-50 px-4 py-8 min850:px-10 min1200:px-12">
         <div className="header-outfit flex justify-between">
           <Link
             to={`/collections/`}
-            className="hover:text-shop-color-hover text-xl sm:text-4xl font-bold"
+            className="text-xl font-bold hover:text-shop-color-hover sm:text-4xl"
             style={{ transition: "all .3s easeInOut" }}
           >
             <h2>OUTFIT OF THE DAY</h2>
@@ -40,7 +40,7 @@ const OutFitSection = () => {
               className={clsx(
                 canSlidePrev
                   ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
-                  : "text-[#959595]"
+                  : "text-[#959595]",
               )}
               style={{ transition: "all .3s easeInOut" }}
               onClick={() => canSlidePrev && swiperRef.current?.slidePrev()}
@@ -50,14 +50,14 @@ const OutFitSection = () => {
               className={clsx(
                 canSlideNext
                   ? "cursor-pointer hover:scale-110 hover:text-shop-color-hover"
-                  : "text-[#959595]"
+                  : "text-[#959595]",
               )}
               style={{ transition: "all .3s easeInOut" }}
               onClick={() => canSlideNext && swiperRef.current?.slideNext()}
             />
           </div>
         </div>
-        <div className="overflow-hidden outfit-content">
+        <div className="outfit-content overflow-hidden">
           <Swiper
             spaceBetween={16}
             breakpoints={{
@@ -70,14 +70,14 @@ const OutFitSection = () => {
               swiperRef.current = swiper;
               const slidesPerView = swiper.params.slidesPerView;
               setSlidesPerView(
-                typeof slidesPerView === "number" ? slidesPerView : 1
+                typeof slidesPerView === "number" ? slidesPerView : 1,
               );
             }}
             onSlideChange={(swiper) => {
               setCurrentSlide(swiper.activeIndex);
               const slidesPerView = swiper.params.slidesPerView;
               setSlidesPerView(
-                typeof slidesPerView === "number" ? slidesPerView : 1
+                typeof slidesPerView === "number" ? slidesPerView : 1,
               );
             }}
             className="overflow-hidden"
@@ -90,8 +90,8 @@ const OutFitSection = () => {
                     alt={item.image.image_name}
                   ></img>
                   <div className="text-lg">{item.outfit_name}</div>
-                  <div className="flex justify-start items-center">
-                    <div className="text-sm px-7 py-3 border-2 rounded-md bg-white cursor-pointer border-slate-400 hover:bg-shop-color-hover hover:text-[#fff] transition-all duration-500">
+                  <div className="flex items-center justify-start">
+                    <div className="cursor-pointer rounded-md border-2 border-slate-400 bg-white px-7 py-3 text-sm transition-all duration-500 hover:bg-shop-color-hover hover:text-[#fff]">
                       MUA FULLSET
                     </div>
                   </div>
