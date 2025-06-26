@@ -14,4 +14,10 @@ export default defineConfig({
       "@utils": resolve(__dirname, "src/utils"),
     },
   },
+  preview: {
+    allowedHosts: [
+      'torano.bluet52hzzz.io.vn',
+      'localhost'
+    ]
+  }
 });
